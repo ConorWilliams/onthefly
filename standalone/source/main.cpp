@@ -1,10 +1,10 @@
-#include <onthefly/onthefly.h>
-#include <onthefly/version.h>
-
-#include <cxxopts.hpp>
 #include <iostream>
 #include <string>
 #include <unordered_map>
+
+#include "cxxopts.hpp"
+#include "onthefly/onthefly.h"
+#include "onthefly/version.h"
 
 auto main(int argc, char** argv) -> int {
   const std::unordered_map<std::string, onthefly::LanguageCode> languages{
