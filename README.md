@@ -54,9 +54,9 @@ To manually build documentation, call the following command.
 
 ```bash
 cmake -S documentation -B build/doc
-cmake --build build/documentation --target GenerateDocs
+cmake --build build/doc --target GenerateDocs
 # view the docs
-open build/documentation/doxygen/html/index.html
+open build/doc/doxygen/html/index.html
 ```
 
 To build the documentation locally, you will need Doxygen, jinja2 and Pygments on installed your system.
