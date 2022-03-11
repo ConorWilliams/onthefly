@@ -37,13 +37,8 @@ CPMAddPackage(
   NAME Eigen
   GITLAB_REPOSITORY libeigen/eigen
   GIT_TAG 3.4.0
-  # Eigen's CMakelists are not intended for library use
-  DOWNLOAD_ONLY YES
+  OPTIONS "BUILD_TESTING OFF"
 )
-if(Eigen_ADDED)
-  add_library(Eigen INTERFACE IMPORTED)
-  target_include_directories(Eigen INTERFACE ${Eigen_SOURCE_DIR})
-endif()
 
 # ---- Add source files ----
 
@@ -67,7 +62,7 @@ target_compile_options(${PROJECT_NAME} PUBLIC "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>
 target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
 
 # Link public dependencies
-target_link_libraries(${PROJECT_NAME} PUBLIC Eigen)
+target_link_libraries(${PROJECT_NAME} PUBLIC Eigen3::Eigen)
 
 target_include_directories(
   ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
