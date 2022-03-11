@@ -28,4 +28,22 @@ namespace onthefly {
     std::string greet(LanguageCode lang = LanguageCode::EN) const;
   };
 
+  /**
+   * @brief a class
+   *
+   *
+   * Here is a longer comment
+   */
+  class Basic {
+  public:
+    int a;
+  };
+
+  /**
+   * @brief boring
+   *
+   * @param input
+   */
+  inline int test(int a) { return a + 1; }
+
 }  // namespace onthefly
