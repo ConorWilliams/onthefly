@@ -28,7 +28,7 @@ jobs:
           key: ${{ github.workflow }}-cpm-modules-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
 
       - name: configure
-        run: cmake -Stest -Bbuild -DENABLE_TEST_COVERAGE=1 -DCMAKE_BUILD_TYPE=Debug
+        run: cmake -Stest -Bbuild -DCMAKE_BUILD_TYPE=Debug
 
       - name: build
         run: cmake --build build -j4
@@ -38,5 +38,3 @@ jobs:
           cd build
           ctest --build-config Debug
 
-      - name: collect code coverage
-        run: bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"

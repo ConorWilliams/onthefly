@@ -26,7 +26,7 @@ endif()
 
 # ---- Create binary ----
 
-file(GLOB sources CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp)
+file(GLOB sources CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 add_executable(${PROJECT_NAME} ${sources})
 target_link_libraries(${PROJECT_NAME} doctest::doctest OnTheFly::OnTheFly)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
@@ -50,11 +50,5 @@ enable_testing()
 # ${PROJECT_NAME})
 
 include(${doctest_SOURCE_DIR}/scripts/cmake/doctest.cmake)
+
 doctest_discover_tests(${PROJECT_NAME})
-
-# ---- code coverage ----
-
-if(ENABLE_TEST_COVERAGE)
-  target_compile_options(OnTheFly PUBLIC -O0 -g -fprofile-arcs -ftest-coverage)
-  target_link_options(OnTheFly PUBLIC -fprofile-arcs -ftest-coverage)
-endif()
