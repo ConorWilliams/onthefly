@@ -1,11 +1,11 @@
 #include <fmt/format.h>
-#include <greeter/greeter.h>
+#include <onthefly/onthefly.h>
 
-using namespace greeter;
+using namespace onthefly;
 
-Greeter::Greeter(std::string _name) : name(std::move(_name)) {}
+OnTheFly::OnTheFly(std::string _name) : name(std::move(_name)) {}
 
-std::string Greeter::greet(LanguageCode lang) const {
+std::string OnTheFly::greet(LanguageCode lang) const {
   switch (lang) {
     default:
     case LanguageCode::EN:
