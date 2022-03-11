@@ -2,11 +2,6 @@ cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 project(OnTheFlyTests LANGUAGES CXX)
 
-# ---- Options ----
-
-option(ENABLE_TEST_COVERAGE "Enable test coverage" OFF)
-option(TEST_INSTALLED_VERSION "Test the version found by find_package" OFF)
-
 # --- Import tools ----
 
 include(../cmake/tools.cmake)
@@ -18,11 +13,7 @@ include(../cmake/CPM.cmake)
 CPMAddPackage("gh:onqtam/doctest#2.4.5")
 CPMAddPackage("gh:TheLartians/Format.cmake@1.7.0")
 
-if(TEST_INSTALLED_VERSION)
-  find_package(OnTheFly REQUIRED)
-else()
-  CPMAddPackage(NAME OnTheFly SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/..)
-endif()
+CPMAddPackage(NAME OnTheFly SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/..)
 
 # ---- Create binary ----
 
@@ -32,13 +23,12 @@ target_link_libraries(${PROJECT_NAME} doctest::doctest OnTheFly::OnTheFly)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
 
 # enable compiler warnings
-if(NOT TEST_INSTALLED_VERSION)
-  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    target_compile_options(OnTheFly PUBLIC -Wall -Wpedantic -Wextra -Werror)
-  elseif(MSVC)
-    target_compile_options(OnTheFly PUBLIC /W4 /WX)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC DOCTEST_CONFIG_USE_STD_HEADERS)
-  endif()
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+  target_compile_options(OnTheFly PUBLIC -Wall -Wpedantic -Wextra -Werror)
+elseif(MSVC)
+  target_compile_options(OnTheFly PUBLIC /W4 /WX)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC DOCTEST_CONFIG_USE_STD_HEADERS)
 endif()
 
 # ---- Add OnTheFlyTests ----

@@ -37,7 +37,7 @@ CPMAddPackage(
   NAME Eigen
   GITLAB_REPOSITORY libeigen/eigen
   GIT_TAG 3.4.0
-  OPTIONS "BUILD_TESTING OFF"
+  OPTIONS "BUILD_TESTING OFF" "EIGEN_BUILD_PKGCONFIG ON"
 )
 
 # ---- Add source files ----
@@ -66,7 +66,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC Eigen3::Eigen)
 
 target_include_directories(
   ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
-                         $<INSTALL_INTERFACE:src/${PROJECT_NAME}-${PROJECT_VERSION}>
+                         $<INSTALL_INTERFACE:include/${PROJECT_NAME}-${PROJECT_VERSION}>
 )
 
 # ---- Create an installable target ----
@@ -74,7 +74,7 @@ target_include_directories(
 
 # the location where the project's version header will be placed should match the project's regular
 # header paths
-string(TOLOWER ${PROJECT_NAME}/version.h VERSION_HEADER_LOCATION)
+string(TOLOWER ${PROJECT_NAME}/version.hpp VERSION_HEADER_LOCATION)
 
 packageProject(
   NAME ${PROJECT_NAME}
@@ -82,8 +82,8 @@ packageProject(
   NAMESPACE ${PROJECT_NAME}
   BINARY_DIR ${PROJECT_BINARY_DIR}
   INCLUDE_DIR ${PROJECT_SOURCE_DIR}/src
-  INCLUDE_DESTINATION src/${PROJECT_NAME}-${PROJECT_VERSION}
+  INCLUDE_DESTINATION include/${PROJECT_NAME}-${PROJECT_VERSION}
   VERSION_HEADER "${VERSION_HEADER_LOCATION}"
   COMPATIBILITY SameMajorVersion
-  DEPENDENCIES "fmt 8.1.1;Eigen 3.4.1"
+  DEPENDENCIES "fmt 8.1.1;Eigen 3.4.0"
 )
