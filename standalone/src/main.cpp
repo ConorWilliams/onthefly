@@ -3,7 +3,7 @@
 #include <unordered_map>
 
 #include "cxxopts.hpp"
-#include "onthefly/onthefly.h"
+#include "onthefly/onthefly.hpp"
 #include "onthefly/version.h"
 
 auto main(int argc, char** argv) -> int {

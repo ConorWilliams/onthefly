@@ -1,4 +1,4 @@
-#include "onthefly/onthefly.h"
+#include "onthefly/onthefly.hpp"
 
 #include <string>
 
