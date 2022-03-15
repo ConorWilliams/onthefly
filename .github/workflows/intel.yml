@@ -27,39 +27,32 @@ jobs:
         with:
           path: "**/cpm_modules"
           key: ${{ github.workflow }}-cpm-modules-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
-    
-    - name: Intel Apt repository
-      timeout-minutes: 1
-      run: |
-        wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
-        sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
-        rm GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
-        echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
-        sudo apt-get update
-        
-    - name: Install Intel oneAPI
-      timeout-minutes: 5
-      run: sudo apt-get install intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl ninja-build
 
+      - name: Intel Apt repository
+        timeout-minutes: 1
+        run: |
+          wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+          sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+          rm GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+          echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
+          sudo apt-get update
 
-    - name: Setup Intel oneAPI environment
-      run: |
-        source /opt/intel/oneapi/setvars.sh
-        printenv >> $GITHUB_ENV
-        
-    - name: configure
-      run: cmake -Stest -Bbuild -DCMAKE_BUILD_TYPE=Debug
+      - name: Install Intel oneAPI
+        timeout-minutes: 5
+        run: sudo apt-get install intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl ninja-build
 
-    - name: build
-      run: cmake --build build -j4
+      - name: Setup Intel oneAPI environment
+        run: |
+          source /opt/intel/oneapi/setvars.sh
+          printenv >> $GITHUB_ENV
 
-    - name: test
-      run: |
-        cd build
-        ctest --build-config Debug
+      - name: configure
+        run: cmake -Stest -Bbuild -DCMAKE_BUILD_TYPE=Debug
 
-     
-     
-     
-     
-     
+      - name: build
+        run: cmake --build build -j4
+
+      - name: test
+        run: |
+          cd build
+          ctest --build-config Debug
