@@ -15,7 +15,7 @@ int fib(int n) {
   if (n > 1) {
     return fib(n - 1);
   } else {
-    return 0;
+    return test();
   }
 }
 
@@ -24,7 +24,7 @@ auto main(int, char**) -> int {
 
   STACK();
 
-  fib(34);
+  fib(89);
 
   test();
 

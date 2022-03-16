@@ -7,7 +7,6 @@
 #include <string_view>
 #include <utility>
 
-#include "fmt/core.h"
 #include "libatom/external/current_function.hpp"
 #include "libatom/utils.hpp"
 
@@ -16,7 +15,7 @@ namespace otf {
   /**
    * @brief Manages a threadsafe stack trace, should not be explicitly instaniciated, use through
    * the corresponding macros. Each StackTrace object is part of an intruisivly linked list which
-   * traces the stack.
+   * traces the programs call stack.
    */
   struct StackTrace {
     //
@@ -57,12 +56,31 @@ namespace otf {
      */
     ~StackTrace() noexcept { tail()->prev = prev; }
 
+    /**
+     * @brief Test two stack traces for equivilance
+     */
+    bool operator==(StackTrace const& other) {
+      return _line == other._line && _func == other._func && _file == other._file;
+    }
+
   private:
     /**
      * @brief Construct a new Stack Trace object, only for singlton creation
      */
     StackTrace() noexcept = default;
   };
+
+  /**
+   * @brief Kill program printing diagnostics + stacktrace
+   *
+   * @param expr
+   * @param msg
+   * @param file
+   * @param line
+   * @param func
+   */
+  [[noreturn]] void assert_handler(std::string_view expr, std::string_view msg,
+                                   std::string_view file, long line, std::string_view func);
 
 #ifndef NDEBUG
 
@@ -71,32 +89,30 @@ namespace otf {
 
 /**
  * @brief RAII like marker, use to store current position on the stack and retrive later through a
- * stack trace *
+ * StackTrace::print()
  */
 #  define STACK()                                          \
     otf::StackTrace OTF_CONCAT(stack_frame, __COUNTER__) { \
-      __FILE__, BOOST_CURRENT_FUNCTION, __LINE__           \
+      __FILE__, OTF_CURRENT_FUNCTION, __LINE__             \
     }
-
-#  define ASSERT(expr, msg)                                                               \
-    do {                                                                                  \
-      if (!(expr)) {                                                                      \
-        fmt::print(stderr, "\nAssertion \"{}\" failied with message: {}\n", #expr, #msg); \
-        fmt::print(stderr, "{}: on line {} in function: {}\n", __FILE__, __LINE__,        \
-                   BOOST_CURRENT_FUNCTION);                                               \
-        otf::StackTrace::print();                                                         \
-        std::terminate();                                                                 \
-      }                                                                                   \
+/**
+ * @brief Use like std c assert but with error message and stacktracing
+ */
+#  define ASSERT(expr, msg)                                                         \
+    do {                                                                            \
+      if (!(expr)) {                                                                \
+        otf::assert_handler(#expr, #msg, __FILE__, __LINE__, OTF_CURRENT_FUNCTION); \
+      }                                                                             \
     } while (false)
 
 #else
 
-#  define OTF_STACK() \
-    do {              \
+#  define STACK() \
+    do {          \
     } while (false)
 
-#  define OTF_CHECK(expr) \
-    do {                  \
+#  define ASSERT(expr) \
+    do {               \
     } while (false)
 
 #endif  // !NDEBUG

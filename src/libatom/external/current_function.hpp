@@ -1,5 +1,5 @@
-#ifndef BOOST_CURRENT_FUNCTION_HPP_INCLUDED
-#define BOOST_CURRENT_FUNCTION_HPP_INCLUDED
+#ifndef OTF_CURRENT_FUNCTION_HPP_INCLUDED
+#define OTF_CURRENT_FUNCTION_HPP_INCLUDED
 
 // MS compatible compilers support #pragma once
 
@@ -19,7 +19,7 @@
 //  http://www.boost.org/libs/assert/current_function.html
 //
 
-namespace boost {
+namespace otf {
 
   namespace detail {
 
@@ -27,42 +27,42 @@ namespace boost {
 #if defined(__GNUC__) || (defined(__MWERKS__) && (__MWERKS__ >= 0x3000)) \
     || (defined(__ICC) && (__ICC >= 600)) || defined(__ghs__)
 
-#  define BOOST_CURRENT_FUNCTION __PRETTY_FUNCTION__
+#  define OTF_CURRENT_FUNCTION __PRETTY_FUNCTION__
 
 #elif defined(__DMC__) && (__DMC__ >= 0x810)
 
-#  define BOOST_CURRENT_FUNCTION __PRETTY_FUNCTION__
+#  define OTF_CURRENT_FUNCTION __PRETTY_FUNCTION__
 
 #elif defined(__FUNCSIG__)
 
-#  define BOOST_CURRENT_FUNCTION __FUNCSIG__
+#  define OTF_CURRENT_FUNCTION __FUNCSIG__
 
 #elif (defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 600)) \
     || (defined(__IBMCPP__) && (__IBMCPP__ >= 500))
 
-#  define BOOST_CURRENT_FUNCTION __FUNCTION__
+#  define OTF_CURRENT_FUNCTION __FUNCTION__
 
 #elif defined(__BORLANDC__) && (__BORLANDC__ >= 0x550)
 
-#  define BOOST_CURRENT_FUNCTION __FUNC__
+#  define OTF_CURRENT_FUNCTION __FUNC__
 
 #elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901)
 
-#  define BOOST_CURRENT_FUNCTION __func__
+#  define OTF_CURRENT_FUNCTION __func__
 
 #elif defined(__cplusplus) && (__cplusplus >= 201103)
 
-#  define BOOST_CURRENT_FUNCTION __func__
+#  define OTF_CURRENT_FUNCTION __func__
 
 #else
 
-#  define BOOST_CURRENT_FUNCTION "(unknown)"
+#  define OTF_CURRENT_FUNCTION "(unknown)"
 
 #endif
     }
 
   }  // namespace detail
 
-}  // namespace boost
+}  // namespace otf
 
-#endif  // #ifndef BOOST_CURRENT_FUNCTION_HPP_INCLUDED
+#endif  // #ifndef OTF_CURRENT_FUNCTION_HPP_INCLUDED

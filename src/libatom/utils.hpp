@@ -10,8 +10,14 @@ namespace otf {
   // Compile time constants
 
 #ifndef LIBATOM_SPATIAL_DIMS
+  /**
+   * @brief Number of spatial dimensions must be 2 or 3
+   */
   inline constexpr int spatial_dims = 3;
 #else
+  /**
+   * @brief Number of spatial dimensions must be 2 or 3
+   */
   inline constexpr int spatial_dims = LIBATOM_SPATIAL_DIMS;
 #  undef LIBATOM_SPATIAL_DIMS
 #endif
@@ -23,8 +29,14 @@ namespace otf {
 
   template <typename T> using VecN = Eigen::Matrix<T, spatial_dims, Eigen::Dynamic>;
 
-  // Need c++20 constexpr version
-  template <class T, class U = T> constexpr T exchange(T& obj, U&& new_value) noexcept(
+  /**
+   * @brief A C++23 version of std::exchange with constexpr+noexcept
+   *
+   * @param obj Reference to object that will be replaced.
+   * @param new_value To write to obj.
+   * @return Old value of obj.
+   */
+  template <typename T, typename U = T> constexpr T exchange(T& obj, U&& new_value) noexcept(
       std::is_nothrow_move_constructible_v<T>&& std::is_nothrow_assignable_v<T&, U>) {
     T old_value = std::move(obj);
     obj = std::forward<U>(new_value);
@@ -37,7 +49,8 @@ namespace otf {
    * @param Input string a
    * @param Input string b
    *
-   * @return A view of a containing the longest common prefix
+   * @return A view substring of the input string_view a containing the longest common prefix of a
+   * and b.
    */
   std::string_view common_prefix(std::string_view a, std::string_view b);
 
