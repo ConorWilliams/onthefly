@@ -2,6 +2,7 @@
 [![Actions Status](https://github.com/ConorWilliams/onthefly/workflows/Windows/badge.svg)](https://github.com/ConorWilliams/onthefly/actions)
 [![Actions Status](https://github.com/ConorWilliams/onthefly/workflows/Ubuntu/badge.svg)](https://github.com/ConorWilliams/onthefly/actions)
 [![Actions Status](https://github.com/ConorWilliams/onthefly/workflows/Style/badge.svg)](https://github.com/ConorWilliams/onthefly/actions)
+[![Actions Status](https://github.com/ConorWilliams/onthefly/workflows/Intel/badge.svg)](https://github.com/ConorWilliams/onthefly/actions)
 
 # OnTheFly: Off-lattice kinetic Monte-Carlo
 

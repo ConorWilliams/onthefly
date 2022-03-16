@@ -14,3 +14,18 @@ TEST_CASE("Utils constants version") {
 
   static_assert(otf::spatial_dims == 2 || otf::spatial_dims == 3);
 }
+
+TEST_CASE("Utils common_prefix") {
+  //
+  CHECK(otf::common_prefix("", "") == "");
+
+  CHECK(otf::common_prefix("a", "") == "");
+
+  CHECK(otf::common_prefix("", "a") == "");
+
+  CHECK(otf::common_prefix("a", "a") == "a");
+
+  CHECK(otf::common_prefix("ab", "a") == "a");
+
+  CHECK(otf::common_prefix("a", "ab") == "a");
+}
