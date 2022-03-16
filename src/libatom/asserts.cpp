@@ -5,12 +5,12 @@
 
 #include "fmt/core.h"
 
-namespace otf {
+namespace otf::detail {
 
-  void StackTrace::print() {
+  void StackTrace::_print() {
     //
 
-    fmt::print(stderr, "\nStacktrace:\n");
+    fmt::print(stderr, "Stacktrace:\n");
 
     // Find longest common prefix
 
@@ -56,12 +56,12 @@ namespace otf {
   [[noreturn]] void assert_handler(std::string_view expr, std::string_view msg,
                                    std::string_view file, long line, std::string_view func) {
     //
-    fmt::print(stderr, "\nAssertion \"{}\" failied with message: {}\n", expr, msg);
-    fmt::print(stderr, "{}: on line {} in function: {}\n", file, line, func);
+    fmt::print(stderr, "In {}:{} from function: {}\n", file, line, func);
+    fmt::print(stderr, "Assertion \"{}\" failied with message: {}\n", expr, msg);
 
-    otf::StackTrace::print();
+    otf::detail::StackTrace::print();
 
     std::terminate();
   }
 
-}  // namespace otf
+}  // namespace otf::detail

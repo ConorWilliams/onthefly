@@ -7,6 +7,8 @@ int test() {
   STACK();
 
   ASSERT(1 + 1 > 2, "test");
+
+  return 1;
 }
 
 int fib(int n) {

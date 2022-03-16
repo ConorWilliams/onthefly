@@ -10,17 +10,17 @@ namespace otf {
   // Compile time constants
 
 #ifndef LIBATOM_SPATIAL_DIMS
-  /**
-   * @brief Number of spatial dimensions must be 2 or 3
-   */
-  inline constexpr int spatial_dims = 3;
-#else
-  /**
-   * @brief Number of spatial dimensions must be 2 or 3
-   */
-  inline constexpr int spatial_dims = LIBATOM_SPATIAL_DIMS;
-#  undef LIBATOM_SPATIAL_DIMS
+#  define LIBATOM_SPATIAL_DIMS 3
 #endif
+
+  /**
+   * @brief Number of spatial dimensions must be 2 or 3
+   */
+  inline constexpr int spatial_dims{LIBATOM_SPATIAL_DIMS};
+
+  static_assert(spatial_dims == 2 || spatial_dims == 3, "Invalid number of dimensions");
+
+#undef LIBATOM_SPATIAL_DIMS
 
   // Types aliases
 
