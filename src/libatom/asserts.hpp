@@ -18,15 +18,8 @@ namespace otf {
      * the corresponding macros. Each StackTrace object is part of an intruisivly linked list which
      * traces the programs call stack.
      */
-    struct StackTrace {
-      //
-      StackTrace* prev = nullptr;
-
-      std::string_view _file{};
-      std::string_view _func{};
-
-      long _line = 0;
-
+    class StackTrace {
+    public:
       /**
        * @brief Per-thread singleton which acts as the tail of the list
        *
@@ -54,21 +47,28 @@ namespace otf {
        * @param line number
        */
       StackTrace(std::string_view file, std::string_view func, long line) noexcept
-          : prev{otf::exchange(tail()->prev, this)}, _file(file), _func(func), _line{line} {}
+          : m_prev{otf::exchange(tail()->m_prev, this)}, m_file(file), m_func(func), m_line{line} {}
 
       /**
        * @brief Destroy the Stack Trace object and pops it from the stack     *
        */
-      ~StackTrace() noexcept { tail()->prev = prev; }
+      ~StackTrace() noexcept { tail()->m_prev = m_prev; }
 
       /**
        * @brief Test two stack traces for equivilance
        */
       bool operator==(StackTrace const& other) {
-        return _line == other._line && _func == other._func && _file == other._file;
+        return m_line == other.m_line && m_func == other.m_func && m_file == other.m_file;
       }
 
     private:
+      StackTrace* m_prev = nullptr;
+
+      std::string_view m_file{};
+      std::string_view m_func{};
+
+      long m_line = 0;
+
       /**
        * @brief Construct a new Stack Trace object, only for singlton creation
        */
@@ -92,7 +92,7 @@ namespace otf {
   }  // namespace detail
 
 // Like ASSERT but on in release build
-#define CHECK(expr, msg)                                                                  \
+#define VERIFY(expr, msg)                                                                 \
   do {                                                                                    \
     if (!(expr)) [[unlikely]] {                                                           \
       otf::detail::assert_handler(#expr, #msg, __FILE__, __LINE__, OTF_CURRENT_FUNCTION); \
@@ -115,7 +115,7 @@ namespace otf {
 /**
  * @brief Use like std c assert but with error message and stacktracing
  */
-#  define ASSERT(expr, msg) CHECK(expr, msg)
+#  define ASSERT(expr, msg) VERIFY(expr, msg)
 
 #else
 
