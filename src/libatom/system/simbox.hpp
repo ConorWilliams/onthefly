@@ -26,18 +26,20 @@ namespace otf {
      * Non-periodic atoms are within the simbox extents so v[i] * inv_extents less than 1 and  v[i]
      * remains unaffected, hence no non-periodic switch/select.
      */
-    template <typename T> Vec<float_t> canon_image(Eigen::ArrayBase<T> const &v) const noexcept {
+    template <typename T>
+    [[nodiscard]] Vec<float_t> canon_image(Eigen::ArrayBase<T> const &v) const noexcept {
       STACK();
       ASSERT((m_periodic || (v >= Vec<float_t>::Zero() && v < m_extents)).all(), "Out of box");
       return v - m_extents * (v * m_inv_extents).floor();
     }
 
     /**
-     * @brief Compute the shortest vector connecting a to a periodic image of b.
+     * @brief Compute the shortest vector connecting a to a periodic image of b. This function is
+     * branchy and should be avoided in hot code.
      */
     template <typename A, typename B>
-    Vec<float_t> min_image(Eigen::ArrayBase<A> const &a,
-                           Eigen::ArrayBase<B> const &b) const noexcept {
+    [[nodiscard]] Vec<float_t> min_image(Eigen::ArrayBase<A> const &a,
+                                         Eigen::ArrayBase<B> const &b) const noexcept {
       Vec<float_t> dr = b - a;
       return m_periodic.select(dr - m_extents * (dr * m_inv_extents + 0.5).floor(), dr);
     }

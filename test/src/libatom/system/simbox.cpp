@@ -1,5 +1,6 @@
 #include "libatom/system/simbox.hpp"
 
+#include <cmath>
 #include <random>
 
 #include "doctest/doctest.h"
@@ -24,12 +25,26 @@ TEST_CASE("Simbox cannon_image") {
     Vec<otf::float_t> a = vrand() * extents;
     Vec<otf::float_t> b = vrand() * extents;
 
-    // Displace by integral number of random extents in each periodic direction
+    // Displace by integral number of random extents in each periodic periodic direction
     Vec<otf::float_t> b_prime = periodic.select(b + (10 * vrand()).floor() * extents, b);
 
     // Check in same position
-    REQUIRE(norm(box.canon_image(b_prime) - a) - otf::norm(a - b) < 0.001);
+    REQUIRE(std::abs(norm(box.canon_image(b_prime) - a) - otf::norm(a - b)) < 0.001);
   }
 }
 
-TEST_CASE("Simbox min_image") {}
+TEST_CASE("Simbox min_image") {
+  //
+  using namespace otf;
+
+  OrthoSimBox box{{10, 10, 10}, {true, true, true}};
+
+  Vec<otf::float_t> a = {1, 1, 1};
+  Vec<otf::float_t> b = {9, 9, 9};
+
+  Vec<otf::float_t> m = box.min_image(a, b);
+
+  Vec<otf::float_t> x{-2, -2, -2};
+
+  REQUIRE(norm(m - x) < 0.001);
+}

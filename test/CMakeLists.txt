@@ -28,7 +28,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
   target_compile_options(OnTheFly PUBLIC -Wall -Wpedantic -Wextra -Werror)
 elseif(MSVC)
-  target_compile_options(OnTheFly PUBLIC /W4 /WX)
+  target_compile_options(OnTheFly PUBLIC /W4)
   target_compile_definitions(${PROJECT_NAME} PUBLIC DOCTEST_CONFIG_USE_STD_HEADERS)
 endif()
 
