@@ -94,7 +94,7 @@ namespace otf {
 // Like ASSERT but on in release build
 #define VERIFY(expr, msg)                                                                 \
   do {                                                                                    \
-    if (!(expr)) [[unlikely]] {                                                           \
+    if (!(expr)) {                                                                        \
       otf::detail::assert_handler(#expr, #msg, __FILE__, __LINE__, OTF_CURRENT_FUNCTION); \
     }                                                                                     \
   } while (false)
