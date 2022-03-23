@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
 #include "libatom/asserts.hpp"
 #include "libatom/utils.hpp"
 
@@ -19,7 +17,7 @@ namespace otf {
      * @param extents Length of simulation box along each axis.
      * @param periodic True for each periodic axis.
      */
-    OrthoSimBox(Vec<float_t> const &extents, Vec<bool> const &periodic);
+    OrthoSimBox(Vec<flt_t> const &extents, Vec<bool> const &periodic);
 
     /**
      * @brief Maps atom into canonical cell, 0 <= r_i < extent_i for all i which are periodic.
@@ -27,9 +25,9 @@ namespace otf {
      * remains unaffected, hence no non-periodic switch/select.
      */
     template <typename T>
-    [[nodiscard]] Vec<float_t> canon_image(Eigen::ArrayBase<T> const &v) const noexcept {
+    [[nodiscard]] Vec<flt_t> canon_image(Eigen::ArrayBase<T> const &v) const noexcept {
       STACK();
-      ASSERT((m_periodic || (v >= Vec<float_t>::Zero() && v < m_extents)).all(), "Out of box");
+      ASSERT((m_periodic || (v >= Vec<flt_t>::Zero() && v < m_extents)).all(), "Out of box");
       return v - m_extents * (v * m_inv_extents).floor();
     }
 
@@ -38,9 +36,9 @@ namespace otf {
      * branchy and should be avoided in hot code.
      */
     template <typename A, typename B>
-    [[nodiscard]] Vec<float_t> min_image(Eigen::ArrayBase<A> const &a,
-                                         Eigen::ArrayBase<B> const &b) const noexcept {
-      Vec<float_t> dr = b - a;
+    [[nodiscard]] Vec<flt_t> min_image(Eigen::ArrayBase<A> const &a,
+                                       Eigen::ArrayBase<B> const &b) const noexcept {
+      Vec<flt_t> dr = b - a;
       return m_periodic.select(dr - m_extents * (dr * m_inv_extents + 0.5).floor(), dr);
     }
 
@@ -49,9 +47,9 @@ namespace otf {
     }
 
   private:
-    Vec<float_t> m_extents;
+    Vec<flt_t> m_extents;
     Vec<bool> m_periodic;
-    Vec<float_t> m_inv_extents;
+    Vec<flt_t> m_inv_extents;
   };
 
 }  // namespace otf

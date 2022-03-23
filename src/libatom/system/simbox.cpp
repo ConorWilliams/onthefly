@@ -6,7 +6,7 @@
 
 namespace otf {
 
-  OrthoSimBox::OrthoSimBox(Vec<float_t> const &extents, Vec<bool> const &periodic)
+  OrthoSimBox::OrthoSimBox(Vec<flt_t> const &extents, Vec<bool> const &periodic)
       : m_extents{extents}, m_periodic{periodic}, m_inv_extents(1.0 / extents) {
     //
     STACK();

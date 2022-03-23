@@ -5,6 +5,7 @@
 #include <string_view>
 
 #include "fmt/core.h"
+#include "libatom/utils.hpp"
 
 namespace otf::detail {
 

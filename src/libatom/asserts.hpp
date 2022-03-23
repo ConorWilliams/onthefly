@@ -7,7 +7,6 @@
 #include <utility>
 
 #include "libatom/external/current_function.hpp"
-#include "libatom/utils.hpp"
 
 namespace otf {
 
@@ -47,7 +46,7 @@ namespace otf {
        * @param line number
        */
       StackTrace(std::string_view file, std::string_view func, long line) noexcept
-          : m_prev{otf::exchange(tail()->m_prev, this)}, m_file(file), m_func(func), m_line{line} {}
+          : m_prev{std::exchange(tail()->m_prev, this)}, m_file(file), m_func(func), m_line{line} {}
 
       /**
        * @brief Destroy the Stack Trace object and pops it from the stack     *
@@ -116,6 +115,13 @@ namespace otf {
  * @brief Use like std c assert but with error message and stacktracing
  */
 #  define ASSERT(expr, msg) VERIFY(expr, msg)
+
+#  ifdef eigen_assert
+#    error Must not include Eigen before including this header
+#  else
+#    undef eigen_assert
+#    define eigen_assert(x) ASSERT(x, "Eigen embedded assert")
+#  endif
 
 #else
 

@@ -4,6 +4,8 @@
 #include <string_view>
 #include <type_traits>
 
+#include "libatom/asserts.hpp"
+// ^ must procede Eigen
 #include "Eigen/Core"
 
 namespace otf {
@@ -30,16 +32,16 @@ namespace otf {
   /**
    * @brief Floating point type used for position, velocity, etc
    */
-  using float_t = LIBATOM_FLOAT_TYPE;
+  using flt_t = LIBATOM_FLOAT_TYPE;
 
-  static_assert(std::is_floating_point_v<float_t>);
+  static_assert(std::is_floating_point_v<flt_t>);
 
 #ifndef LIBATOM_FLOAT_ACC_TYPE
 #  define LIBATOM_FLOAT_ACC_TYPE LIBATOM_FLOAT_TYPE
 #endif
 
   /**
-   * @brief Floating point type used for accumulating float_t
+   * @brief Floating point type used for accumulating flt_t
    */
   using float_acc_t = LIBATOM_FLOAT_ACC_TYPE;
 
@@ -53,21 +55,8 @@ namespace otf {
   template <typename T> using Vec = Eigen::Array<T, spatial_dims, 1>;
   template <typename T> using Mat = Eigen::Array<T, spatial_dims, spatial_dims>;
 
-  template <typename T> using VecN = Eigen::Array<T, spatial_dims, Eigen::Dynamic>;
-
-  /**
-   * @brief A C++23 version of std::exchange with constexpr+noexcept
-   *
-   * @param obj Reference to object that will be replaced.
-   * @param new_value To write to obj.
-   * @return Old value of obj.
-   */
-  template <typename T, typename U = T> constexpr T exchange(T& obj, U&& new_value) noexcept(
-      std::is_nothrow_move_constructible_v<T>&& std::is_nothrow_assignable_v<T&, U>) {
-    T old_value = std::move(obj);
-    obj = std::forward<U>(new_value);
-    return old_value;
-  }
+  template <typename T> using VecN = Eigen::Array<T, Eigen::Dynamic, 1>;
+  template <typename T> using Mat3N = Eigen::Array<T, spatial_dims, Eigen::Dynamic>;
 
   /**
    * @brief Return the longest prefix of the two inputs strings
