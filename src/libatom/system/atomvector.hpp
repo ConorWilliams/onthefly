@@ -15,15 +15,15 @@
 namespace otf {
 
   /**
-   * @brief Represent atom type with <= 2-char Chemical symbol.
+   * @brief Represent atom type with a 1/2-char Chemical symbol.
    */
   struct Symbol final : std::array<char, 2> {
     /**
-     * @brief Construct a new Symbol object from a string
+     * @brief Construct a new Symbol object from a string, pad with char{}.
      */
     explicit Symbol(std::string_view sv) : std::array<char, 2>{} {
       STACK();
-      ASSERT(sv.size() <= 2, "Symbols must be less than 2 chars");
+      ASSERT(sv.size() == 1 || sv.size() == 2, "Symbols must be less than 2 chars");
       std::copy(sv.begin(), sv.end(), this->begin());
     }
   };
@@ -37,32 +37,51 @@ namespace otf {
 
     std::vector<Symbol> m_species_map;
 
-    std::vector<flt_t, aligned<flt_t, Align>> m_x;
-    std::vector<int_fast16_t, aligned<int_fast16_t, Align>> m_z;
+    std::vector<flt_t, detail::aligned<flt_t, Align>> m_x;
+    std::vector<int_fast16_t, detail::aligned<int_fast16_t, Align>> m_z;
 
   public:
     /**
      * @brief Get the number of atoms in the AtomVector.
      */
-    std::size_t size() const noexcept { return m_z.size(); }
+    [[nodiscard]] std::size_t size() const noexcept { return m_z.size(); }
 
     /**
      * @brief Get the number of species in the AtomVector.
      */
-    std::size_t num_species() const noexcept { return m_species_map.size(); }
+    [[nodiscard]] std::size_t num_species() const noexcept { return m_species_map.size(); }
 
     /**
      * @brief Convert a species value to the currently used integer to represent that species.
      *
      * @return std::optional<int_fast16_t> Empty if that species is not in the AtomVector.
      */
-    std::optional<int_fast16_t> species2z(Symbol const& z) const noexcept {
+    [[nodiscard]] std::optional<int_fast16_t> species2z(Symbol const& s) const noexcept {
       for (std::size_t i = 0; i < m_species_map.size(); i++) {
-        if (z == m_species_map[i]) {
+        if (s == m_species_map[i]) {
           return i;
         }
       }
       return {};
+    }
+
+    /**
+     * @brief Convert the integer used to represent a species to the Symbol used to represent that
+     * species.
+     *
+     * Undefined behaviour if the integer is not used to represent a species in this
+     */
+    [[nodiscard]] Symbol z2species(int_fast16_t z) const {
+      STACK();
+      ASSERT(z >= 0 && (std::size_t)z < num_species(), "Species number not in use");
+      return m_species_map[z];
+    }
+
+    /**
+     * @brief Fetch an uninitialised Mat3N large enough to hold the coordinates of every atom
+     */
+    [[nodiscard]] Mat3N<flt_t> empty_like_z() const {
+      return {spatial_dims, static_cast<Eigen::Index>(size())};
     }
 
     /**
@@ -86,7 +105,7 @@ namespace otf {
     /**
      * @brief Fetch an Eigen view into the atomic positions.
      */
-    Eigen::Map<Mat3N<flt_t>, Align> x() {
+    [[nodiscard]] Eigen::Map<Mat3N<flt_t>, Align> x() {
       STACK();
       ASSERT(m_x.size() % spatial_dims == 0, "Non integral number of atoms");
       return {m_x.data(), spatial_dims, static_cast<Eigen::Index>(m_x.size() / spatial_dims)};
@@ -95,7 +114,7 @@ namespace otf {
     /**
      * @brief Fetch a const Eigen view into the atomic positions.
      */
-    Eigen::Map<Mat3N<flt_t> const, Align> x() const {
+    [[nodiscard]] Eigen::Map<Mat3N<flt_t> const, Align> x() const {
       STACK();
       ASSERT(m_x.size() % spatial_dims == 0, "Non integral number of atoms");
       return {m_x.data(), spatial_dims, static_cast<Eigen::Index>(m_x.size() / spatial_dims)};
@@ -104,14 +123,14 @@ namespace otf {
     /**
      * @brief Fetch an Eigen view into the species numbers.
      */
-    Eigen::Map<VecN<int_fast16_t>, Align> z() {
+    [[nodiscard]] Eigen::Map<VecN<int_fast16_t>, Align> z() {
       return {m_z.data(), static_cast<Eigen::Index>(m_z.size())};
     }
 
     /**
      * @brief Fetch a const Eigen view into the species numbers.
      */
-    Eigen::Map<VecN<int_fast16_t> const, Align> z() const {
+    [[nodiscard]] Eigen::Map<VecN<int_fast16_t> const, Align> z() const {
       return {m_z.data(), static_cast<Eigen::Index>(m_z.size())};
     }
   };

@@ -77,7 +77,8 @@ namespace otf {
     };
 
     /**
-     * @brief Kill program printing diagnostics + stacktrace
+     * @brief Kill program printing diagnostics + stacktrace, should not be inlined to reduce code
+     * size
      *
      * @param expr
      * @param msg
@@ -117,10 +118,10 @@ namespace otf {
 #  define ASSERT(expr, msg) VERIFY(expr, msg)
 
 #  ifdef eigen_assert
-#    error Must not include Eigen before including this header
+#    error Must not include this header BEFORE including Eigen/Macros.h
 #  else
 #    undef eigen_assert
-#    define eigen_assert(x) ASSERT(x, "Eigen embedded assert")
+#    define eigen_assert(x) ASSERT(x, "Eigen overridden assert")
 #  endif
 
 #else

@@ -4,7 +4,7 @@
 #include <new>
 #include <type_traits>
 
-namespace otf {
+namespace otf::detail {
 
   /**
    * @brief Minimal C++17 and above (over)aligned allocator
@@ -51,4 +51,4 @@ namespace otf {
     }
   };
 
-}  // namespace otf
+}  // namespace otf::detail

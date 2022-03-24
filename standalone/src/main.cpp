@@ -1,34 +1,21 @@
 #include <iostream>
 
-#include "libatom/asserts.hpp"
-#include "libatom/external/current_function.hpp"
+#include "fmt/os.h"
+#include "libatom/io/xyz.hpp"
+#include "libatom/system/atomvector.hpp"
+#include "libatom/system/simcell.hpp"
 
-int test() {
-  STACK();
-
-  ASSERT(1 + 1 > 2, "test");
-
-  return 1;
-}
-
-int fib(int n) {
-  STACK();
-
-  if (n > 1) {
-    return fib(n - 1);
-  } else {
-    return test();
-  }
-}
-
-auto main(int, char**) -> int {
+auto main(int, char **) -> int {
   //
 
-  STACK();
+  otf::SimCell cell({{10, 10, 10}, {true, true, false}});
 
-  fib(89);
+  cell.active().emplace_back({1, 2, 3}, otf::Symbol{"Fe"});
+  cell.active().emplace_back({5, 5, 5}, otf::Symbol{"H"});
 
-  test();
+  auto out = fmt::output_file("test.xyz", fmt::file::WRONLY | fmt::file::CREATE);
+
+  otf::to_xyz(out, cell, 2.2);
 
   std::cout << "working\n";
 

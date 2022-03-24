@@ -1,4 +1,4 @@
-#include "libatom/system/atomvec.hpp"
+#include "libatom/system/atomvector.hpp"
 
 #include <cmath>
 #include <random>

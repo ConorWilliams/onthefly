@@ -5,9 +5,10 @@
 
 namespace otf {
   /**
-   * @brief Provides details of the simulations Orthoganal supercell geometry, all queries of the
-   * space in which the atoms exist are provided by this class. It is assumed (and must be ensured)
-   * all non-periodic atoms are within the OrthoSimBox extents.
+   * @brief Provides details of the simulations Orthoganal supercell geometry,
+   *
+   * All queries of the space in which the atoms exist are provided by this class. It is assumed
+   * (and must be ensured) all non-periodic atoms are within the OrthoSimBox extents.
    */
   class OrthoSimBox {
   public:
@@ -20,15 +21,20 @@ namespace otf {
     OrthoSimBox(Vec<flt_t> const &extents, Vec<bool> const &periodic);
 
     /**
+     * @brief Extents getter (const)
+     */
+    Vec<flt_t> const &extents() const noexcept { return m_extents; }
+
+    /**
      * @brief Maps atom into canonical cell, 0 <= r_i < extent_i for all i which are periodic.
-     * Non-periodic atoms are within the simbox extents so v[i] * inv_extents less than 1 and  v[i]
+     * Non-periodic atoms are within the simbox extents so x[i] * inv_extents less than 1 and  x[i]
      * remains unaffected, hence no non-periodic switch/select.
      */
     template <typename T>
-    [[nodiscard]] Vec<flt_t> canon_image(Eigen::ArrayBase<T> const &v) const noexcept {
+    [[nodiscard]] Vec<flt_t> canon_image(Eigen::ArrayBase<T> const &x) const noexcept {
       STACK();
-      ASSERT((m_periodic || (v >= Vec<flt_t>::Zero() && v < m_extents)).all(), "Out of box");
-      return v - m_extents * (v * m_inv_extents).floor();
+      ASSERT((m_periodic || (x >= Vec<flt_t>::Zero() && x < m_extents)).all(), "Out of box");
+      return x - m_extents * (x * m_inv_extents).floor();
     }
 
     /**

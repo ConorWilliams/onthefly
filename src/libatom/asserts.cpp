@@ -61,8 +61,10 @@ namespace otf::detail {
   [[noreturn]] void assert_handler(std::string_view expr, std::string_view msg,
                                    std::string_view file, long line, std::string_view func) {
     //
-    fmt::print(stderr, "In {}:{} from function: {}\n", file, line, func);
-    fmt::print(stderr, "Assertion \"{}\" failied with message: {}\n", expr, msg);
+    fmt::print(stderr, "In {}:{}\n", file, line);
+    fmt::print(stderr, "From function: {}\n", func);
+    fmt::print(stderr, "Assertion \"{}\" failied!\n", expr);
+    fmt::print(stderr, "With message: {}\n", msg);
 
     otf::detail::StackTrace::print();
 
