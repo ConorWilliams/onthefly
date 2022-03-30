@@ -9,6 +9,9 @@
 #include <vector>
 
 #include "aligned_allocator.hpp"
+#include "bitsery/bitsery.h"
+#include "bitsery/traits/array.h"
+#include "bitsery/traits/vector.h"
 #include "libatom/asserts.hpp"
 #include "libatom/utils.hpp"
 
@@ -26,6 +29,22 @@ namespace otf {
       ASSERT(sv.size() == 1 || sv.size() == 2, "Symbols must be less than 2 chars");
       std::copy(sv.begin(), sv.end(), this->begin());
     }
+
+  private:
+    friend class bitsery::Access;
+
+    /**
+     * @brief Construct a new OrthoSimBox object don't worry about class invariants, they will be
+     * restored in deserialization
+     */
+    Symbol() = default;
+
+    /**
+     * @brief Bitsery serialisation
+     */
+    template <typename S> void serialize(S& s) {
+      s.container(static_cast<std::array<char, 2>&>(*this));
+    }
   };
 
   /**
@@ -34,11 +53,6 @@ namespace otf {
   class AtomVector {
   private:
     static constexpr auto Align = Eigen::Aligned128;
-
-    std::vector<Symbol> m_species_map;
-
-    std::vector<flt_t, detail::aligned<flt_t, Align>> m_x;
-    std::vector<int_fast16_t, detail::aligned<int_fast16_t, Align>> m_z;
 
   public:
     /**
@@ -132,6 +146,31 @@ namespace otf {
      */
     [[nodiscard]] Eigen::Map<VecN<int_fast16_t> const, Align> z() const {
       return {m_z.data(), static_cast<Eigen::Index>(m_z.size())};
+    }
+
+  private:
+    std::vector<Symbol> m_species_map;
+
+    std::vector<flt_t, detail::aligned<flt_t, Align>> m_x;
+    std::vector<int_fast16_t, detail::aligned<int_fast16_t, Align>> m_z;
+
+  protected:
+    friend class bitsery::Access;
+
+    /**
+     * @brief Bitsery serialisation
+     */
+    template <typename S> void serialize(S& s) {
+      STACK();
+      //
+      ASSERT(num_species() < 256, "Too many species");
+
+      s.container(m_species_map, 256);
+
+      ASSERT(size() < 1'000'000, "Too many atoms");
+
+      s.container(m_x, 1'000'000 * 3);
+      s.container(m_z, 1'000'000);
     }
   };
 

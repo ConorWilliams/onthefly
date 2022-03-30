@@ -60,11 +60,8 @@ set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
 # being a cross-platform target, we enforce standards conformance on MSVC
 target_compile_options(${PROJECT_NAME} PUBLIC "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/permissive->")
 
-# Link private dependencies
-target_link_libraries(${PROJECT_NAME} PRIVATE Bitsery::bitsery)
-
 # Link public dependencies
-target_link_libraries(${PROJECT_NAME} PUBLIC Eigen3::Eigen fmt::fmt)
+target_link_libraries(${PROJECT_NAME} PUBLIC Eigen3::Eigen fmt::fmt Bitsery::bitsery)
 
 target_include_directories(
   ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>

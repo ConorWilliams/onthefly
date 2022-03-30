@@ -13,7 +13,7 @@
 
 namespace otf {
 
-  void dump(fmt::ostream& file, AtomVector const& atoms) {
+  static void dump(fmt::ostream& file, AtomVector const& atoms) {
     STACK();
 
     for (size_t i = 0; i < atoms.size(); i++) {
@@ -25,7 +25,7 @@ namespace otf {
     }
   }
 
-  void to_xyz(fmt::ostream& file, SimCell const& cell, std::optional<flt_t> time) {
+  void dump_xyz(fmt::ostream& file, SimCell const& cell, std::optional<flt_t> time) {
     //
 
     STACK();
@@ -49,6 +49,7 @@ namespace otf {
     file.print("Properties=species:S:1:pos:R:{}\n", spatial_dims);
 
     dump(file, cell.active());
+    dump(file, cell.frozen());
 
     file.flush();
   }

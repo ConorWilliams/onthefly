@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cmath>
+
+#include "bitsery/bitsery.h"
 #include "libatom/asserts.hpp"
 #include "libatom/utils.hpp"
 
@@ -56,6 +59,20 @@ namespace otf {
     Vec<flt_t> m_extents;
     Vec<bool> m_periodic;
     Vec<flt_t> m_inv_extents;
+
+  protected:
+    friend class bitsery::Access;
+
+    /**
+     * @brief Construct a new OrthoSimBox object don't worry about class invariants, they will be
+     * restored in deserialization
+     */
+    OrthoSimBox() = default;
+
+    /**
+     * @brief Bitsery serialisation
+     */
+    template <typename S> void serialize(S &s) { s(m_extents, m_periodic, m_inv_extents); }
   };
 
 }  // namespace otf

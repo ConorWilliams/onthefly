@@ -1,21 +1,67 @@
-#include <iostream>
 
-#include "fmt/os.h"
+
+#include <fmt/core.h>
+
+#include <chrono>
+#include <fstream>
+#include <iostream>
+#include <thread>
+
+#include "fmt/ranges.h"
+#include "libatom/io/binary.hpp"
 #include "libatom/io/xyz.hpp"
 #include "libatom/system/atomvector.hpp"
+#include "libatom/system/simbox.hpp"
 #include "libatom/system/simcell.hpp"
+#include "libatom/utils.hpp"
 
 auto main(int, char **) -> int {
   //
 
-  otf::SimCell cell({{10, 10, 10}, {true, true, false}});
+  otf::SimCell vec{{{1, 1, 1}, {false, false, false}}};
 
-  cell.active().emplace_back({1, 2, 3}, otf::Symbol{"Fe"});
-  cell.active().emplace_back({5, 5, 5}, otf::Symbol{"H"});
+  vec.active().emplace_back({0, 0, 1}, otf::Symbol{"H"});
 
-  auto out = fmt::output_file("test.xyz", fmt::file::WRONLY | fmt::file::CREATE);
+  {
+    std::fstream s{"dump.bin", s.binary | s.trunc | s.out};
 
-  otf::to_xyz(out, cell, 2.2);
+    // we cannot use quick serialization function, because streams cannot use writtenBytesCount
+    //   method
+
+    otf::dump_binary(s, vec);
+
+    vec.active().x().col(0) += 1;
+
+    otf::dump_binary(s, vec);
+  }
+
+  STACK();
+
+  {
+    std::fstream s("dump.bin", s.binary | s.in);
+
+    otf::SimCell res{{{1, 9, 1}, {false, false, false}}};
+
+    while (true) {
+      bool last = stream_binary(s, res);
+
+      // Do something with res
+
+      fmt::print("{}\n", fmt::join(res.active().x().col(0), " "));
+
+      if (last) {
+        break;
+      }
+    }
+
+    // }
+  }
+
+  //   int a = 1;
+
+  otf::timeit("tdest", []() {});
+
+  //
 
   std::cout << "working\n";
 

@@ -2,6 +2,7 @@
 
 #include <cstdint>
 
+#include "bitsery/bitsery.h"
 #include "libatom/asserts.hpp"
 #include "libatom/system/atomvector.hpp"
 #include "libatom/system/simbox.hpp"
@@ -14,11 +15,10 @@ namespace otf {
    *
    */
   class SimCell : public OrthoSimBox {
-  private:
-    AtomVector m_active;
-    AtomVector m_frozen;
-
   public:
+    /**
+     * @brief Construct a new Sim Cell object containing no atoms
+     */
     explicit SimCell(OrthoSimBox const& box) : OrthoSimBox{box} {}
 
     /**
@@ -47,6 +47,29 @@ namespace otf {
     AtomVector& frozen() noexcept { return m_frozen; }
 
     // VecN<double> active_disp(VecN<double> const &others) const;
+
+  private:
+    AtomVector m_active;
+    AtomVector m_frozen;
+
+  protected:
+    friend class bitsery::Access;
+
+    /**
+     * @brief Construct a new SimCell object don't worry about class invariants, they will be
+     * restored in deserialization
+     */
+    SimCell() = default;
+    /**
+     * @brief Bitsery serialisation
+     */
+    template <typename S> void serialize(S& s) {
+      STACK();
+
+      s(static_cast<OrthoSimBox&>(*this));
+      s(m_frozen);
+      s(m_active);
+    }
   };
 
 }  // namespace otf

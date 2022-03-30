@@ -9,7 +9,7 @@ namespace otf::detail {
   /**
    * @brief Minimal C++17 and above (over)aligned allocator
    *
-   * @tparam Align Requested alignment
+   * @tparam Align Requested alignment, must be a power of two and >= alignof(T)
    */
   template <class T, std::size_t Align> class aligned {
   public:
@@ -38,7 +38,7 @@ namespace otf::detail {
 
   private:
     static_assert(Align > 0 && !(Align & (Align - 1)), "Align must be a power of 2");
-    static_assert(Align > alignof(T), "T will be under-aligned");
+    static_assert(Align >= alignof(T), "T will be under-aligned");
 
     template <class U>
     friend constexpr bool operator==(aligned const &, aligned<U, Align> const &) noexcept {
