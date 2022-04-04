@@ -55,6 +55,13 @@ namespace otf {
       return (a.m_extents == b.m_extents).all() && (a.m_periodic == b.m_periodic).all();
     }
 
+    /**
+     * @brief Not part of the API, for internal use only
+     *
+     * @return OrthoSimBox Unitialised!
+     */
+    [[nodiscard]] static OrthoSimBox empty() { return {}; }
+
   private:
     Vec<flt_t> m_extents;
     Vec<bool> m_periodic;

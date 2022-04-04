@@ -34,7 +34,7 @@ namespace otf {
 
   static_assert(spatial_dims == 2 || spatial_dims == 3, "Invalid number of dimensions");
 
-#undef LIBATOM_FLOAT_TYPE
+#undef LIBATOM_SPATIAL_DIMS
 
 #ifndef LIBATOM_FLOAT_TYPE
 #  define LIBATOM_FLOAT_TYPE double
@@ -47,19 +47,7 @@ namespace otf {
 
   static_assert(std::is_floating_point_v<flt_t>);
 
-#ifndef LIBATOM_FLOAT_ACC_TYPE
-#  define LIBATOM_FLOAT_ACC_TYPE LIBATOM_FLOAT_TYPE
-#endif
-
-  /**
-   * @brief Floating point type used for accumulating flt_t
-   */
-  using float_acc_t = LIBATOM_FLOAT_ACC_TYPE;
-
-  static_assert(std::is_floating_point_v<float_acc_t>);
-
 #undef LIBATOM_FLOAT_TYPE
-#undef LIBATOM_FLOAT_ACC_TYPE
 
   // Types aliases
 
@@ -143,11 +131,11 @@ namespace otf {
     fmt::print("Average time = {} ± {}\n", mean, std);
 
     struct Return {
-      double mean;
-      double std;
+      floating_ns mean;
+      floating_ns std;
     };
 
-    // return Return{mean, std};
+    return Return{mean, std};
   }
 
 }  // namespace otf

@@ -12,14 +12,12 @@ TEST_CASE("Atom vec") {
   AtomVector atoms;
 
   REQUIRE(atoms.size() == 0);
-  REQUIRE(atoms.num_species() == 0);
 
   //////
 
-  atoms.emplace_back(Vec<flt_t>::Zero(), Symbol{"Fe"});
+  atoms.emplace_back(Vec<flt_t>::Zero(), 0);
 
   REQUIRE(atoms.size() == 1);
-  REQUIRE(atoms.num_species() == 1);
 
   REQUIRE(norm(atoms.x().col(0)) == 0);
   REQUIRE(atoms.z()[0] == 0);
@@ -30,19 +28,15 @@ TEST_CASE("Atom vec") {
 
   //////
 
-  atoms.emplace_back(Vec<flt_t>::Zero(), Symbol{"Fe"});
+  atoms.emplace_back(Vec<flt_t>::Zero(), 0);
 
   REQUIRE(atoms.size() == 2);
-  REQUIRE(atoms.num_species() == 1);
-
   REQUIRE(atoms.z()[1] == 0);
 
   //////
 
-  atoms.emplace_back(Vec<flt_t>::Zero(), Symbol{"H"});
+  atoms.emplace_back(Vec<flt_t>::Zero(), 1);
 
   REQUIRE(atoms.size() == 3);
-  REQUIRE(atoms.num_species() == 2);
-
   REQUIRE(atoms.z()[2] == 1);
 }

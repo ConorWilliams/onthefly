@@ -20,20 +20,21 @@ auto main(int, char **) -> int {
 
   otf::SimCell vec{{{1, 1, 1}, {false, false, false}}};
 
-  vec.active().emplace_back({0, 0, 1}, otf::Symbol{"H"});
+  auto fe_id = vec.map.species2z_or_insert("Fe");
+
+  vec.active.emplace_back({0, 0, 1}, fe_id);
 
   {
     std::fstream s{"dump.bin", s.binary | s.trunc | s.out};
 
-    // we cannot use quick serialization function, because streams cannot use writtenBytesCount
-    //   method
-
     otf::dump_binary(s, vec);
 
-    vec.active().x().col(0) += 1;
+    vec.active.x().col(0) += 1;
 
     otf::dump_binary(s, vec);
   }
+
+  fmt::print("{}\n", vec.map.z2species(fe_id));
 
   STACK();
 
@@ -47,7 +48,9 @@ auto main(int, char **) -> int {
 
       // Do something with res
 
-      fmt::print("{}\n", fmt::join(res.active().x().col(0), " "));
+      fmt::print("{}\n", fmt::join(res.active.x().col(0), " "));
+
+      VERIFY(res.map.species2z("Fe") && *res.map.species2z("Fe") == 0, "WOW");
 
       if (last) {
         break;
@@ -57,7 +60,7 @@ auto main(int, char **) -> int {
     // }
   }
 
-  //   int a = 1;
+  //   //   int a = 1;
 
   otf::timeit("tdest", []() {});
 

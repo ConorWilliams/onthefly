@@ -13,15 +13,11 @@
 
 namespace otf {
 
-  static void dump(fmt::ostream& file, AtomVector const& atoms) {
+  static void dump(fmt::ostream& file, SpeciesMap const& map, AtomVector const& atoms) {
     STACK();
 
     for (size_t i = 0; i < atoms.size(); i++) {
-      if (Symbol s = atoms.z2species(atoms.z()[i]); s[1]) {
-        file.print("{}{}\t{}\n", s[0], s[1], fmt::join(atoms.x().col(i), "\t"));
-      } else {
-        file.print("{}\t{}\n", s[0], fmt::join(atoms.x().col(i), "\t"));
-      }
+      file.print("{}\t{}\n", map.z2species(atoms.z()[i]), fmt::join(atoms.x().col(i), "\t"));
     }
   }
 
@@ -40,16 +36,16 @@ namespace otf {
     }
 
     if constexpr (spatial_dims == 3) {
-      file.print("Lattice=\"{} 0 0 0 {} 0 0 0 {}\" ", cell.extents()[0], cell.extents()[1],
-                 cell.extents()[2]);
+      file.print("Lattice=\"{} 0 0 0 {} 0 0 0 {}\" ", cell.box.extents()[0], cell.box.extents()[1],
+                 cell.box.extents()[2]);
     } else if constexpr (spatial_dims == 2) {
-      file.print("Lattice=\"{} 0 0 {}\" ", cell.extents()[0], cell.extents()[1]);
+      file.print("Lattice=\"{} 0 0 {}\" ", cell.box.extents()[0], cell.box.extents()[1]);
     }
 
     file.print("Properties=species:S:1:pos:R:{}\n", spatial_dims);
 
-    dump(file, cell.active());
-    dump(file, cell.frozen());
+    dump(file, cell.map, cell.active);
+    dump(file, cell.map, cell.frozen);
 
     file.flush();
   }
