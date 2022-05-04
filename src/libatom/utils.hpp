@@ -79,6 +79,24 @@ namespace otf {
   template <typename E> double norm(Eigen::ArrayBase<E> const& r) { return std::sqrt(norm_sq(r)); }
 
   /**
+   * @brief Compute integer powers of arithmetic types at compile time
+   */
+  template <std::size_t Exp, typename T>
+  constexpr std::enable_if_t<std::is_arithmetic_v<T>, T> ipow(T base) {
+    if constexpr (Exp == 0) {
+      return T(1);
+    }
+    if constexpr (Exp == 1) {
+      return base;
+    }
+    if constexpr (Exp % 2 == 0) {
+      return ipow<Exp / 2>(base) * ipow<Exp / 2>(base);
+    } else {
+      return ipow<Exp - 1>(base) * base;
+    }
+  }
+
+  /**
    * @brief Quick and dirty timing utility, prints to stdout.
    *
    * @param name Give a name to what you are timing
