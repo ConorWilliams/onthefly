@@ -27,7 +27,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake -S docs -B build
+          cmake -S documentation -B build
           cmake --build build --target GenerateDocs
 
       - name: Publish
