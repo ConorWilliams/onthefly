@@ -30,7 +30,7 @@ namespace otf {
 
     /**
      * @brief Maps atom into canonical cell, 0 <= r_i < extent_i for all i which are periodic.
-     * Non-periodic atoms are within the simbox extents so x[i] * inv_extents less than 1 and  x[i]
+     * Non-periodic atoms are within the simbox extents so x[i] * inv_extents less than 1 and x[i]
      * remains unaffected, hence no non-periodic switch/select.
      */
     template <typename T>

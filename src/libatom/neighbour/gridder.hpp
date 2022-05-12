@@ -15,7 +15,7 @@ namespace otf {
   /**
    * @brief Maps {xyz} tuples to 1D grid.
    *
-   * The Gridder is responisble for managing the mapping from nD to 1D. Each atom is assigned to a
+   * The Gridder is responisble for managing the mapping from nD->1D. Each atom is assigned to a
    * cell (at least as large in each dimension as rcut) through .cell_idx(...). The neighbouring
    * cells to any given cell can then be optained through a call to .neigh_cells(...).
    */
@@ -34,6 +34,25 @@ namespace otf {
 
     std::vector<std::array<int, ipow<spatial_dims>(3) - 1>> m_neigh_cells;
 
+    /**
+     * @brief Cast a Vec<flt_t> to Vec<int>
+     */
+    Vec<int> to_ints(Vec<flt_t> const &x) const & {
+      STACK();
+      ASSERT(m_box, "Call before load");
+      return (x * m_inv_cell).cast<int>();
+    }
+
+    /**
+     * @brief Get the 1D index from the nD index
+     */
+    int to_1D(Vec<int> const &indexes) const & {
+      STACK();
+      ASSERT(m_box, "Call before load");
+      ASSERT((indexes > 0 && indexes < m_shape).all(), "Atom out of bounds");
+      return (indexes * m_prod_shape).sum();
+    }
+
   public:
     /**
      * @brief Compute the cell index from an atoms position
@@ -43,29 +62,22 @@ namespace otf {
     int cell_idx(Vec<flt_t> const &x) const {
       STACK();
 
-      ASSERT(m_box, "Call before load");
+      ASSERT((x >= 0).all(), "Atom out of bounds");
 
-      Vec<int> indexes = (x * m_inv_cell).cast<int>();
-
-      ASSERT((indexes >= 0).all(), "Atom out of bounds");
-      ASSERT((indexes < m_shape).all(), "Atom out of bounds");
-
-      return (indexes * m_prod_shape).sum();
+      return to_1D(to_ints(x));
     }
 
-    int inner_cell_idx(Vec<flt_t> const &x) {
+    /**
+     * @brief Check each index, i, in each axis is in range: 1 <= i <= m_shape - 1
+     */
+    bool is_inner_cell(Vec<flt_t> const &x) {
       STACK();
 
       ASSERT(m_box, "Call before load");
 
-      Vec<int> indexes = (x * m_inv_cell).cast<int>();
+      Vec<int> indexes = to_ints(x);
 
-      indexes
-          = (indexes < 1)
-                .select(Vec<int>::Ones(),
-                        (indexes < m_shape - 1).select(indexes, (m_shape - 1) * Vec<int>::Ones()));
-
-      return (indexes * m_prod_shape).sum();
+      return (indexes >= 1 && indexes <= m_shape - 1).all();
     }
 
     std::array<int, ipow<spatial_dims>(3) - 1> const &neigh_cells(std::size_t n) const noexcept {

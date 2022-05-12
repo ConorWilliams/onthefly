@@ -18,17 +18,16 @@
 namespace otf {
 
   /**
-   * @brief  Abstraction to apply a function f as f(n, r_{an}, dr3) for every neighbour "n" of an
-   atom
-   * "a".
+   * @brief  Abstraction to apply a function f as f(n, r_{an}, dr3) for every neighbour "n" of
+   * an atom "a".
    *
-   * Internally builds a vector of atoms, each with a Data object embedded within them, which
-   contains
-   * the active atoms, boundary atoms and any ghost atoms required if the supercell is periodic.
+   * Internally builds a vector of atoms, each with a Data object embedded within them,
+   * which contains the active atoms, boundary atoms and any ghost atoms required if the supercell
+   * is periodic.
    *
-   * @tparam Data
+   * @tparam Data a fundamental, trivially_destructible, default_constructible, assignable type that
+   * can be used to augment atoms with extra members; see LinkedCellList::Atom.
    */
-
   template <typename T> class LinkedCellList {
   public:
     /**
@@ -55,7 +54,8 @@ namespace otf {
 
       friend class LinkedCellList;
 
-      Atom(Vec<double> const &x, T const &base) : T{base}, x{x}, next{nullptr} {}
+      template <typename U> Atom(Vec<double> const &x, U &&base)
+          : T(std::forward<U>(base)), x{x}, next{nullptr} {}
 
       Atom *next;
 
@@ -66,37 +66,33 @@ namespace otf {
      * @brief Build the linked cell list, binning atoms into orthogananl cells (min "rcut" in each
      * dimension).
      *
-     * @param Fn A function that must have the signature fn(SimCell const &, std::size_t i) -> T,
-     * used to construct the injected T member of each atom.
+     * @param Fn A function that must have the signature fn(SimCell const &, std::size_t i) and
+     * whose result can be used to construct the injected T member of each atom.
      */
     template <typename F> void construct(SimCell const &cell, double rcut, F &&fn) {
       STACK();
       m_active = cell.active.size();
       m_size = cell.size();
 
-      grid.compute_neigh_cells(cell.box, rcut);
+      m_grid.compute_neigh_cells(cell.box, rcut);
 
       static_assert(std::is_trivially_destructible_v<Atom>, "");
       m_list.clear();  // Should be order one by ^
 
       // Copy active atoms into list IN ORDER
       for (std::size_t idx = 0; idx < cell.active.size(); ++idx) {
-        m_list.emplace_back(cell.box.canon_image(cell.active.x().col(idx)) + grid.origin(),
+        m_list.emplace_back(cell.box.canon_image(cell.active.x().col(idx)) + m_grid.origin(),
                             fn(cell, idx));
       }
 
       // Copy frozen atoms into list IN ORDER
       for (std::size_t idx = 0; idx < cell.frozen.size(); ++idx) {
-        m_list.emplace_back(cell.box.canon_image(cell.frozen.x().col(idx)) + grid.origin(),
+        m_list.emplace_back(cell.box.canon_image(cell.frozen.x().col(idx)) + m_grid.origin(),
                             fn(cell, idx));
       }
 
-      m_list_idx.clear();  // Should be order one
-
       for (auto &&atom : m_list) {
-        auto idx = grid.
-
-                   m_list_idx.emplace_back(grid.cell_idx(const Vec<flt_t> &x))
+        ASSERT(m_grid.is_inner_cell(atom.x), "Atom ");
       }
 
       make_ghosts();
@@ -118,11 +114,10 @@ namespace otf {
     std::size_t m_active;
     std::size_t m_size;
 
-    Gridder grid;
+    Gridder m_grid;
 
     std::vector<Atom *> m_head;
     std::vector<Atom> m_list;
-    std::vector<int> m_list_idx;
 
     // // Rapaport p.18
     // void make_ghosts();
