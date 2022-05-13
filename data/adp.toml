@@ -1,0 +1,91 @@
+[supercell]
+element_map = [["0", "Cr", "A"], ["1", "Ni", "A"]]
+in_file     = "/home/cdt1902/phd/olkmc/data/NiCr/NiCr1vac1cr.xyz"  # /mnt/c/Users/br361/olkmc/data/NiCr/NiCr.xyz"
+
+    [supercell.simbox]
+    lx = 21.1216 # 35.2006         # (Angstrom), extents
+    ly = 21.1216 # 35.2006
+    lz = 21.1216 # 35.2006
+
+    px = true # Periodic in axis
+    py = true
+    pz = true
+
+[potential]
+in_file = "/home/cdt1902/phd/olkmc/data/PotentialCrNi.adp" # /mnt/c/Users/br361/olkmc/data/PotentialCrNi.adp"
+kind    = "ADP"
+
+[visualise]
+r_env = 2.6
+
+[catalogue]
+delta          = 0.25              # (Angstrom), Maximum difference in L2 norm between LEs
+fname          = "NiCr@0.25.cat"
+format         = "portable_binary"
+load_from_disk = true
+overfuzz       = 0.5               # 0 < overfuzz <= 1, Accelerate catalogue *may* cause degenerate LEs
+r_env          = 5.168302          # (Angstrom)
+
+[kinetics]
+barrier_tol         = 0.75
+cache_size          = 64
+dynamic_tol         = true
+max_barrier         = 4.0   # (eV) Any mechanisms with an activation energy higher than this will be ignored.
+max_superbasin_size = 512
+state_tol           = 0.05
+temperature         = 600.0 # (Kelvin)
+tol_grow            = 1.5
+tol_shrink          = 0.5
+
+[package]
+mode           = "global"
+r_active       = 5.168302
+r_boundary     = 16.0     # r_active + 2*r_cut
+require_centre = true     # Require mechanisms centred on displacemnet centre
+
+[mechanism]
+abs_tol     = 0.03 # Absolute (eV) mechanism energy tollerence
+frac_tol    = 0.01 # Fractional mechanism energy tollerence
+r_tol       = 0.03 # (angstrom) L2 tollerence for mechanisms to be considered distinct
+rel_cap_tol = 0.95 # Fraction of mechanism required to be captured
+
+[sp_search]
+consecutive      = 20      # Number of sps fails before stopping search
+const_pre_factor = 5.12e12 # (Hz) same as old sim
+kind             = "Dimer"
+max_search       = 100      # Maximum nuber of searches
+r_perturbation   = 3.0     # (angstrom) radius of perturbed region
+stddev           = 0.2     # (angstrom) of gaussian deviation applied to each coordinate in r_perturbation
+vineyard         = false   # If true computes harmonic prefactor for each mechanism
+
+    [sp_search.dimer]
+    basin_tol          = 0.05  # L2 tollerence for basins to be considered distinct
+    boost_parallel     = 0.0   # +ve biases force toward parallel component
+    convex_max         = 5     # Number of +ve curvature steps before exit
+    delta_r            = 0.001 # (Angstrom)
+    f2norm             = 1e-5  # Force convergence criterion (ev/Angstrom)
+    grow_trust         = 1.5   # Trust radius expansion rate
+    iter_max_rot       = 10    # Number of translations before exit
+    iter_max_tran      = 500   # During rotation
+    max_trust          = 0.5   # Maximum trust radius / step size (Angstrom)
+    min_trust          = 0.1   # Minimum trust radius (Angstrom)
+    n_rot              = 6     # Number of previous steps held in memory
+    n_tran             = 10    # LBFGS memory size
+    no_relax_in_convex = false # If true in the convex region returns only parallel force component
+    nudge              = 0.25  # How far along minimum eigen-mode SPs are displaced before relaxation
+    proj_tol           = 0.0   # Trust tollerence
+    shrink_trust       = 0.5   # Trust radius contraction rate
+    theta_tol          = 0.01  # (Rad)
+
+[minimiser]
+kind = "LBFGS"
+
+    [minimiser.lbfgs]
+    f2norm       = 1e-5 # Force convergence criterion (ev/Angstrom)
+    grow_trust   = 1.5  # Trust radius expansion rate
+    iter_max     = 1000 # Number of translations before exit
+    max_trust    = 0.5  # Maximum trust radius / step size (Angstrom)
+    min_trust    = 0.1  # Minimum trust radius (Angstrom)
+    n            = 8    # Number of previous steps held in memory
+    proj_tol     = 0.0  # Trust tollerence
+    shrink_trust = 0.5  # Trust radius contraction rate

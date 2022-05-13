@@ -1,85 +1,73 @@
-[![Actions Status](https://github.com/ConorWilliams/onthefly/workflows/MacOS/badge.svg)](https://github.com/ConorWilliams/onthefly/actions)
-[![Actions Status](https://github.com/ConorWilliams/onthefly/workflows/Windows/badge.svg)](https://github.com/ConorWilliams/onthefly/actions)
-[![Actions Status](https://github.com/ConorWilliams/onthefly/workflows/Ubuntu/badge.svg)](https://github.com/ConorWilliams/onthefly/actions)
-[![Actions Status](https://github.com/ConorWilliams/onthefly/workflows/Style/badge.svg)](https://github.com/ConorWilliams/onthefly/actions)
-[![Actions Status](https://github.com/ConorWilliams/onthefly/workflows/Intel/badge.svg)](https://github.com/ConorWilliams/onthefly/actions)
+<br />
+<p align="center">
+  <img src="./images/dimer.png" height="200" />
+</p>
+<br />
 
-# OnTheFly: Off-lattice kinetic Monte-Carlo
+# OLKMC
 
-## Compilation
+Welcome to the ...
 
-### Build and run the standalone target
+Local environment, tolerant, off-lattice, kinetic, Monte Carlo, Simulation/Simulator, Framework, Atomic
 
-Use the following command to build and run the executable target.
+L, Le, T, Ol, O, K, Mc, M, S, F, A
 
-```bash
-cmake -S standalone -B build/standalone
-cmake --build build/standalone
-./build/standalone/OnTheFly --help
-```
-
-### Build and run test suite
-
-Use the following commands from the project's root directory to run the test suite.
+## Building
 
 ```bash
-cmake -S test -B build/test
-cmake --build build/test
-CTEST_OUTPUT_ON_FAILURE=1 cmake --build build/test --target test
+git clone https://github.com/ConorWilliams/olkmc
+cd olkmc
+mkdir build 
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+make
+./olkmc ../data/test.toml 
 
-# or simply call the executable: 
-./build/test/OnTheFlyTests
 ```
 
-### Run clang-format
+- Superbasin dynamic barrier height
+- Add resolved mode; throws error for now.
+- Hessian
+- Explore 3% ?bug
 
-Use the following commands from the project's root directory to check and fix C++ and CMake source style.
-This requires _clang-format_, _cmake-format_ and _pyyaml_ to be installed on the current system.
+## Minor improvements (QoL/Tidy)
+- Pre-prep for local ff, HTST calc, generalised ff
+- Decouple ff, sp search, minimiser, topoclassify, reconstruct, superbasin
+- Detect too large mechanisms 
+- Proper atom-type reading in force/xyz files
+- .xyz read/write (dump system object)
+- Binary format: [cereal](https://github.com/USCiLab/cereal)
+- Meta-data in catalog (force field, etc)
+- Argparsing + config file [toml++](https://github.com/marzer/tomlplusplus/) + xyz load: [structopt](https://github.com/p-ranav/structopt)
+- Efficient ghost production (edge cell only iteration) 
+- Generalise supercell to tri-clinic (abstract interface to supercell)
+- Abstract/encapsulate parallelisation
+- State hashing for superbasin pre-conditioning
 
-```bash
-cmake -S test -B build/test
 
-# view changes
-cmake --build build/test --target format
+## Majour improvements/extensions
 
-# apply changes
-cmake --build build/test --target fix-format
-```
+Feature | How much better for experiment | Interest | Score | Rank
+
+    - Error/confidence rate catalogue                   5	5	25	1
+    - HTST rate constant + cache SP                     5	5	25	1
+    - Think about better topo classification            4	5	20	2
+    - Explore alternative force-fields                  5	4	20	3
+    - Local forces                                      3	5	15	4
+    - Think about simultanious dimer method (swarm)     3	4	12	5
+    - Quantum veification of frequent topos             5	2	10	
+    - MPI parallelisation master/slave                  3	3	9	
+    - LCR sorting (paper + sorting networks)            2	4	8	
+    - Two level parallelisation (parallel force field)  2	3	6	
+    - Initial displacement (hypersphere)                2	3	6	
+    - Preconditioner                                    2	3	6	
+    - GPU force field                                   2	2	4	
 
 
-### Build the documentation
+Since literature:
 
-The documentation is automatically built and [published](https://thelartians.github.io/ModernCppStarter) whenever a [GitHub Release](https://help.github.com/en/github/administering-a-repository/managing-releases-in-a-repository) is created.
-To manually build documentation, call the following command.
-
-```bash
-cmake -S documentation -B build/doc
-cmake --build build/doc --target GenerateDocs
-# view the docs
-open build/doc/doxygen/html/index.html
-```
-
-To build the documentation locally, you will need Doxygen, jinja2 and Pygments on installed your system.
-
-### Build everything at once
-
-The project also includes an `all` directory that allows building all targets at the same time.
-This is useful during development, as it exposes all subprojects to your IDE and avoids redundant builds of the library.
-
-```bash
-cmake -S all -B build
-cmake --build build
-
-# run tests
-./build/test/OnTheFlyTests
-# format code
-cmake --build build --target fix-format
-# run standalone
-./build/standalone/OnTheFly --help
-# build docs
-cmake --build build --target GenerateDocs
-```
-
-### Ccache
-
-Ccache can be enabled by configuring with `-DUSE_CCACHE=<ON | OFF>`.
+    - Error estimator on catalogue completeness
+    - Degeneracy coefficient in KMC N-fold way, link LE -> atom list
+    - Dynamically localised force-fields [[bland2015 p.131]]
+    - Dimer method alternatives (k-art, Lancoz)
+    - Thermal expansion of lattice (I think in the SP recycling paper)

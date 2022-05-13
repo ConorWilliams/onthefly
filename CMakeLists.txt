@@ -2,87 +2,152 @@ cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 # ---- Project ----
 
-# Note: update this to your new project's name and version
 project(
-  OnTheFly
-  VERSION 0.1
-  LANGUAGES CXX
+    olkmc
+    VERSION 0.3.0
+    DESCRIPTION "An off-lattice kinetic Monte Carlo simulation framework"
+    LANGUAGES CXX
 )
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # ---- Include guards ----
 
 if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
-  message(
-    FATAL_ERROR
-      "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there."
-  )
+    message(
+        FATAL_ERROR
+            "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there."
+    )
 endif()
 
+# System packages
+find_package(Threads)
+
 # ---- Add dependencies via CPM ----
+
 # see https://github.com/TheLartians/CPM.cmake for more info
 
 include(cmake/CPM.cmake)
+include(cmake/tools.cmake)
 
-# PackageProject.cmake will be used to make our target installable
-CPMAddPackage("gh:TheLartians/PackageProject.cmake@1.8.0")
+# Fetch all dependcies using CPM
+
+CPMAddPackage("gh:ConorWilliams/Threadpool#v2.1.1")
+
+CPMAddPackage("gh:p-ranav/indicators#v2.0")
 
 CPMAddPackage(
-  NAME fmt
-  GIT_TAG 8.1.1
-  GITHUB_REPOSITORY fmtlib/fmt
-  OPTIONS "FMT_INSTALL YES" # create an installable target
+    NAME cereal
+    GIT_TAG 48fda3f0a6b58f9a9278ec15c15e7b7c3dceeceb
+    GITHUB_REPOSITORY USCiLab/cereal
+    OPTIONS "SKIP_PORTABILITY_TEST ON" "JUST_INSTALL_CEREAL ON"
 )
 
 CPMAddPackage(
-  NAME Eigen
-  GITLAB_REPOSITORY libeigen/eigen
-  GIT_TAG 3.4.0
-  OPTIONS "BUILD_TESTING OFF" "EIGEN_BUILD_PKGCONFIG ON"
+    NAME structopt
+    GITHUB_REPOSITORY p-ranav/structopt
+    # Version 0.1.1 commit
+    GIT_TAG 78299d63f2d0c316b7509d32530fda8026637712
 )
 
-CPMAddPackage("gh:fraillt/bitsery@5.2.2")
+CPMAddPackage(
+    NAME Eigen
+    GITLAB_REPOSITORY libeigen/eigen
+    # Need version 3.4+, not yet released
+    GIT_TAG 0784d9f87b6602160e8f3e3d507d69999b92d539
+    # Eigen's CMakelists are not intended for library use
+    DOWNLOAD_ONLY YES
+)
+if(Eigen_ADDED)
+    add_library(Eigen INTERFACE IMPORTED)
+    target_include_directories(Eigen INTERFACE ${Eigen_SOURCE_DIR})
+endif()
 
-# ---- Add source files ----
+CPMAddPackage(
+    NAME Format.cmake
+    VERSION 1.6
+    GITHUB_REPOSITORY TheLartians/Format.cmake
+    OPTIONS # enable cmake formatting (optional)
+            "FORMAT_CHECK_CMAKE ON"
+)
 
-# Note: globbing sources is considered bad practice as CMake's generators may not detect new files
-# automatically. Keep that in mind when changing files, or explicitly mention them here.
-file(GLOB_RECURSE headers CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp")
-file(GLOB_RECURSE sources CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+CPMAddPackage(
+    NAME tomlplusplus
+    GITHUB_REPOSITORY marzer/tomlplusplus
+    VERSION 2.3.0
+)
+if(tomlplusplus_ADDED)
+    add_library(tomlplusplus INTERFACE IMPORTED)
+    target_include_directories(tomlplusplus INTERFACE ${tomlplusplus_SOURCE_DIR}/include)
+    target_compile_features(tomlplusplus INTERFACE cxx_std_17)
+endif()
 
-# ---- Create library ----
+CPMAddPackage(
+    NAME pcg-cpp
+    GITHUB_REPOSITORY imneme/pcg-cpp
+    VERSION 0.98.1
+)
+if(pcg-cpp_ADDED)
+    add_library(pcg-cpp INTERFACE IMPORTED)
+    target_include_directories(pcg-cpp INTERFACE ${pcg-cpp_SOURCE_DIR}/include)
+    target_compile_features(pcg-cpp INTERFACE cxx_std_17)
+endif()
 
-# Note: for header-only libraries change all PUBLIC flags to INTERFACE and create an interface
-# target: add_library(${PROJECT_NAME} INTERFACE)
-add_library(${PROJECT_NAME} ${headers} ${sources})
+# ---- Create executable ----
 
-set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
+set(sources
+    "src/potentials/spline.cpp"
+    "src/potentials/EAM/data.cpp"
+    "src/potentials/EAM/potential.cpp"
+    "src/potentials/ADP/data.cpp"
+    "src/potentials/ADP/potential.cpp"
+    "src/potentials/potential_base.cpp"
+    "src/sp_search/dimer/dimer.cpp"
+    "src/sp_search/dimer/shrinking.cpp"
+    "src/sp_search/dimer/l_shrink.cpp"
+    "src/sp_search/sp_search_base.cpp"
+    "src/minimise/LBFGS/lbfgs.cpp"
+    "src/minimise/BB/bb.cpp"
+    "src/minimise/HYBRID/hybrid.cpp"
+    "src/minimise/minimiser_base.cpp"
+    "src/local/classify.cpp"
+    "src/local/environment.cpp"
+    "src/local/geometry.cpp"
+    "src/local/catalogue.cpp"
+    "src/supercell.cpp"
+    "src/utility.cpp"
+    "src/main.cpp"
+    "src/sp_search/vineyard.cpp"
+    "src/sp_search/find_mech.cpp"
+    "src/package/package.cpp"
+    "src/kinetics/basin.cpp"
+    "src/kinetics/superbasin.cpp"
+    "src/kinetics/supercache.cpp"
+    "src/discrete/discrete_supercell.cpp"
+    "src/discrete/discrete_classify.cpp"
+)
 
-# being a cross-platform target, we enforce standards conformance on MSVC
-target_compile_options(${PROJECT_NAME} PUBLIC "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/permissive->")
+add_executable(olkmc ${sources})
 
-# Link public dependencies
-target_link_libraries(${PROJECT_NAME} PUBLIC Eigen3::Eigen fmt::fmt Bitsery::bitsery)
+target_compile_features(olkmc PUBLIC cxx_std_17)
+
+target_compile_options(olkmc PRIVATE -Wall -Wextra -Wpedantic)
+
+target_link_libraries(
+    olkmc
+    PUBLIC ${CMAKE_THREAD_LIBS_INIT}
+           Eigen
+           cereal
+           structopt
+           tomlplusplus
+           pcg-cpp
+           RiftenThiefpool::RiftenThiefpool
+           indicators::indicators
+)
 
 target_include_directories(
-  ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
-                         $<INSTALL_INTERFACE:include/${PROJECT_NAME}-${PROJECT_VERSION}>
+    olkmc PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+                 $<INSTALL_INTERFACE:src/${PROJECT_NAME}-${PROJECT_VERSION}>
 )
 
-# ---- Create an installable target ----
-# this allows users to install and find the library via `find_package()`.
-
-# the location where the project's version header will be placed should match the project's regular
-# header paths
-string(TOLOWER ${PROJECT_NAME}/version.hpp VERSION_HEADER_LOCATION)
-
-packageProject(
-  NAME ${PROJECT_NAME}
-  VERSION ${PROJECT_VERSION}
-  NAMESPACE ${PROJECT_NAME}
-  BINARY_DIR ${PROJECT_BINARY_DIR}
-  INCLUDE_DIR ${PROJECT_SOURCE_DIR}/src
-  INCLUDE_DESTINATION include/${PROJECT_NAME}-${PROJECT_VERSION}
-  VERSION_HEADER "${VERSION_HEADER_LOCATION}"
-  COMPATIBILITY SameMajorVersion
-  DEPENDENCIES "fmt 8.1.1;Eigen 3.4.0"
-)
+# ///
