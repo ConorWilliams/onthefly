@@ -4,12 +4,13 @@
 #include <random>
 
 #include "doctest/doctest.h"
+#include "libatom/system/member.hpp"
 #include "libatom/utils.hpp"
 
 TEST_CASE("Atom vec") {
   using namespace otf;
 
-  AtomVector<Pos, AtomicNum> atoms;
+  AtomVector<Position, AtomicNum> atoms;
 
   REQUIRE(atoms.size() == 0);
 
@@ -19,12 +20,12 @@ TEST_CASE("Atom vec") {
 
   REQUIRE(atoms.size() == 1);
 
-  REQUIRE(norm(atoms(Pos{}, 0)) == 0);
+  REQUIRE(norm(atoms(Position{}, 0)) == 0);
   REQUIRE(atoms(AtomicNum{}, 0) == 0);
 
-  atoms(Pos{}) += 1;
+  atoms(Position{}) += 1;
 
-  REQUIRE(std::abs(norm(atoms(Pos{}, 0)) - std::sqrt(spatial_dims)) < 0.001);
+  REQUIRE(std::abs(norm(atoms(Position{}, 0)) - std::sqrt(spatial_dims)) < 0.001);
 
   ////// Add second
 

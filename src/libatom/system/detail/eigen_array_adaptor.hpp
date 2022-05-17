@@ -1,5 +1,8 @@
+#pragma once
+
 #include <cstddef>
 #include <type_traits>
+#include <utility>
 
 #include "libatom/asserts.hpp"
 #include "libatom/utils.hpp"
@@ -13,7 +16,7 @@ namespace otf::detail {
    * This is an internal type for use by AtomVector. Each member is tagged with Tag hence, they can
    * be overloaded and selected with the tag type.
    *
-   * @tparam Tag, an empty type, derived from otf::Member, defining a scalar_type and extent.
+   * @tparam Tag An empty type, derived from otf::Member, defining a scalar_type and extent.
    */
   template <typename Tag> class EigenArrayAdaptor {
   private:
@@ -31,6 +34,11 @@ namespace otf::detail {
      * @brief Construct a new default initialised array with n columns.
      */
     EigenArrayAdaptor(std::size_t n) : m_data(Tag::extent, n) {}
+
+    /**
+     * @brief Construct a new array forawrding argument to Eigen constructor
+     */
+    template <typename T> EigenArrayAdaptor(T &&arg) : m_data(std::forward<T>(arg)) {}
 
     /**
      * @brief Get the number of ellements/columns in the array
