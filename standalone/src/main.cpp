@@ -2,18 +2,18 @@
 
 #include <fmt/core.h>
 
-#include <chrono>
-#include <fstream>
+// #include <chrono>
+// #include <fstream>
 #include <iostream>
-#include <thread>
+// #include <thread>
 
-#include "fmt/ranges.h"
-#include "libatom/io/binary.hpp"
-#include "libatom/io/xyz.hpp"
-#include "libatom/system/atomvector.hpp"
-#include "libatom/system/simbox.hpp"
-#include "libatom/system/simcell.hpp"
-#include "libatom/utils.hpp"
+// #include "fmt/ranges.h"
+// #include "libatom/io/binary.hpp"
+// #include "libatom/io/xyz.hpp"
+// #include "libatom/system/atomvector.hpp"
+// #include "libatom/system/simbox.hpp"
+// #include "libatom/system/simcell.hpp"
+// #include "libatom/utils.hpp"
 
 auto main(int, char **) -> int {
   //

@@ -1,7 +1,4 @@
-
-#include <algorithm>
 #include <cstddef>
-#include <iostream>
 #include <type_traits>
 
 #include "libatom/asserts.hpp"

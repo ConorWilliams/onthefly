@@ -5,7 +5,7 @@
 #include <type_traits>
 
 #include "libatom/asserts.hpp"
-#include "libatom/system/detail/eigen_adaptor.hpp"
+#include "libatom/system/detail/eigen_array_adaptor.hpp"
 #include "libatom/utils.hpp"
 
 namespace otf {
@@ -42,7 +42,7 @@ namespace otf {
    * "atom" types but decomposes the atom type and stores each member in a separate vector. This
    * enables efficient cache use. The members of the "atom" are described through a series of
    * template parameters which should inherit from otf::Member. A selection of canonical members are
-   * provided in libatom/system/atomvector.hpp. The members of each atom can be accessed either by
+   * provided in libatom/system/member.hpp. The members of each atom can be accessed either by
    * the index of the atom or as an eigen array to enable collective operations.
    *
    * Example of use:
@@ -66,26 +66,6 @@ namespace otf {
    * @endcode
    */
   template <typename... Mems> class AtomVector : private detail::EigenArrayAdaptor<Mems>... {
-  private:
-    static_assert(sizeof...(Mems) > 0, "Need at least one member in an AtomVector");
-
-    std::size_t m_size = 0;
-
-    using detail::EigenArrayAdaptor<Mems>::raw_array...;
-    using detail::EigenArrayAdaptor<Mems>::get...;
-
-    /**
-     * @brief Utility to extract first type in a parameter pack
-     */
-    template <typename T, typename...> struct First { using type = T; };
-
-    /**
-     * @brief Size of the underlying arrays
-     */
-    [[nodiscard]] std::size_t capacity() const {
-      return detail::EigenArrayAdaptor<typename First<Mems...>::type>::size();
-    }
-
   public:
     /**
      * @brief Fetch the used size of each array
@@ -147,8 +127,6 @@ namespace otf {
       //
       static_assert(sizeof...(Args) == sizeof...(Mems), "Too few args to emplace_back");
 
-      ;
-
       ASSERT(size() <= capacity(), "Pre check invariant");
 
       if (size() == capacity()) {
@@ -165,6 +143,26 @@ namespace otf {
       m_size += 1;
 
       ASSERT(size() <= capacity(), "Pre check invariant");
+    }
+
+  private:
+    static_assert(sizeof...(Mems) > 0, "Need at least one member in an AtomVector");
+
+    std::size_t m_size = 0;
+
+    using detail::EigenArrayAdaptor<Mems>::raw_array...;
+    using detail::EigenArrayAdaptor<Mems>::get...;
+
+    /**
+     * @brief Utility to extract first type in a parameter pack
+     */
+    template <typename T, typename...> struct First { using type = T; };
+
+    /**
+     * @brief Size of the underlying arrays
+     */
+    [[nodiscard]] std::size_t capacity() const {
+      return detail::EigenArrayAdaptor<typename First<Mems...>::type>::size();
     }
   };
 
