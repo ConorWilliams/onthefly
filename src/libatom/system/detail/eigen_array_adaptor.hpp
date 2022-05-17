@@ -23,19 +23,29 @@ namespace otf::detail {
 
   public:
     /**
+     * @brief Construct a new empty Eigen Array Adaptor object.
+     */
+    EigenArrayAdaptor() = default;
+
+    /**
+     * @brief Construct a new default initialised array with n columns.
+     */
+    EigenArrayAdaptor(std::size_t n) : m_data(Tag::extent, n) {}
+
+    /**
      * @brief Get the number of ellements/columns in the array
      */
-    std::size_t size() const { return m_data.cols(); }
+    std::size_t size() const noexcept { return m_data.cols(); }
 
     /**
      * @brief Get the raw {extent by n} underlying array.
      */
-    auto const &raw_array(Tag) const { return m_data; };
+    auto const &raw_array(Tag) const noexcept { return m_data; };
 
     /**
      * @brief Get the raw {extent by n} underlying array.
      */
-    auto &raw_array(Tag) { return m_data; };
+    auto &raw_array(Tag) noexcept { return m_data; };
 
     /**
      * @brief Get the ith column of the underlying array, returns a reference to the element in the

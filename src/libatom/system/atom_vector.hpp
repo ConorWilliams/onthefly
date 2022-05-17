@@ -68,9 +68,21 @@ namespace otf {
   template <typename... Mems> class AtomVector : private detail::EigenArrayAdaptor<Mems>... {
   public:
     /**
+     * @brief Construct a new empty AtomVector.
+     */
+    AtomVector() = default;
+
+    /**
+     * @brief Construct an atom vector of n atoms with all default initialised members.
+     */
+    explicit AtomVector(std::size_t n) : detail::EigenArrayAdaptor<Mems>(n)... {}
+
+    AtomVector(AtomVector &&) = default;
+
+    /**
      * @brief Fetch the used size of each array
      */
-    [[nodiscard]] std::size_t size() const { return m_size; }
+    [[nodiscard]] std::size_t size() const noexcept { return m_size; }
 
     /**
      * @brief Shrink the arrays. Does not reallocate.
@@ -154,12 +166,12 @@ namespace otf {
     using detail::EigenArrayAdaptor<Mems>::get...;
 
     /**
-     * @brief Utility to extract first type in a parameter pack
+     * @brief Utility to extract first type in a parameter pack.
      */
     template <typename T, typename...> struct First { using type = T; };
 
     /**
-     * @brief Size of the underlying arrays
+     * @brief Size of the underlying arrays.
      */
     [[nodiscard]] std::size_t capacity() const {
       return detail::EigenArrayAdaptor<typename First<Mems...>::type>::size();

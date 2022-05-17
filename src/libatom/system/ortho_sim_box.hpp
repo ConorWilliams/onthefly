@@ -16,12 +16,12 @@ namespace otf {
   class OrthoSimBox {
   public:
     /**
-     * @brief Construct an empty Ortho Sim Box object
+     * @brief Construct an empty Ortho Sim Box object.
      */
     OrthoSimBox() = default;
 
     /**
-     * @brief Construct a new Ortho Sim Box object
+     * @brief Construct a new Ortho Sim Box object.
      *
      * @param extents Length of simulation box along each axis.
      * @param periodic True for each periodic axis.
@@ -32,7 +32,7 @@ namespace otf {
     }
 
     /**
-     * @brief Extents getter (const)
+     * @brief Extents getter (const).
      */
     [[nodiscard]] Vec3<floating> const &extents() const noexcept { return m_extents; }
 
@@ -43,7 +43,6 @@ namespace otf {
      */
     template <typename T>
     [[nodiscard]] Vec3<floating> canon_image(Eigen::ArrayBase<T> const &x) const noexcept {
-      ;
       ASSERT((m_periodic || (x >= Vec3<floating>::Zero() && x < m_extents)).all(), "Out of box");
       return x - m_extents * (x * m_inv_extents).floor();
     }
