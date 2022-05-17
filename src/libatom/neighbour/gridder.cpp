@@ -46,15 +46,9 @@ namespace otf {
 
     for (auto k : {-1, 0, 1}) {
       for (auto j : {-1, 0, 1}) {
-        if constexpr (spatial_dims == 3) {
-          for (auto i : {-1, 0, 1}) {
-            if (i != 0 || j != 0 || k != 0) {
-              offsets[idx++] = (Vec3<int>{i, j, k} * m_prod_shape).sum();
-            }
-          }
-        } else {
-          if (j != 0 || k != 0) {
-            offsets[idx++] = (Vec3<int>{j, k} * m_prod_shape).sum();
+        for (auto i : {-1, 0, 1}) {
+          if (i != 0 || j != 0 || k != 0) {
+            offsets[idx++] = (Vec3<int>{i, j, k} * m_prod_shape).sum();
           }
         }
       }
@@ -64,14 +58,12 @@ namespace otf {
 
     m_neigh_cells.resize(m_shape.prod());
 
-    if constexpr (spatial_dims == 3) {
-      for (int i = 1; i < m_shape[0] - 1; i++) {
-        for (int j = 1; j < m_shape[1] - 1; j++) {
-          for (int k = 1; k < m_shape[2] - 1; k++) {
-            for (std::size_t n = 0; n < offsets.size(); n++) {
-              auto lam = (Vec3<int>{i, j, k} * m_prod_shape).sum();
-              m_neigh_cells[lam][n] = lam + offsets[n];
-            }
+    for (int i = 1; i < m_shape[0] - 1; i++) {
+      for (int j = 1; j < m_shape[1] - 1; j++) {
+        for (int k = 1; k < m_shape[2] - 1; k++) {
+          for (std::size_t n = 0; n < offsets.size(); n++) {
+            auto lam = (Vec3<int>{i, j, k} * m_prod_shape).sum();
+            m_neigh_cells[lam][n] = lam + offsets[n];
           }
         }
       }

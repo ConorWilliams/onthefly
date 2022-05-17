@@ -9,7 +9,7 @@
 namespace otf {
 
   /**
-   * @brief A base type to derive from for defining members of an atom for use in AtomVectors.
+   * @brief A base type to derive from for defining members of an atom for use in AtomArrays.
    *
    * @tparam Scalar The type of the atoms member.
    * @tparam Extent How many elements of the Scalar type are in the member (vector dimension).

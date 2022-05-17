@@ -53,6 +53,11 @@ namespace otf {
   template <typename E> double norm(Eigen::ArrayBase<E> const& r) { return std::sqrt(norm_sq(r)); }
 
   /**
+   * @brief Utility to extract first type in a parameter pack.
+   */
+  template <typename T, typename...> struct First { using type = T; };
+
+  /**
    * @brief Compute integer powers of arithmetic types at compile time
    */
   template <std::size_t Exp, typename T>

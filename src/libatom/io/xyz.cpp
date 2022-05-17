@@ -13,7 +13,7 @@
 
 // namespace otf {
 
-//   static void dump(fmt::ostream& file, SpeciesMap const& map, AtomVector const& atoms) {
+//   static void dump(fmt::ostream& file, SpeciesMap const& map, AtomArray const& atoms) {
 //     ;
 
 //     for (size_t i = 0; i < atoms.size(); i++) {

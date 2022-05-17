@@ -1,35 +1,37 @@
-#pragma once
+
 
 #include "libatom/neighbour/neighbour_list.hpp"
+
+#include "libatom/system/member.hpp"
 
 namespace otf {
 
   void NeighbourCell::rebuild_neighbour_lists(SimCell const& atoms, double rcut) {
-    // Attempt to avoid allocation
-    if (atoms.size() < m_atoms.size()) {
-      m_atoms.shrink(atoms.size());
-    } else {
-      m_atoms = AtomVector<Position, Index, Neighbours>(atoms.size());
+    //
+    if (m_neigh_lists.size() != atoms.size()) {
+      // Allocate space if needed
+      m_atoms.destructive_resize(atoms.size() * (1 + MAX_GHOST_RATIO));
+      m_neigh_lists.resize(atoms.size(), {});
     }
-
-    m_num_atoms = atoms.size();
 
     m_grid.compute_neigh_cells(atoms.box, rcut);
 
-    for (std::size_t i = 0; i < m_num_atoms; ++i) {
-      _list.emplace_back(cell.canonicle_image(cell.activ[idx].vec) + _cell, cell.activ[idx].col);
+    for (std::size_t i = 0; i < atoms.size(); ++i) {
+      m_atoms(Position{}, i) = atoms.box.canon_image(atoms(Position{}, i)) + m_grid.cell();
+
+      //   _list.emplace_back(, cell.activ[idx].col);
     }
 
-    make_ghosts();
+    // make_ghosts();
 
-    // Update head;
-    _head.assign(_prod_shape[2], nullptr);
+    // // Update head;
+    // _head.assign(_prod_shape[2], nullptr);
 
-    for (auto& atom : _list) {
-      atom.next = std::exchange(_head[lambda(atom)], &atom);
-    }
+    // for (auto& atom : _list) {
+    //   atom.next = std::exchange(_head[lambda(atom)], &atom);
+    // }
   }
 
-  void NeighbourCell::update_positions(SimCell const& atoms) {}
+  void NeighbourCell::update_positions(SimCell const&) {}
 
 }  // namespace otf
