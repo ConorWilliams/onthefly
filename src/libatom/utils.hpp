@@ -4,37 +4,25 @@
 #include <cmath>
 #include <cstddef>
 #include <functional>
+#include <iterator>
 #include <numeric>
 #include <string_view>
 #include <type_traits>
 #include <utility>
 #include <vector>
 
+#include "Eigen/Core"
 #include "fmt/chrono.h"
 #include "fmt/core.h"
-
-//
-
-#include "libatom/asserts.hpp"
-// ^ must procede Eigen
-#include "Eigen/Core"
 
 namespace otf {
 
   // Compile time constants
 
-#ifndef LIBATOM_SPATIAL_DIMS
-#  define LIBATOM_SPATIAL_DIMS 3
-#endif
-
   /**
-   * @brief Number of spatial dimensions must be 2 or 3
+   * @brief Number of spatial dimensions
    */
-  inline constexpr int spatial_dims{LIBATOM_SPATIAL_DIMS};
-
-  static_assert(spatial_dims == 2 || spatial_dims == 3, "Invalid number of dimensions");
-
-#undef LIBATOM_SPATIAL_DIMS
+  inline constexpr std::size_t spatial_dims = 3;
 
 #ifndef LIBATOM_FLOAT_TYPE
 #  define LIBATOM_FLOAT_TYPE double
@@ -43,30 +31,16 @@ namespace otf {
   /**
    * @brief Floating point type used for position, velocity, etc
    */
-  using flt_t = LIBATOM_FLOAT_TYPE;
+  using floating = LIBATOM_FLOAT_TYPE;
 
-  static_assert(std::is_floating_point_v<flt_t>);
+  static_assert(std::is_floating_point_v<floating>);
 
 #undef LIBATOM_FLOAT_TYPE
 
   // Types aliases
 
-  template <typename T> using Vec = Eigen::Array<T, spatial_dims, 1>;
-  template <typename T> using Mat = Eigen::Array<T, spatial_dims, spatial_dims>;
-
-  template <typename T> using VecN = Eigen::Array<T, Eigen::Dynamic, 1>;
-  template <typename T> using Mat3N = Eigen::Array<T, spatial_dims, Eigen::Dynamic>;
-
-  /**
-   * @brief Return the longest prefix of the two inputs strings.
-   *
-   * @param Input string a
-   * @param Input string b
-   *
-   * @return A substring of the input string_view "a" containing the longest common prefix of a
-   * and b.
-   */
-  std::string_view common_prefix(std::string_view a, std::string_view b);
+  template <typename T> using Vec3 = Eigen::Array<T, spatial_dims, 1>;
+  template <typename T> using Mat3 = Eigen::Array<T, spatial_dims, spatial_dims>;
 
   /**
    * @brief Generic L2-norm squared between two eigen arrays.
@@ -157,24 +131,3 @@ namespace otf {
   }
 
 }  // namespace otf
-
-#include "bitsery/bitsery.h"
-#include "bitsery/brief_syntax.h"
-
-namespace bitsery {
-  /**
-   * @brief Serializeation of Vec<T> using bitsery
-   */
-  template <typename S, typename T> void serialize(S& s, otf::Vec<T>& v) {
-    if constexpr (otf::spatial_dims == 3) {
-      s(v[0], v[1], v[2]);
-    } else if constexpr (otf::spatial_dims == 2) {
-      s(v[0], v[1]);
-    } else {
-      // Fallback to loop
-      for (auto&& elem : v) {
-        s(elem);
-      }
-    }
-  }
-}  // namespace bitsery

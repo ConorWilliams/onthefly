@@ -1,99 +1,101 @@
-#pragma once
+// #pragma once
 
-#include <algorithm>
-#include <array>
-#include <cstddef>  // size_t
-#include <cstdint>  // fast16_t
-#include <limits>
-#include <optional>
-#include <string>
-#include <string_view>
-#include <vector>
+// #include <algorithm>
+// #include <array>
+// #include <cstddef>  // size_t
+// #include <cstdint>  // fast16_t
+// #include <limits>
+// #include <optional>
+// #include <string>
+// #include <string_view>
+// #include <vector>
 
-#include "bitsery/bitsery.h"
-#include "bitsery/ext/value_range.h"
-#include "bitsery/traits/string.h"
-#include "bitsery/traits/vector.h"
-#include "libatom/asserts.hpp"
+// #include "bitsery/bitsery.h"
+// #include "bitsery/ext/value_range.h"
+// #include "bitsery/traits/string.h"
+// #include "bitsery/traits/vector.h"
+// #include "libatom/asserts.hpp"
 
-namespace otf {
+// namespace otf {
 
-  /**
-   * @brief Class to manage the mapping of string-symbols <-> integer-keys
-   *
-   * The atom integer-keys's ("z"s) are constructed sequentially such that each new atom type gets
-   * an new integer-keys. The species symbol can be reconstructed using .z2species()
-   */
-  class SpeciesMap {
-  public:
-    /**
-     * @brief Get the number of species in the SpeciesMap.
-     */
-    [[nodiscard]] std::size_t size() const noexcept { return m_species_map.size(); }
+//   /**
+//    * @brief Class to manage the mapping of string-symbols <-> integer-keys
+//    *
+//    * The atom integer-keys's ("z"s) are constructed sequentially such that each new atom type
+//    gets
+//    * an new integer-keys. The species symbol can be reconstructed using .z2species()
+//    */
+//   class SpeciesMap {
+//   public:
+//     /**
+//      * @brief Get the number of species in the SpeciesMap.
+//      */
+//     [[nodiscard]] std::size_t size() const noexcept { return m_species_map.size(); }
 
-    /**
-     * @brief Convert a Species to the currently used integer to represent that species.
-     *
-     * @return std::optional<std::size_t> Empty if that species is not in the SpeciesMap.
-     */
-    [[nodiscard]] std::optional<std::size_t> species2z(std::string_view s) const noexcept {
-      for (std::size_t i = 0; i < m_species_map.size(); i++) {
-        if (s == m_species_map[i]) {
-          return i;
-        }
-      }
-      return {};
-    }
+//     /**
+//      * @brief Convert a Species to the currently used integer to represent that species.
+//      *
+//      * @return std::optional<std::size_t> Empty if that species is not in the SpeciesMap.
+//      */
+//     [[nodiscard]] std::optional<std::size_t> species2z(std::string_view s) const noexcept {
+//       for (std::size_t i = 0; i < m_species_map.size(); i++) {
+//         if (s == m_species_map[i]) {
+//           return i;
+//         }
+//       }
+//       return {};
+//     }
 
-    /**
-     * @brief Same as .species2z() but insert species if not currently in the map.
-     */
-    std::size_t species2z_or_insert(std::string_view const& s) {
-      if (std::optional z = species2z(s)) {
-        return *z;
-      } else {
-        m_species_map.emplace_back(s);
-        return size() - 1;
-      }
-    }
+//     /**
+//      * @brief Same as .species2z() but insert species if not currently in the map.
+//      */
+//     std::size_t species2z_or_insert(std::string_view const& s) {
+//       if (std::optional z = species2z(s)) {
+//         return *z;
+//       } else {
+//         m_species_map.emplace_back(s);
+//         return size() - 1;
+//       }
+//     }
 
-    /**
-     * @brief Convert the integer used to represent a species to the Symbol used to represent that
-     * species.
-     *
-     * Undefined behaviour if the integer is not used to represent a species in this SpeciesMap
-     */
-    [[nodiscard]] std::string_view z2species(std::size_t z) const {
-      STACK();
-      ASSERT(z < size(), "Species number not in use");
-      return m_species_map[z];
-    }
+//     /**
+//      * @brief Convert the integer used to represent a species to the Symbol used to represent
+//      that
+//      * species.
+//      *
+//      * Undefined behaviour if the integer is not used to represent a species in this SpeciesMap
+//      */
+//     [[nodiscard]] std::string_view z2species(std::size_t z) const {
+//       ;
+//       ASSERT(z < size(), "Species number not in use");
+//       return m_species_map[z];
+//     }
 
-  private:
-    std::vector<std::string> m_species_map;
+//   private:
+//     std::vector<std::string> m_species_map;
 
-  protected:
-    friend class bitsery::Access;
+//   protected:
+//     friend class bitsery::Access;
 
-    /**
-     * @brief Bitsery serialisation
-     */
-    template <typename S> void serialize(S& s) {
-      STACK();
+//     /**
+//      * @brief Bitsery serialisation
+//      */
+//     template <typename S> void serialize(S& s) {
+//       ;
 
-      std::size_t n = size();
+//       std::size_t n = size();
 
-      s(n);
+//       s(n);
 
-      m_species_map.resize(n, {});
+//       m_species_map.resize(n, {});
 
-      for (size_t i = 0; i < n; i++) {
-        ASSERT(m_species_map[i].size() < 256, "Only support 256 chars species name");
-        s.container(m_species_map[i], 256);
-      }
+//       for (size_t i = 0; i < n; i++) {
+//         ASSERT(m_species_map[i].size() < 256, "Only support 256 chars species name");
+//         s.container(m_species_map[i], 256);
+//       }
 
-      //   s.object
-    }
-  };
+//       //   s.object
+//     }
+//   };
 
-}  // namespace otf
+// }  // namespace otf

@@ -1,103 +1,170 @@
-#pragma once
 
 #include <algorithm>
-#include <array>
-#include <cstddef>  // size_t
-#include <cstdint>  // fast16_t
-#include <optional>
-#include <string_view>
-#include <vector>
+#include <cstddef>
+#include <iostream>
+#include <type_traits>
 
-#include "aligned_allocator.hpp"
-#include "bitsery/bitsery.h"
-#include "bitsery/traits/array.h"
-#include "bitsery/traits/vector.h"
 #include "libatom/asserts.hpp"
+#include "libatom/system/detail/eigen_adaptor.hpp"
 #include "libatom/utils.hpp"
 
 namespace otf {
 
   /**
-   * @brief Represent a collection of atoms {x, z} stored as xxxx, zzzz.
+   * @brief A base type to derive from for defining members of an atom for use in AtomVectors.
    *
+   * @tparam Scalar The type of the atoms member
+   * @tparam Extent How many elements of the Scalar type are in the member (vector dimension)
    */
-  class AtomVector {
+  template <typename Scalar, std::size_t Extent = 1> struct Member {
+    //
+    using scalar_type = Scalar;
+    using vector_type = std::conditional_t<Extent == 1, Scalar, Eigen::Array<Scalar, 1, Extent>>;
+
+    static constexpr std::size_t extent = Extent;
+
+    static_assert(std::is_default_constructible_v<Scalar>);
+  };
+
+  /**
+   * @brief Tag type for position (xyz)
+   */
+  struct Pos : Member<floating, spatial_dims> {};
+  /**
+   * @brief Tag type for atomic number
+   */
+  struct AtomicNum : Member<std::size_t, 1> {};
+
+  /**
+   * @brief A dynamic array of "atoms"
+   *
+   * The default adaptive container type used in the libatom; an AtomVector models a vector of
+   * "atom" types but decomposes the atom type and stores each member in a separate vector. This
+   * enables efficient cache use. The members of the "atom" are described through a series of
+   * template parameters which should inherit from otf::Member. A selection of canonical members are
+   * provided in libatom/system/atomvector.hpp. The members of each atom can be accessed either by
+   * the index of the atom or as an eigen array to enable collective operations.
+   *
+   * Example of use:
+   *
+   * @code{.cpp}
+   *
+   * #include "libatom/system/atomvector.hpp"
+   *
+   * using namespace otf;
+   *
+   * AtomVector<Pos, AtomicNum> atoms;
+   *
+   * atoms.push_back({0,0,0}, 1) // Add a hydrogen atom to the origin
+   *
+   * Vec3 xyz = atoms(Pos{}, 0) // Get the position of the zeroth atom
+   *
+   * std::size_t n = = atoms(AtomicNum{}, 0) // Get the atomic number of the zeroth atom
+   *
+   * atoms(Pos{}) += 1. // Add 1 to each of every atoms coordinates
+   *
+   * @endcode
+   */
+  template <typename... Mems> class AtomVector : private detail::EigenArrayAdaptor<Mems>... {
   private:
-    static constexpr auto Align = Eigen::Aligned128;
+    static_assert(sizeof...(Mems) > 0, "Need at least one member in an AtomVector");
+
+    std::size_t m_size = 0;
+
+    using detail::EigenArrayAdaptor<Mems>::raw_array...;
+    using detail::EigenArrayAdaptor<Mems>::get...;
+
+    /**
+     * @brief Utility to extract first type in a parameter pack
+     */
+    template <typename T, typename...> struct First { using type = T; };
+
+    /**
+     * @brief Size of the underlying arrays
+     */
+    [[nodiscard]] std::size_t capacity() const {
+      return detail::EigenArrayAdaptor<typename First<Mems...>::type>::size();
+    }
 
   public:
     /**
-     * @brief Get the number of atoms in the AtomVector.
+     * @brief Fetch the used size of each array
      */
-    [[nodiscard]] std::size_t size() const noexcept { return m_z.size(); }
+    [[nodiscard]] std::size_t size() const { return m_size; }
 
     /**
-     * @brief Fetch an uninitialised Mat3N large enough to hold the coordinates of every atom
+     * @brief Shrink the arrays. Does not reallocate.
      */
-    [[nodiscard]] Mat3N<flt_t> empty_like_x() const {
-      return {spatial_dims, static_cast<Eigen::Index>(size())};
+    void shrink(std::size_t n) {
+      VERIFY(n <= size(), "Cannot 'shrink' larger!");
+      m_size = n;
     }
-
     /**
-     * @brief Add an atom to the AtomVector
+     * @brief Fetch the ith element of the Tag member.
      *
-     * @param x Coordinate of atom.
-     * @param s Species number of the atom.
+     * @return decltype(auto) Either an Eigen view into a vector or a reference to the element if
+     * 1D.
      */
-    void emplace_back(Vec<flt_t> const& x, std::size_t z) {
-      m_x.insert(m_x.end(), x.begin(), x.end());
-      m_z.push_back(z);
+    template <typename Tag> [[nodiscard]] decltype(auto) operator()(Tag, std::size_t i) const {
+      ASSERT(i < size(), "Out of bounds");
+      return get(Tag{}, i);
     }
 
     /**
-     * @brief Fetch an Eigen view into the atomic positions.
+     * @brief Fetch the ith element of the Tag member.
+     *
+     * @return decltype(auto) Either an Eigen view into a vector or a reference to the element if
+     * 1D.
      */
-    [[nodiscard]] Eigen::Map<Mat3N<flt_t>, Align> x() {
-      STACK();
-      ASSERT(m_x.size() % spatial_dims == 0, "Non integral number of atoms");
-      return {m_x.data(), spatial_dims, static_cast<Eigen::Index>(m_x.size() / spatial_dims)};
+    template <typename Tag> [[nodiscard]] decltype(auto) operator()(Tag, std::size_t i) {
+      ASSERT(i < size(), "Out of bounds");
+      return get(Tag{}, i);
     }
 
     /**
-     * @brief Fetch a const Eigen view into the atomic positions.
+     * @brief Fetch the entire {extent by size()} underlying array of the Tag member.
      */
-    [[nodiscard]] Eigen::Map<Mat3N<flt_t> const, Align> x() const {
-      STACK();
-      ASSERT(m_x.size() % spatial_dims == 0, "Non integral number of atoms");
-      return {m_x.data(), spatial_dims, static_cast<Eigen::Index>(m_x.size() / spatial_dims)};
+    template <typename Tag> [[nodiscard]] auto operator()(Tag) const {
+      return raw_array(Tag{}).leftCols(size());
     }
 
     /**
-     * @brief Fetch an Eigen view into the species numbers.
+     * @brief Fetch the entire {extent by size()} underlying array of the Tag member.
      */
-    [[nodiscard]] Eigen::Map<VecN<std::size_t>, Align> z() {
-      return {m_z.data(), static_cast<Eigen::Index>(m_z.size())};
+    template <typename Tag> [[nodiscard]] auto operator()(Tag) {
+      return raw_array(Tag{}).leftCols(size());
     }
 
     /**
-     * @brief Fetch a const Eigen view into the species numbers.
+     * @brief Add a new element to the back of each array.
      */
-    [[nodiscard]] Eigen::Map<VecN<std::size_t> const, Align> z() const {
-      return {m_z.data(), static_cast<Eigen::Index>(m_z.size())};
-    }
-
-  private:
-    std::vector<flt_t, detail::aligned<flt_t, Align>> m_x;
-    std::vector<std::size_t, detail::aligned<std::size_t, Align>> m_z;
-
-  protected:
-    friend class bitsery::Access;
+    void push_back(typename Mems::vector_type const &...args) { emplace_back(args...); }
 
     /**
-     * @brief Bitsery serialisation
+     * @brief Emplac a  new element to the back of each array.
      */
-    template <typename S> void serialize(S& s) {
-      STACK();
+    template <typename... Args> void emplace_back(Args &&...args) {
+      //
+      static_assert(sizeof...(Args) == sizeof...(Mems), "Too few args to emplace_back");
 
-      ASSERT(size() < 1'000'000, "Too many atoms");
+      ;
 
-      s.container(m_x, 1'000'000 * 3);
-      s.container(m_z, 1'000'000);
+      ASSERT(size() <= capacity(), "Pre check invariant");
+
+      if (size() == capacity()) {
+        // Need to grow arrays
+        std::size_t new_cap = (3 * (capacity() + 1)) / 2;
+
+        ((raw_array(Mems{}).conservativeResize(Eigen::NoChange, new_cap)), ...);
+      }
+
+      ASSERT(size() < capacity(), "Not enough space");
+
+      ((get(Mems{}, size()) = std::forward<Args>(args)), ...);
+
+      m_size += 1;
+
+      ASSERT(size() <= capacity(), "Pre check invariant");
     }
   };
 
