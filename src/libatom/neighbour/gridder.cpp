@@ -11,7 +11,7 @@
 
 namespace otf {
 
-  void Gridder::compute_neigh_cells(OrthoSimBox const &box, double rcut) {
+  void Gridder::compute_neigh_cells(OrthoSimBox const &box, floating rcut) {
     // Early exit
     if (box == m_box && m_rcut == rcut) {
       return;
@@ -38,33 +38,29 @@ namespace otf {
       m_prod_shape[i] = m_prod_shape[i - 1] * m_shape[i - 1];
     }
 
-    std::array<int, ipow<spatial_dims>(3) - 1> offsets;
-
-    // Compute neighbour stride offsets
-
-    int idx = 0;
-
-    for (auto k : {-1, 0, 1}) {
-      for (auto j : {-1, 0, 1}) {
-        for (auto i : {-1, 0, 1}) {
-          if (i != 0 || j != 0 || k != 0) {
-            offsets[idx++] = (Vec3<int>{i, j, k} * m_prod_shape).sum();
-          }
-        }
-      }
-    }
-
     // Fill in m_neigh_cells
 
     m_neigh_cells.resize(m_shape.prod());
 
-    for (int i = 1; i < m_shape[0] - 1; i++) {
-      for (int j = 1; j < m_shape[1] - 1; j++) {
-        for (int k = 1; k < m_shape[2] - 1; k++) {
-          for (std::size_t n = 0; n < offsets.size(); n++) {
-            auto lam = (Vec3<int>{i, j, k} * m_prod_shape).sum();
-            m_neigh_cells[lam][n] = lam + offsets[n];
+    for (int k = 0; k < m_shape[2]; k++) {
+      for (int j = 0; j < m_shape[1]; j++) {
+        for (int i = 0; i < m_shape[0]; i++) {
+          //
+          std::size_t next_slot = 1;
+
+          // ^ Iterating over all {i, j, k} indexes in  the grid.
+          for (int kk = std::max(0, k - 1); kk < std::min(k + 2, m_shape[2]); kk++) {
+            for (int jj = std::max(0, j - 1); jj < std::min(j + 2, m_shape[1]); jj++) {
+              for (int ii = std::max(0, i - 1); ii < std::min(i + 2, m_shape[0]); ii++) {
+                // ^ Iterating over every {ii, jj, kk} cell adjecent to {i, j, k}.
+                if (!(ii == i && jj == j && kk == k)) {
+                  m_neigh_cells[to_1D({i, j, k})][next_slot++] = to_1D({ii, jj, kk});
+                }
+              }
+            }
           }
+          // Write number of neigh_cells into first slot
+          m_neigh_cells[to_1D({i, j, k})][0] = next_slot - 1;
         }
       }
     }

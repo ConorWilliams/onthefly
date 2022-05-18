@@ -40,6 +40,12 @@ CPMAddPackage(
   OPTIONS "BUILD_TESTING OFF" "EIGEN_BUILD_PKGCONFIG ON"
 )
 
+CPMAddPackage(
+  NAME span-lite
+  GITHUB_REPOSITORY martinmoene/span-lite
+  GIT_TAG v0.10.3
+)
+
 # ---- Add source files ----
 
 # Note: globbing sources is considered bad practice as CMake's generators may not detect new files
@@ -59,7 +65,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
 target_compile_options(${PROJECT_NAME} PUBLIC "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/permissive->")
 
 # Link public dependencies
-target_link_libraries(${PROJECT_NAME} PUBLIC Eigen3::Eigen fmt::fmt)
+target_link_libraries(${PROJECT_NAME} PUBLIC Eigen3::Eigen fmt::fmt span-lite)
 
 target_include_directories(
   ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>

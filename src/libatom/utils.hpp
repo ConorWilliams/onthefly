@@ -45,12 +45,12 @@ namespace otf {
   /**
    * @brief Generic L2-norm squared between two eigen arrays.
    */
-  template <typename E> double norm_sq(Eigen::ArrayBase<E> const& r) { return (r * r).sum(); }
+  template <typename E> auto norm_sq(Eigen::ArrayBase<E> const& r) { return (r * r).sum(); }
 
   /**
    * @brief Generic L2-norm between two eigen arrays.
    */
-  template <typename E> double norm(Eigen::ArrayBase<E> const& r) { return std::sqrt(norm_sq(r)); }
+  template <typename E> auto norm(Eigen::ArrayBase<E> const& r) { return std::sqrt(norm_sq(r)); }
 
   /**
    * @brief Utility to extract first type in a parameter pack.

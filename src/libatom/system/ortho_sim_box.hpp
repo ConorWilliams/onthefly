@@ -37,6 +37,11 @@ namespace otf {
     [[nodiscard]] Vec3<floating> const &extents() const noexcept { return m_extents; }
 
     /**
+     * @brief Periodicity getter (const).
+     */
+    [[nodiscard]] Vec3<bool> const &periodic() const noexcept { return m_periodic; }
+
+    /**
      * @brief Maps atom into canonical cell, 0 <= r_i < extent_i for all i which are periodic.
      * Non-periodic atoms are within the simbox extents so x[i] * inv_extents less than 1 and x[i]
      * remains unaffected, hence no non-periodic switch/select.

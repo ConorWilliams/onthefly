@@ -9,6 +9,7 @@
 #include "libatom/asserts.hpp"
 #include "libatom/system/ortho_sim_box.hpp"
 #include "libatom/utils.hpp"
+#include "nonstd/span.hpp"
 
 namespace otf {
 
@@ -28,21 +29,15 @@ namespace otf {
      *
      * Assumes atom is in the cannonicle cell + displaced by m_cell
      */
-    int cell_idx(Vec3<floating> const &x) const {
-      ASSERT((x >= 0).all(), "Atom out of bounds");
-      return to_1D(to_ints(x));
-    }
+    int cell_idx(Vec3<floating> const &x) const { return to_1D(clamp_to_grid_idxs(x)); }
 
     /**
-     * @brief Check each index, i, in each axis is in range: 1 <= i <= m_shape - 1
+     * @brief Get an span containing the indexes of every cell adjecent to the nth cell.
+     *
+     * Does not include the nth cell.
      */
-    bool is_inner_cell(Vec3<floating> const &x) {
-      Vec3<int> indexes = to_ints(x);
-      return (indexes >= 1 && indexes <= m_shape - 1).all();
-    }
-
-    std::array<int, ipow<spatial_dims>(3) - 1> const &neigh_cells(std::size_t n) const noexcept {
-      return m_neigh_cells[n];
+    nonstd::span<std::size_t const> neigh_cells(std::size_t n) const noexcept {
+      return {m_neigh_cells[n].data() + 1, m_neigh_cells[n][0]};
     }
 
     /**
@@ -50,10 +45,12 @@ namespace otf {
      */
     Vec3<floating> const &cell() const noexcept { return m_cell; }
 
+    std::size_t num_cells() const noexcept { return m_shape.prod(); }
+
     /**
      * @brief Build the list of neighbour cells and memoize the results.
      */
-    void compute_neigh_cells(OrthoSimBox const &box, double rcut);
+    void compute_neigh_cells(OrthoSimBox const &box, floating rcut);
 
   private:
     floating m_rcut;
@@ -67,20 +64,20 @@ namespace otf {
     Vec3<floating> m_cell;
     Vec3<floating> m_inv_cell;
 
-    std::vector<std::array<int, ipow<spatial_dims>(3) - 1>> m_neigh_cells;
+    // Maximum of 3^3 - 1 neighbour cells, use first slot to store count of neighbours.
+    std::vector<std::array<std::size_t, ipow<spatial_dims>(3)>> m_neigh_cells;
 
     /**
-     * @brief Cast a Vec3<floating> to Vec3<int>
+     * @brief Cast a Vec3<floating> to Vec3<int> and clammp on interval [0, m_shape -1]
      */
-    Vec3<int> to_ints(Vec3<floating> const &x) const & { return (x * m_inv_cell).cast<int>(); }
+    Vec3<int> clamp_to_grid_idxs(Vec3<floating> const &x) const & {
+      return (x * m_inv_cell).cast<int>().cwiseMax(0).cwiseMin(m_shape - 1);
+    }
 
     /**
      * @brief Get the 1D index from the nD index
      */
-    int to_1D(Vec3<int> const &indexes) const & {
-      ASSERT((indexes > 0 && indexes < m_shape).all(), "Atom out of bounds");
-      return (indexes * m_prod_shape).sum();
-    }
+    int to_1D(Vec3<int> const &indexes) const & { return (indexes * m_prod_shape).sum(); }
   };
 
 }  // namespace otf
