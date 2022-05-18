@@ -85,9 +85,17 @@ void test(SimCell const& atoms, floating rcut) {
 }
 
 TEST_CASE("Neighbour list fuzz testing") {
-  for (size_t i = 0; i < 1000; i++) {
+  for (size_t i = 0; i < 1; i++) {
     //
-    SimCell atoms({10 * dis(gen), 10 * dis(gen), 10 * dis(gen)},
-                  {dis(gen) < 0.5, dis(gen) < 0.5, dis(gen) < 0.5});
+    SimCell atoms({
+        {1 + 9 * dis(gen), 1 + 9 * dis(gen), 1 + 9 * dis(gen)},
+        {dis(gen) < 0.5, dis(gen) < 0.5, dis(gen) < 0.5},
+    });
+
+    random_simcell(atoms, 100);
+
+    for (size_t j = 0; j < 100; j++) {
+      test(atoms, atoms.box.extents().minCoeff() / 4);
+    }
   }
 }
