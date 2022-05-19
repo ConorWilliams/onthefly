@@ -1,54 +1,60 @@
-// #include "libatom/io/xyz.hpp"
+#include "libatom/io/xyz.hpp"
 
-// #include <fmt/core.h>
+#include <fmt/core.h>
 
-// #include <optional>
+#include <algorithm>
+#include <cstddef>
+#include <optional>
 
-// #include "fmt/os.h"
-// #include "fmt/ranges.h"
-// #include "libatom/asserts.hpp"
-// #include "libatom/system/atomvector.hpp"
-// #include "libatom/system/simcell.hpp"
-// #include "libatom/utils.hpp"
+#include "fmt/os.h"
+#include "fmt/ranges.h"
+#include "libatom/asserts.hpp"
+#include "libatom/system/member.hpp"
+#include "libatom/system/sim_cell.hpp"
+#include "libatom/utils.hpp"
 
-// namespace otf {
+namespace otf {
 
-//   static void dump(fmt::ostream& file, SpeciesMap const& map, AtomArray const& atoms) {
-//     ;
+  inline constexpr std::array symbols = {
+      "XX", "H",  "He", "Li", "Be", "B",  "C",  "N",  "O",  "F",  "Ne", "Na", "Mg", "Al",
+      "Si", "P",  "S",  "Cl", "Ar", "K",  "Ca", "Sc", "Ti", "V",  "Cr", "Mn", "Fe", "Co",
+      "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br", "Kr", "Rb", "Sr", "Y",  "Zr", "Nb",
+      "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn", "Sb", "Te", "I",  "Xe", "Cs",
+      "Ba", "La", "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm",
+      "Yb", "Lu", "Hf", "Ta", "W",  "Re", "Os", "Ir", "Pt", "Au", "Hg", "Tl", "Pb", "Bi",
+      "Po", "At", "Rn", "Fr", "Ra", "Ac", "Th", "Pa", "U",  "Np", "Pu", "Am", "Cm", "Bk",
+      "Cf", "Es", "Fm", "Md", "No", "Lr", "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg",
+  };
 
-//     for (size_t i = 0; i < atoms.size(); i++) {
-//       file.print("{}\t{}\n", map.z2species(atoms.z()[i]), fmt::join(atoms.x().col(i), "\t"));
-//     }
-//   }
+  void dump_xyz(fmt::ostream& file, SimCell const& atoms, std::string_view comment) {
+    //
 
-//   void dump_xyz(fmt::ostream& file, SimCell const& cell, std::optional<floating> time) {
-//     //
+    // Write total number of atoms
+    file.print("{}\n", atoms.size());
 
-//     ;
+    // Build comment line
 
-//     // Write total number of atoms
-//     file.print("{}\n", cell.size());
+    VERIFY(std::find(comment.begin(), comment.end(), '\n') == comment.end(), "No newlines");
 
-//     // Build comment line
+    file.print("{} ", comment);
 
-//     if (time) {
-//       file.print("Time={} ", *time);
-//     }
+    Vec3<floating> ext = atoms.box.extents();
 
-//     if constexpr (spatial_dims == 3) {
-//       file.print("Lattice=\"{} 0 0 0 {} 0 0 0 {}\" ", cell.box.extents()[0],
-//       cell.box.extents()[1],
-//                  cell.box.extents()[2]);
-//     } else if constexpr (spatial_dims == 2) {
-//       file.print("Lattice=\"{} 0 0 {}\" ", cell.box.extents()[0], cell.box.extents()[1]);
-//     }
+    file.print("Lattice=\"{} 0 0 0 {} 0 0 0 {}\" ", ext[0], ext[1], ext[2]);
 
-//     file.print("Properties=species:S:1:pos:R:{}\n", spatial_dims);
+    file.print("Properties=atomic:I:1:species:S:1:pos:R:3:frozen:I:1\n");
 
-//     dump(file, cell.map, cell.active);
-//     dump(file, cell.map, cell.frozen);
+    for (size_t i = 0; i < atoms.size(); i++) {
+      //
+      std::size_t n = atoms(AtomicNum{}, i);
 
-//     file.flush();
-//   }
+      ASSERT(n > 0 && n <= 111, "Atomic number out of bounds");
 
-// }  // namespace otf
+      file.print("{}\t{}\t{}\t{}\n", n, symbols[n], fmt::join(atoms(Position{}, i), "\t"),
+                 (int)atoms(Frozen{}, i));
+    }
+
+    file.flush();
+  }
+
+}  // namespace otf

@@ -55,9 +55,9 @@ void slow_neigh_list(std::vector<std::vector<Neigh>>& nl, SimCell const& atoms, 
 
 void test(SimCell const& atoms, floating rcut) {
   //
-  NeighbourCell neigh;
+  NeighbourList neigh;
 
-  neigh.rebuild_neighbour_lists(atoms, rcut);
+  neigh.rebuild(atoms, rcut);
 
   std::vector<std::vector<Neigh>> nl;
 
@@ -95,11 +95,11 @@ TEST_CASE("Neighbour list speed testing") {
   floating rcut = 0.1;
 
   {
-    NeighbourCell neigh;
+    NeighbourList neigh;
 
-    neigh.rebuild_neighbour_lists(atoms, rcut);  // Warm up + alloc
+    neigh.rebuild(atoms, rcut);  // Warm up + alloc
 
-    timeit("Fast", [&] { neigh.rebuild_neighbour_lists(atoms, rcut); });
+    timeit("Fast", [&] { neigh.rebuild(atoms, rcut); });
 
     int x = 0;
     int y = 0;

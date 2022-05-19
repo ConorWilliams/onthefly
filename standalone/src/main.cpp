@@ -1,10 +1,12 @@
 
 
 #include <fmt/core.h>
+#include <fmt/ostream.h>
 
 #include <iostream>
 #include <random>
 
+#include "libatom/io/xyz.hpp"
 #include "libatom/neighbour/neighbour_list.hpp"
 #include "libatom/system/atom_array.hpp"
 #include "libatom/system/sim_cell.hpp"
@@ -21,7 +23,7 @@ SimCell random_simcell(SimCell& atoms, std::size_t n) {
 
   for (size_t i = 0; i < n; i++) {
     atoms(Position{}, i) = Vec3<floating>{dis(gen), dis(gen), dis(gen)} * atoms.box.extents();
-    atoms(AtomicNum{}, i) = 1;
+    atoms(AtomicNum{}, i) = 26;
     atoms(Frozen{}, i) = false;
   }
 
@@ -39,12 +41,16 @@ auto main(int, char**) -> int {
 
   floating rcut = 6;
 
+  auto out = fmt::output_file("dump.xyz");
+
+  dump_xyz(out, atoms, "My comment");
+
   {
-    NeighbourCell neigh;
+    NeighbourList neigh;
 
-    neigh.rebuild_neighbour_lists(atoms, rcut);  // Warm up + alloc
+    neigh.rebuild(atoms, rcut);  // Warm up + alloc
 
-    timeit("Fast", [&] { neigh.rebuild_neighbour_lists(atoms, rcut); });
+    timeit("Fast", [&] { neigh.rebuild_parallel(atoms, rcut); });
 
     std::cout << "working\n";
 

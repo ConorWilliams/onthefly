@@ -17,18 +17,69 @@ namespace otf {
    * @brief The maximum nuber of ghosts neighbour cell supports is MAX_GHOST_RATIO * num_atoms
    */
   inline constexpr std::size_t MAX_GHOST_RATIO = 4;
+
   /**
-   * @brief
+   * @brief A class to contain, build and manage neighbour lists in shared memory.
    *
-   * Designed with the intention of reusing
+   * Designed with the intention of being reused NeighbourList separates the building, updating and
+   * using of neighbour lists (NLs). NLs can be constructed from a SimCell and then used to find all
+   * atoms within some cut off of an atom efficiantly.
    *
+   * NeighbourList resolves periodicity using ghost atoms, these are stored and managed internally.
+   *
+   * An example of using a NeighbourList to count the average number of atoms within rcut of each
+   * atom:
+   *
+   * @code{.cpp}
+   *
+   * #include "libatom/neighbour/neighbour_list.hpp"
+   * #include "libatom/system/sim_cell.hpp"
+   *
+   * using namespace otf;
+   *
+   * SimCell atoms = ... // Initialise a set of atoms in a {10, 10, 10} cell.
+   *
+   * NeighbourList nlist;
+   *
+   * nlist.rebuild(atoms, 3); // Build the NL.
+   *
+   * std::size_t num_neigh = 0;
+   *
+   * for (size_t i = 0; i < atoms.size(); i++) {
+   *    nlist.for_neighbours(i, [&](std::size_t, floating, Vec3<floating> const&) {
+   *        num_neigh++;
+   *    });
+   * }
+   *
+   * double avg_num_neigh = (double) num_neigh / atoms.size();
+   *
+   * @endcode
    */
-  class NeighbourCell {
+  class NeighbourList {
   public:
-    void rebuild_neighbour_lists(SimCell const& atoms, floating rcut);
+    /**
+     * @brief Build the internal neighbour lists serially
+     *
+     * After a call to this function the for_neighbours methods can be used to iterate over all
+     * atoms within rcut of any atom. The cut off, rcut, must be smaller than the minimum SimCell
+     * extent.
+     */
+    void rebuild(SimCell const& atoms, floating rcut);
 
-    void rebuild_neighbour_lists_parallel(SimCell const& atoms, floating rcut);
+    /**
+     * @brief Build the internal neighbour lists in parallel with openMP.
+     *
+     * After a call to this function the for_neighbours methods can be used to iterate over all
+     * atoms within rcut of any atom. The cut off, rcut, must be smaller than the minimum SimCell
+     * extent.
+     */
+    void rebuild_parallel(SimCell const& atoms, floating rcut);
 
+    /**
+     * @brief Update the positions of all atoms + ghosts but do not rebuild the neighbour_lists.
+     *
+     * Usefull if using a skin distance.
+     */
     void update_positions(SimCell const& atoms);
 
     /**
@@ -54,7 +105,7 @@ namespace otf {
 
     /**
      * @brief Call f(n, r_sq, dr) for every neighbour n of atom i, within the cut off specified
-     * during call to rebuild_neighbour_lists*.
+     * during call to rebuild*.
      *
      * n is the neighbour index which could be a ghost or real atom, to convert to the index of the
      * real atom regardless of weather it is a ghost or not call .image_to_real(n)
@@ -104,11 +155,6 @@ namespace otf {
      * A ghosts position can be calculated from the position of its image plus its offset.
      */
     void make_ghosts(OrthoSimBox const& box, floating rcut);
-
-    /**
-     * @brief Broadcast new positions to ghosts.
-     */
-    void update_ghosts();
 
     /**
      * @brief Build the neighbour list of the ith atom.

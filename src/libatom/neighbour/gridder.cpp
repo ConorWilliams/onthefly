@@ -28,7 +28,7 @@ namespace otf {
 
     // Sanity checks
     VERIFY(rcut > 0, "rcut is negative");
-    VERIFY((box.extents() >= rcut).all(), "rcut is too big");
+    VERIFY((box.extents() > rcut).all(), "rcut is too big");
 
     // Cumprod _shape
 

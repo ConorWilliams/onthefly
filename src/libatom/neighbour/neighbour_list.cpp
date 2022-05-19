@@ -15,7 +15,7 @@
 
 namespace otf {
 
-  void NeighbourCell::rebuild_neighbour_lists(SimCell const& atoms, floating rcut) {
+  void NeighbourList::rebuild(SimCell const& atoms, floating rcut) {
     //
     init_and_build_lcl(atoms, rcut);
 
@@ -24,7 +24,7 @@ namespace otf {
     }
   }
 
-  void NeighbourCell::rebuild_neighbour_lists_parallel(SimCell const& atoms, floating rcut) {
+  void NeighbourList::rebuild_parallel(SimCell const& atoms, floating rcut) {
     //
     init_and_build_lcl(atoms, rcut);
 
@@ -34,7 +34,7 @@ namespace otf {
     }
   }
 
-  void NeighbourCell::init_and_build_lcl(SimCell const& atoms, floating rcut) {
+  void NeighbourList::init_and_build_lcl(SimCell const& atoms, floating rcut) {
     //
     m_rcut = rcut;
 
@@ -68,9 +68,19 @@ namespace otf {
     }
   }
 
-  void NeighbourCell::update_positions(SimCell const&) {}
+  void NeighbourList::update_positions(SimCell const& atoms) {
+    // Copy in atoms
+    for (std::size_t i = 0; i < atoms.size(); ++i) {
+      m_atoms(Position{}, i) = atoms.box.canon_image(atoms(Position{}, i)) + m_grid.cell();
+    }
 
-  void NeighbourCell::build_neigh_list(std::size_t i, floating rcut) {
+    // Update ghosts
+    for (std::size_t i = m_neigh_lists.size(); i < m_num_plus_ghosts; i++) {
+      m_atoms(Position{}, i) = m_atoms(Position{}, image_to_real(i)) + m_atoms(Offset{}, i);
+    }
+  }
+
+  void NeighbourList::build_neigh_list(std::size_t i, floating rcut) {
     //
     m_neigh_lists[i].clear();
 
@@ -102,13 +112,7 @@ namespace otf {
     }
   }
 
-  void NeighbourCell::update_ghosts() {
-    for (std::size_t i = m_neigh_lists.size(); i < m_num_plus_ghosts; i++) {
-      m_atoms(Position{}, i) = m_atoms(Position{}, image_to_real(i)) + m_atoms(Offset{}, i);
-    }
-  }
-
-  void NeighbourCell::make_ghosts(OrthoSimBox const& box, floating rcut) {
+  void NeighbourList::make_ghosts(OrthoSimBox const& box, floating rcut) {
     //
     std::size_t next_slot = m_neigh_lists.size();
 
