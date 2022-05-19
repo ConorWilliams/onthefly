@@ -19,7 +19,9 @@ namespace otf {
    *
    * #include "libatom/io/xyz.hpp"
    *
-   * dump_xyz(fmt::output_file("dump.xyz"), atoms, "A comment!");
+   * auto f = fmt::output_file("dump.xyz");
+   *
+   * dump_xyz(f, atoms, "A comment!");
    *
    * @endcode
    *

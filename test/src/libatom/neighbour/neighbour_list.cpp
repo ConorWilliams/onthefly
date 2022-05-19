@@ -85,44 +85,44 @@ void test(SimCell const& atoms, floating rcut) {
   }
 }
 
-TEST_CASE("Neighbour list speed testing") {
-  SimCell atoms({{1, 2, 1}, {true, true, true}});
+// TEST_CASE("Neighbour list speed testing") {
+//   SimCell atoms({{1, 2, 1}, {true, true, true}});
 
-  random_simcell(atoms, 10'000 * atoms.box.extents().prod());
+//   random_simcell(atoms, 10'000 * atoms.box.extents().prod());
 
-  fmt::print("num atoms is {}\n", atoms.size());
+//   fmt::print("num atoms is {}\n", atoms.size());
 
-  floating rcut = 0.1;
+//   floating rcut = 0.1;
 
-  {
-    NeighbourList neigh;
+//   {
+//     NeighbourList neigh;
 
-    neigh.rebuild(atoms, rcut);  // Warm up + alloc
+//     neigh.rebuild(atoms, rcut);  // Warm up + alloc
 
-    timeit("Fast", [&] { neigh.rebuild(atoms, rcut); });
+//     timeit("Fast", [&] { neigh.rebuild(atoms, rcut); });
 
-    int x = 0;
-    int y = 0;
+//     int x = 0;
+//     int y = 0;
 
-    timeit("Counting", [&] {
-      for (size_t i = 0; i < atoms.size(); i++) {
-        //
-        x++;
-        neigh.for_neighbours(i, [&](std::size_t, floating, Vec3<floating> const&) { y++; });
-      }
-    });
+//     timeit("Counting", [&] {
+//       for (size_t i = 0; i < atoms.size(); i++) {
+//         //
+//         x++;
+//         neigh.for_neighbours(i, [&](std::size_t, floating, Vec3<floating> const&) { y++; });
+//       }
+//     });
 
-    fmt::print("num neigh = {}\n", (double)y / x);
-  }
+//     fmt::print("num neigh = {}\n", (double)y / x);
+//   }
 
-  {
-    std::vector<std::vector<Neigh>> nl;
+//   {
+//     std::vector<std::vector<Neigh>> nl;
 
-    slow_neigh_list(nl, atoms, rcut);  // Warm up + alloc
+//     slow_neigh_list(nl, atoms, rcut);  // Warm up + alloc
 
-    timeit("Slow", [&] { slow_neigh_list(nl, atoms, rcut); });
-  }
-}
+//     timeit("Slow", [&] { slow_neigh_list(nl, atoms, rcut); });
+//   }
+// }
 
 TEST_CASE("Neighbour list fuzz testing") {
   for (size_t i = 0; i < 100; i++) {

@@ -54,7 +54,7 @@ namespace otf {
 
     // Copy in atoms
     for (std::size_t i = 0; i < atoms.size(); ++i) {
-      m_atoms(Position{}, i) = atoms.box.canon_image(atoms(Position{}, i)) + m_grid.cell();
+      m_atoms(Position{}, i) = m_grid.canon_grid_pos(atoms(Position{}, i));
     }
 
     make_ghosts(atoms.box, rcut);
@@ -71,7 +71,7 @@ namespace otf {
   void NeighbourList::update_positions(SimCell const& atoms) {
     // Copy in atoms
     for (std::size_t i = 0; i < atoms.size(); ++i) {
-      m_atoms(Position{}, i) = atoms.box.canon_image(atoms(Position{}, i)) + m_grid.cell();
+      m_atoms(Position{}, i) = m_grid.canon_grid_pos(atoms(Position{}, i));
     }
 
     // Update ghosts

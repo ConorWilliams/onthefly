@@ -12,12 +12,12 @@ include(../cmake/CPM.cmake)
 
 CPMAddPackage(NAME OnTheFly SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/..)
 
-# ---- Create standalone executable ----
+# ---- Create executables ----
 
-file(GLOB sources CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
-
-add_executable(${PROJECT_NAME} ${sources})
-
+add_executable(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17 OUTPUT_NAME "OnTheFly")
-
 target_link_libraries(${PROJECT_NAME} OnTheFly::OnTheFly)
+
+add_executable(lattice ${CMAKE_CURRENT_SOURCE_DIR}/src/lattice.cpp)
+set_target_properties(lattice PROPERTIES CXX_STANDARD 17 OUTPUT_NAME "lattice")
+target_link_libraries(lattice OnTheFly::OnTheFly)

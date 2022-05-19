@@ -15,13 +15,14 @@ TEST_CASE("Gridder") {
 
   grid.compute_neigh_cells(box, 3);
 
-  REQUIRE(grid.cell_idx(otf::Vec3<otf::floating>{0, 0, 0} + grid.cell()) == 1 + 1 * 5 + 1 * 5 * 5);
-  REQUIRE(grid.cell_idx(otf::Vec3<otf::floating>{0, 0, 0} + grid.cell()) == 1 + 1 * 5 + 1 * 5 * 5);
+  using V = otf::Vec3<otf::floating>;
 
-  REQUIRE(grid.cell_idx(otf::Vec3<otf::floating>{5, 5, 5} + grid.cell()) == 2 + 2 * 5 + 2 * 5 * 5);
+  REQUIRE(grid.cell_idx(grid.canon_grid_pos(V{0, 0, 0})) == 1 + 1 * 5 + 1 * 5 * 5);
+  REQUIRE(grid.cell_idx(grid.canon_grid_pos(V{0, 0, 0})) == 1 + 1 * 5 + 1 * 5 * 5);
 
-  REQUIRE(grid.cell_idx(otf::Vec3<otf::floating>{9.999, 9.999, 9.999} + grid.cell())
-          == 3 + 3 * 5 + 3 * 5 * 5);
+  REQUIRE(grid.cell_idx(grid.canon_grid_pos(V{5, 5, 5})) == 2 + 2 * 5 + 2 * 5 * 5);
+
+  REQUIRE(grid.cell_idx(grid.canon_grid_pos(V{9.999, 9.999, 9.999})) == 3 + 3 * 5 + 3 * 5 * 5);
 
   // Test inner cell
 

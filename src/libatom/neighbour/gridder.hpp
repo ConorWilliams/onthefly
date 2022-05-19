@@ -41,7 +41,16 @@ namespace otf {
     }
 
     /**
-     * @brief Get the cell shape.
+     * @brief Get the Canonicle grid position, this is the canonicle image displaced by one grid
+     * cell.
+     */
+    template <typename E>
+    Vec3<floating> canon_grid_pos(Eigen::ArrayBase<E> const &x) const noexcept {
+      return m_box.canon_image(x) + m_cell;
+    }
+
+    /**
+     * @brief Get shape of a single cell
      */
     Vec3<floating> const &cell() const noexcept { return m_cell; }
 
