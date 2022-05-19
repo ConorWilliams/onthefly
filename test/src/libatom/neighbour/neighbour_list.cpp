@@ -67,7 +67,7 @@ void test(SimCell const& atoms, floating rcut) {
     //
     std::vector<Neigh> nl2;
 
-    neigh.for_neighbours(i, rcut, [&](std::size_t n, floating, Vec3<floating> const& dr) {
+    neigh.for_neighbours(i, [&](std::size_t n, floating, Vec3<floating> const& dr) {
       nl2.push_back({neigh.image_to_real(n), dr});
     });
 
@@ -108,17 +108,11 @@ TEST_CASE("Neighbour list speed testing") {
       for (size_t i = 0; i < atoms.size(); i++) {
         //
         x++;
-        neigh.for_neighbours(i, rcut, [&](std::size_t, floating, Vec3<floating> const&) { y++; });
+        neigh.for_neighbours(i, [&](std::size_t, floating, Vec3<floating> const&) { y++; });
       }
     });
 
     fmt::print("num neigh = {}\n", (double)y / x);
-
-    // neigh.for_neighbours(0, rcut, []{})
-
-    // count the number of neighbours, see if density is realistic
-
-    // profile rebuild_neighbour_lists
   }
 
   {

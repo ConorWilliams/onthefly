@@ -17,7 +17,7 @@ namespace otf {
 
   void NeighbourCell::rebuild_neighbour_lists(SimCell const& atoms, floating rcut) {
     //
-    build_lcl(atoms, rcut);
+    init_and_build_lcl(atoms, rcut);
 
     for (size_t i = 0; i < m_neigh_lists.size(); i++) {
       build_neigh_list(i, rcut);
@@ -26,7 +26,7 @@ namespace otf {
 
   void NeighbourCell::rebuild_neighbour_lists_parallel(SimCell const& atoms, floating rcut) {
     //
-    build_lcl(atoms, rcut);
+    init_and_build_lcl(atoms, rcut);
 
 #pragma omp parallel for
     for (size_t i = 0; i < m_neigh_lists.size(); i++) {
@@ -34,7 +34,7 @@ namespace otf {
     }
   }
 
-  void NeighbourCell::build_lcl(SimCell const& atoms, floating rcut) {
+  void NeighbourCell::init_and_build_lcl(SimCell const& atoms, floating rcut) {
     //
     m_rcut = rcut;
 
@@ -43,15 +43,18 @@ namespace otf {
       // Allocate space if needed
       m_atoms.destructive_resize(atoms.size() * (1 + MAX_GHOST_RATIO));
       m_neigh_lists.resize(atoms.size(), {});
+
+      // Need to re-index if size changed
+      for (std::size_t i = 0; i < atoms.size(); ++i) {
+        m_atoms(Index{}, i) = i;
+      }
     }
 
     m_grid.compute_neigh_cells(atoms.box, rcut);
 
     // Copy in atoms
-
     for (std::size_t i = 0; i < atoms.size(); ++i) {
       m_atoms(Position{}, i) = atoms.box.canon_image(atoms(Position{}, i)) + m_grid.cell();
-      m_atoms(Index{}, i) = i;
     }
 
     make_ghosts(atoms.box, rcut);
