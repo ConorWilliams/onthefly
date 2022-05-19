@@ -53,16 +53,16 @@ namespace otf {
     void compute_neigh_cells(OrthoSimBox const &box, floating rcut);
 
   private:
-    floating m_rcut;
-    floating m_rcut_sq;
+    floating m_rcut = 0;
+    floating m_rcut_sq = 0;
 
     OrthoSimBox m_box;
 
-    Vec3<int> m_shape;
-    Vec3<int> m_prod_shape;
+    Vec3<int> m_shape = Vec3<int>::Zero();
+    Vec3<int> m_prod_shape = Vec3<int>::Zero();
 
-    Vec3<floating> m_cell;
-    Vec3<floating> m_inv_cell;
+    Vec3<floating> m_cell = Vec3<floating>::Zero();
+    Vec3<floating> m_inv_cell = Vec3<floating>::Zero();
 
     // Maximum of 3^3 - 1 neighbour cells, use first slot to store count of neighbours.
     std::vector<std::array<std::size_t, ipow<spatial_dims>(3)>> m_neigh_cells;

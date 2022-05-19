@@ -68,9 +68,9 @@ namespace otf {
     }
 
   private:
-    Vec3<floating> m_extents;
-    Vec3<bool> m_periodic;
-    Vec3<floating> m_inv_extents;
+    Vec3<floating> m_extents = Vec3<floating>::Zero();
+    Vec3<bool> m_periodic = Vec3<bool>::Zero();
+    Vec3<floating> m_inv_extents = Vec3<floating>::Zero();
   };
 
 }  // namespace otf

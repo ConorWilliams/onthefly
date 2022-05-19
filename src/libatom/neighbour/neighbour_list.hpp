@@ -16,18 +16,15 @@ namespace otf {
   /**
    * @brief The maximum nuber of ghosts neighbour cell supports is MAX_GHOST_RATIO * num_atoms
    */
-  inline constexpr std::size_t MAX_GHOST_RATIO = 26;
+  inline constexpr std::size_t MAX_GHOST_RATIO = 4;
 
   class NeighbourCell {
   public:
     void rebuild_neighbour_lists(SimCell const& atoms, floating rcut);
 
-    void update_positions(SimCell const& atoms);
+    void rebuild_neighbour_lists_parallel(SimCell const& atoms, floating rcut);
 
-    /**
-     * @brief Convert the neighbour index of a real or ghost atom to the index of the real atom
-     */
-    std::size_t image_to_real(std::size_t i) const { return m_atoms(Index{}, i); }
+    void update_positions(SimCell const& atoms);
 
     /**
      * @brief Call f(n, r_sq, dr) for every neighbour n of atom i within distance rcut.
@@ -50,24 +47,35 @@ namespace otf {
       }
     }
 
+    /**
+     * @brief Convert the neighbour index of a real or ghost atom to the index of the real atom
+     */
+    std::size_t image_to_real(std::size_t i) const { return m_atoms(Index{}, i); }
+
   private:
     struct Next : Member<std::size_t, 1> {};
 
+    struct Offset : Member<floating, 3> {};
+
     Gridder m_grid;
 
-    AtomArray<Position, Index, Next> m_atoms;
+    AtomArray<Position, Index, Next, Offset> m_atoms;
 
-    std::size_t m_num_plus_ghosts;
+    std::size_t m_num_plus_ghosts = 0;
 
     std::vector<std::vector<std::size_t>> m_neigh_lists;
 
     std::vector<std::size_t> m_head;
 
-    floating m_rcut;
+    floating m_rcut = 0;
+
+    void build_lcl(SimCell const& atoms, floating rcut);
 
     void make_ghosts(OrthoSimBox const& box, floating rcut);
 
-    void build_neigh_lists(floating rcut);
+    void update_ghosts();
+
+    void build_neigh_list(std::size_t i, floating rcut);
   };
 
 }  // namespace otf

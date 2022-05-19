@@ -2,71 +2,52 @@
 
 #include <fmt/core.h>
 
-// #include <chrono>
-// #include <fstream>
 #include <iostream>
-// #include <thread>
+#include <random>
 
-// #include "fmt/ranges.h"
-// #include "libatom/io/binary.hpp"
-// #include "libatom/io/xyz.hpp"
-// #include "libatom/system/atomvector.hpp"
-// #include "libatom/system/simbox.hpp"
-// #include "libatom/system/simcell.hpp"
-// #include "libatom/utils.hpp"
+#include "libatom/neighbour/neighbour_list.hpp"
+#include "libatom/system/atom_array.hpp"
+#include "libatom/system/sim_cell.hpp"
+#include "libatom/utils.hpp"
 
-auto main(int, char **) -> int {
+using namespace otf;
+
+std::mt19937 gen(33);
+std::uniform_real_distribution<floating> dis(0, 1);
+
+SimCell random_simcell(SimCell& atoms, std::size_t n) {
+  //
+  atoms.resize(n);
+
+  for (size_t i = 0; i < n; i++) {
+    atoms(Position{}, i) = Vec3<floating>{dis(gen), dis(gen), dis(gen)} * atoms.box.extents();
+    atoms(AtomicNum{}, i) = 1;
+    atoms(Frozen{}, i) = false;
+  }
+
+  return atoms;
+}
+
+auto main(int, char**) -> int {
   //
 
-  //   otf::SimCell vec{{{1, 1, 1}, {false, false, false}}};
+  SimCell atoms({{17, 17, 17}, {true, true, true}});
 
-  //   auto fe_id = vec.map.species2z_or_insert("Fe");
+  random_simcell(atoms, 1000);
 
-  //   vec.active.emplace_back({0, 0, 1}, fe_id);
+  fmt::print("num atoms is {}\n", atoms.size());
 
-  //   {
-  //     std::fstream s{"dump.bin", s.binary | s.trunc | s.out};
+  floating rcut = 6;
 
-  //     otf::dump_binary(s, vec);
+  {
+    NeighbourCell neigh;
 
-  //     vec.active.x().col(0) += 1;
+    neigh.rebuild_neighbour_lists(atoms, rcut);  // Warm up + alloc
 
-  //     otf::dump_binary(s, vec);
-  //   }
+    timeit("Fast", [&] { neigh.rebuild_neighbour_lists(atoms, rcut); });
 
-  //   fmt::print("{}\n", vec.map.z2species(fe_id));
+    std::cout << "working\n";
 
-  //   ;
-
-  //   {
-  //     std::fstream s("dump.bin", s.binary | s.in);
-
-  //     otf::SimCell res{{{1, 9, 1}, {false, false, false}}};
-
-  //     while (true) {
-  //       bool last = stream_binary(s, res);
-
-  //       // Do something with res
-
-  //       fmt::print("{}\n", fmt::join(res.active.x().col(0), " "));
-
-  //       VERIFY(res.map.species2z("Fe") && *res.map.species2z("Fe") == 0, "WOW");
-
-  //       if (last) {
-  //         break;
-  //       }
-  //     }
-
-  //     // }
-  //   }
-
-  //   //   //   int a = 1;
-
-  //   otf::timeit("tdest", []() {});
-
-  //   //
-
-  std::cout << "working\n";
-
-  return 0;
+    return 0;
+  }
 }

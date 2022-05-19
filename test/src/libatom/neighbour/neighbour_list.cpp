@@ -73,9 +73,10 @@ void test(SimCell const& atoms, floating rcut) {
 
     std::sort(nl2.begin(), nl2.end(), [](auto const& a, auto const& b) { return a.i < b.i; });
 
+    // Test same number of neighbours
+    REQUIRE(nl2.size() == nl[i].size());
+
     for (size_t j = 0; j < nl2.size(); j++) {
-      // Test same number of neighbours
-      REQUIRE(nl2.size() == nl[i].size());
       // Test all neighbours have the same index
       REQUIRE(nl2[j].i == nl[i][j].i);
       // Test all neighbours have the same minimum image positions
@@ -84,18 +85,63 @@ void test(SimCell const& atoms, floating rcut) {
   }
 }
 
+TEST_CASE("Neighbour list speed testing") {
+  SimCell atoms({{1, 2, 1}, {true, true, true}});
+
+  random_simcell(atoms, 10'000 * atoms.box.extents().prod());
+
+  fmt::print("num atoms is {}\n", atoms.size());
+
+  floating rcut = 0.1;
+
+  {
+    NeighbourCell neigh;
+
+    neigh.rebuild_neighbour_lists(atoms, rcut);  // Warm up + alloc
+
+    timeit("Fast", [&] { neigh.rebuild_neighbour_lists(atoms, rcut); });
+
+    int x = 0;
+    int y = 0;
+
+    timeit("Counting", [&] {
+      for (size_t i = 0; i < atoms.size(); i++) {
+        //
+        x++;
+        neigh.for_neighbours(i, rcut, [&](std::size_t, floating, Vec3<floating> const&) { y++; });
+      }
+    });
+
+    fmt::print("num neigh = {}\n", (double)y / x);
+
+    // neigh.for_neighbours(0, rcut, []{})
+
+    // count the number of neighbours, see if density is realistic
+
+    // profile rebuild_neighbour_lists
+  }
+
+  {
+    std::vector<std::vector<Neigh>> nl;
+
+    slow_neigh_list(nl, atoms, rcut);  // Warm up + alloc
+
+    timeit("Slow", [&] { slow_neigh_list(nl, atoms, rcut); });
+  }
+}
+
 TEST_CASE("Neighbour list fuzz testing") {
-  for (size_t i = 0; i < 1; i++) {
+  for (size_t i = 0; i < 100; i++) {
     //
     SimCell atoms({
         {1 + 9 * dis(gen), 1 + 9 * dis(gen), 1 + 9 * dis(gen)},
         {dis(gen) < 0.5, dis(gen) < 0.5, dis(gen) < 0.5},
     });
 
-    random_simcell(atoms, 100);
+    random_simcell(atoms, 100 + 900 * dis(gen));
 
-    for (size_t j = 0; j < 100; j++) {
-      test(atoms, atoms.box.extents().minCoeff() / 4);
+    for (size_t j = 0; j < 10; j++) {
+      test(atoms, 0.25 + 0.2499 * dis(gen));
     }
   }
 }
