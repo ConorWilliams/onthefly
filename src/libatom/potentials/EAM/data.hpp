@@ -20,20 +20,27 @@ namespace otf {
      *
      * For detail on file specification see: https://docs.lammps.org/pair_eam.html
      */
-    DataEAM(std::istream in);
+    DataEAM(std::istream &in);
 
     double rcut() const { return m_rcut; }
 
     /**
      * @brief Fetch the embedding energy function corresponding to the atom with atomic number 'a'.
      */
-    Spline const &f(std::size_t a) const { return m_f[m_atomic2idx[a]]; }
+    Spline const &f(std::size_t a) const {
+      ASSERT(a < 112, "Invalid atomic number");
+      ASSERT(m_atomic2idx[a] < m_num_species, "Species not in this potential");
+      return m_f[m_atomic2idx[a]];
+    }
 
     /**
      * @brief Fetch the electron density function corresponding to the atom pair with atomic numbers
      * 'a' and 'b'.
      */
     Spline const &phi(std::size_t a, std::size_t b) const {
+      ASSERT(a < 112 && b < 112, "Invalid atomic number");
+      ASSERT(m_atomic2idx[a] < m_num_species, "Species not in this potential");
+      ASSERT(m_atomic2idx[b] < m_num_species, "Species not in this potential");
       return m_phi[index(m_atomic2idx[a], m_atomic2idx[b])];
     }
 
@@ -42,6 +49,9 @@ namespace otf {
      * numbers 'a' and 'b'.
      */
     Spline const &v(std::size_t a, std::size_t b) const {
+      ASSERT(a < 112 && b < 112, "Species out of bounds");
+      ASSERT(m_atomic2idx[a] < m_num_species, "Species not in this potential");
+      ASSERT(m_atomic2idx[b] < m_num_species, "Species not in this potential");
       return m_v[sym_index(m_atomic2idx[a], m_atomic2idx[b])];
     }
 
@@ -49,7 +59,8 @@ namespace otf {
      * @brief Fetch the mass of the atom with atomic number 'a'.
      */
     double const &mass(std::size_t a) const {
-      ASSERT(a < m_num_species, "Species not supported");
+      ASSERT(a < m_num_species, "Invalid atomic number");
+      ASSERT(m_atomic2mass[a] != 0, "Species not in this potential");
       return m_atomic2mass[a];
     }
 

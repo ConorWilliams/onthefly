@@ -42,7 +42,7 @@ namespace otf {
     return raw;
   }
 
-  DataEAM::DataEAM(std::istream in) {
+  DataEAM::DataEAM(std::istream& in) {
     //
     VERIFY(in.good(), "Could not open eam in");
 
