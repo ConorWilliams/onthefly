@@ -68,14 +68,14 @@ namespace otf {
      * @brief Constructive resize, allocates+copies unless size is the same
      */
     void resize(std::size_t n) {
-      ((raw_array(Mems{}).conservativeResize(Eigen::NoChange, n)), ...);
+      ((void)(raw_array(Mems{}).conservativeResize(Eigen::NoChange, n)), ...);
     }
 
     /**
      * @brief Destructive resize, just allocates new memeory
      */
     void destructive_resize(std::size_t n) {
-      ((raw_array(Mems{}).conservativeResize(Eigen::NoChange, n)), ...);
+      ((void)(raw_array(Mems{}).conservativeResize(Eigen::NoChange, n)), ...);
     }
 
     /**

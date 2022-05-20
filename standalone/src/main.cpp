@@ -30,12 +30,17 @@ SimCell random_simcell(SimCell& atoms, std::size_t n) {
   return atoms;
 }
 
+#include "libatom/neighbour/lcr_sort.hpp"
+
 auto main(int, char**) -> int {
   //
 
-  SimCell atoms({{17, 17, 17}, {true, true, true}});
+  SimCell atoms({{34, 34, 34}, {true, true, true}});
 
-  random_simcell(atoms, 1000);
+  random_simcell(atoms, 10'000);
+
+  static_cast<AtomArray<Position, Frozen, AtomicNum>>(atoms)
+      = lcr_sort({atoms.box, 6, false}, atoms);
 
   fmt::print("num atoms is {}\n", atoms.size());
 
