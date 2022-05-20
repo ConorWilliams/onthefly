@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "libatom/asserts.hpp"
-#include "libatom/neighbour/gridder.hpp"
+#include "libatom/neighbour/neigh_grid.hpp"
 #include "libatom/system/atom_array.hpp"
 #include "libatom/system/member.hpp"
 #include "libatom/system/ortho_sim_box.hpp"

@@ -1,11 +1,10 @@
-#include "libatom/neighbour/gridder.hpp"
-
 #include <array>
 #include <cstddef>
 #include <optional>
 #include <vector>
 
 #include "libatom/asserts.hpp"
+#include "libatom/neighbour/neigh_grid.hpp"
 #include "libatom/system/ortho_sim_box.hpp"
 #include "libatom/utils.hpp"
 
