@@ -73,13 +73,13 @@ auto main(int, char **) -> int {
   {
     fmt::print("Num atoms = {}\n", atoms.size());
 
-    NeighbourList neigh;
+    NeighbourList neigh(atoms.box, 6);
 
-    neigh.rebuild_parallel(atoms, 6);  // Warm up + alloc
+    neigh.rebuild_parallel(atoms);  // Warm up + alloc
 
-    timeit("Fast", [&] { neigh.rebuild_parallel(atoms, 6); });
+    timeit("Fast", [&] { neigh.rebuild_parallel(atoms); });
 
-    timeit("Fast", [&] { neigh.rebuild_parallel(atoms, 6); });
+    timeit("Fast", [&] { neigh.rebuild_parallel(atoms); });
 
     std::cout << "working\n";
 

@@ -16,11 +16,6 @@ namespace otf {
   class OrthoSimBox {
   public:
     /**
-     * @brief Construct an empty Ortho Sim Box object.
-     */
-    OrthoSimBox() = default;
-
-    /**
      * @brief Construct a new Ortho Sim Box object.
      *
      * @param extents Length of simulation box along each axis.

@@ -15,29 +15,26 @@
 
 namespace otf {
 
-  void NeighbourList::rebuild(SimCell const& atoms, floating rcut) {
+  void NeighbourList::rebuild(SimCell const& atoms) {
     //
-    init_and_build_lcl(atoms, rcut);
+    init_and_build_lcl(atoms);
 
     for (size_t i = 0; i < m_neigh_lists.size(); i++) {
-      build_neigh_list(i, rcut);
+      build_neigh_list(i);
     }
   }
 
-  void NeighbourList::rebuild_parallel(SimCell const& atoms, floating rcut) {
+  void NeighbourList::rebuild_parallel(SimCell const& atoms) {
     //
-    init_and_build_lcl(atoms, rcut);
+    init_and_build_lcl(atoms);
 
 #pragma omp parallel for
     for (size_t i = 0; i < m_neigh_lists.size(); i++) {
-      build_neigh_list(i, rcut);
+      build_neigh_list(i);
     }
   }
 
-  void NeighbourList::init_and_build_lcl(SimCell const& atoms, floating rcut) {
-    //
-    m_rcut = rcut;
-
+  void NeighbourList::init_and_build_lcl(SimCell const& atoms) {
     //
     if (m_neigh_lists.size() != atoms.size()) {
       // Allocate space if needed
@@ -50,14 +47,12 @@ namespace otf {
       }
     }
 
-    m_grid.compute_neigh_cells(atoms.box, rcut);
-
     // Copy in atoms
     for (std::size_t i = 0; i < atoms.size(); ++i) {
       m_atoms(Position{}, i) = m_grid.canon_grid_pos(atoms(Position{}, i));
     }
 
-    make_ghosts(atoms.box, rcut);
+    make_ghosts(atoms.box);
 
     // Update head.
     m_head.assign(m_grid.num_cells(), std::numeric_limits<std::size_t>::max());
@@ -80,7 +75,7 @@ namespace otf {
     }
   }
 
-  void NeighbourList::build_neigh_list(std::size_t i, floating rcut) {
+  void NeighbourList::build_neigh_list(std::size_t i) {
     //
     m_neigh_lists[i].clear();
 
@@ -91,7 +86,7 @@ namespace otf {
     // In same cell must check not-self
     while (n != std::numeric_limits<std::size_t>::max()) {
       if (n != i) {
-        if (norm_sq(m_atoms(Position{}, i) - m_atoms(Position{}, n)) < rcut * rcut) {
+        if (norm_sq(m_atoms(Position{}, i) - m_atoms(Position{}, n)) < m_rcut_sq) {
           m_neigh_lists[i].push_back(n);
         }
       }
@@ -104,7 +99,7 @@ namespace otf {
       std::size_t n = m_head[n_cell];
 
       while (n != std::numeric_limits<std::size_t>::max()) {
-        if (norm_sq(m_atoms(Position{}, i) - m_atoms(Position{}, n)) < rcut * rcut) {
+        if (norm_sq(m_atoms(Position{}, i) - m_atoms(Position{}, n)) < m_rcut_sq) {
           m_neigh_lists[i].push_back(n);
         }
         n = m_atoms(Next{}, n);
@@ -112,7 +107,7 @@ namespace otf {
     }
   }
 
-  void NeighbourList::make_ghosts(OrthoSimBox const& box, floating rcut) {
+  void NeighbourList::make_ghosts(OrthoSimBox const& box) {
     //
     std::size_t next_slot = m_neigh_lists.size();
 
@@ -126,7 +121,7 @@ namespace otf {
         std::size_t const end = next_slot;
 
         for (std::size_t j = 0; j < end; ++j) {
-          if (m_atoms(Position{}, j)[i] < m_grid.cell()[i] + rcut) {
+          if (m_atoms(Position{}, j)[i] < m_grid.cell()[i] + m_rcut) {
             //
             std::size_t slot = next_slot++;
 
@@ -141,7 +136,7 @@ namespace otf {
             m_atoms(Index{}, slot) = m_atoms(Index{}, j);
           }
 
-          if (m_atoms(Position{}, j)[i] >= box.extents()[i] + m_grid.cell()[i] - rcut) {
+          if (m_atoms(Position{}, j)[i] >= box.extents()[i] + m_grid.cell()[i] - m_rcut) {
             //
             std::size_t slot = next_slot++;
 

@@ -39,9 +39,9 @@ namespace otf {
    *
    * SimCell atoms = ... // Initialise a set of atoms in a {10, 10, 10} cell.
    *
-   * NeighbourList nlist;
+   * NeighbourList nlist(atoms.box, 3.0);
    *
-   * nlist.rebuild(atoms, 3); // Build the NL.
+   * nlist.rebuild(atoms); // Build the NL.
    *
    * std::size_t num_neigh = 0;
    *
@@ -58,22 +58,27 @@ namespace otf {
   class NeighbourList {
   public:
     /**
+     * @brief Construct a new Neighbour List object. The cut off, rcut, must be smaller than the
+     * minimum OrthSimCell extent.
+     */
+    NeighbourList(OrthoSimBox const& box, floating rcut)
+        : m_grid(box, rcut, true), m_rcut(rcut), m_rcut_sq(rcut * rcut) {}
+
+    /**
      * @brief Build the internal neighbour lists serially
      *
      * After a call to this function the for_neighbours methods can be used to iterate over all
-     * atoms within rcut of any atom. The cut off, rcut, must be smaller than the minimum SimCell
-     * extent.
+     * atoms within rcut of any atom.
      */
-    void rebuild(SimCell const& atoms, floating rcut);
+    void rebuild(SimCell const& atoms);
 
     /**
      * @brief Build the internal neighbour lists in parallel with openMP.
      *
      * After a call to this function the for_neighbours methods can be used to iterate over all
-     * atoms within rcut of any atom. The cut off, rcut, must be smaller than the minimum SimCell
-     * extent.
+     * atoms within rcut of any atom.
      */
-    void rebuild_parallel(SimCell const& atoms, floating rcut);
+    void rebuild_parallel(SimCell const& atoms);
 
     /**
      * @brief Update the positions of all atoms + ghosts but do not rebuild the neighbour_lists.
@@ -128,11 +133,20 @@ namespace otf {
     std::size_t image_to_real(std::size_t i) const { return m_atoms(Index{}, i); }
 
   private:
+    //
+
+    NeighGrid m_grid;
+
+    std::vector<std::size_t> m_head;
+
+    floating m_rcut;
+
+    floating m_rcut_sq;
+
+    ///
+
     struct Next : Member<std::size_t, 1> {};
-
     struct Offset : Member<floating, 3> {};
-
-    Gridder m_grid;
 
     AtomArray<Position, Index, Next, Offset> m_atoms;
 
@@ -140,26 +154,22 @@ namespace otf {
 
     std::vector<std::vector<std::size_t>> m_neigh_lists;
 
-    std::vector<std::size_t> m_head;
-
-    floating m_rcut = 0;
-
     /**
      * @brief Initialise memory, load in atom atoms, build ghosts and kint link cell lists.
      */
-    void init_and_build_lcl(SimCell const& atoms, floating rcut);
+    void init_and_build_lcl(SimCell const& atoms);
 
     /**
      * @brief Set up all ghost indexes positions and offsets.
      *
      * A ghosts position can be calculated from the position of its image plus its offset.
      */
-    void make_ghosts(OrthoSimBox const& box, floating rcut);
+    void make_ghosts(OrthoSimBox const& box);
 
     /**
      * @brief Build the neighbour list of the ith atom.
      */
-    void build_neigh_list(std::size_t i, floating rcut);
+    void build_neigh_list(std::size_t i);
   };
 
 }  // namespace otf

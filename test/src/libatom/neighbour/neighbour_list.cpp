@@ -55,9 +55,9 @@ void slow_neigh_list(std::vector<std::vector<Neigh>>& nl, SimCell const& atoms, 
 
 void test(SimCell const& atoms, floating rcut) {
   //
-  NeighbourList neigh;
+  NeighbourList neigh(atoms.box, rcut);
 
-  neigh.rebuild(atoms, rcut);
+  neigh.rebuild(atoms);
 
   std::vector<std::vector<Neigh>> nl;
 

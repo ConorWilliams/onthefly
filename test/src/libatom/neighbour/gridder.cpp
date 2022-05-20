@@ -8,12 +8,10 @@
 #include "libatom/system/ortho_sim_box.hpp"
 #include "libatom/utils.hpp"
 
-TEST_CASE("Gridder") {
+TEST_CASE("NeighGrid") {
   otf::OrthoSimBox box{{10, 10, 10}, {true, true, true}};
 
-  otf::Gridder grid;
-
-  grid.compute_neigh_cells(box, 3);
+  otf::NeighGrid grid(box, 3, true);
 
   using V = otf::Vec3<otf::floating>;
 

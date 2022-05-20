@@ -46,11 +46,11 @@ auto main(int, char**) -> int {
   dump_xyz(out, atoms, "My comment");
 
   {
-    NeighbourList neigh;
+    NeighbourList neigh(atoms.box, rcut);
 
-    neigh.rebuild(atoms, rcut);  // Warm up + alloc
+    neigh.rebuild(atoms);  // Warm up + alloc
 
-    timeit("Fast", [&] { neigh.rebuild_parallel(atoms, rcut); });
+    timeit("Fast", [&] { neigh.rebuild_parallel(atoms); });
 
     std::cout << "working\n";
 
