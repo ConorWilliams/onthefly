@@ -44,7 +44,7 @@ void slow_neigh_list(std::vector<std::vector<Neigh>>& nl, SimCell const& atoms, 
       if (i != j) {
         Vec3<floating> dr = atoms.box.min_image(atoms(Position{}, i), atoms(Position{}, j));
 
-        if (norm_sq(dr) < rcut * rcut) {
+        if (norm(dr) < rcut) {
           nl[i].push_back({j, dr});
         }
       }
@@ -67,7 +67,7 @@ void test(SimCell const& atoms, floating rcut, std::size_t n) {
     //
     std::vector<Neigh> nl2;
 
-    neigh.for_neighbours(i, [&](std::size_t n, floating, Vec3<floating> const& dr) {
+    neigh.for_neighbours(i, [&](std::size_t n, Vec3<floating> const& dr) {
       nl2.push_back({neigh.image_to_real(n), dr});
     });
 

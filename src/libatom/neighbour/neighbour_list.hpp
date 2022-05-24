@@ -80,12 +80,12 @@ namespace otf {
     void update_positions(SimCell const& atoms);
 
     /**
-     * @brief Call f(n, r_sq, dr) for every neighbour n of atom i, within distance rcut.
+     * @brief Call f(n, r, dr) for every neighbour n of atom i, within distance rcut.
      *
      * n is the neighbour index which could be a ghost or real atom, to convert to the index of the
-     * real atom regardless of weather it is a ghost or not call .image_to_real(n)
+     * real atom regardless use .image_to_real(n)
      *
-     * dr is the minimum image vector joining i to n and r_sq is the norm_sq of dr
+     * dr is the minimum image vector joining i to n and r is the norm of dr
      */
     template <typename F> void for_neighbours(std::size_t i, floating rcut, F&& f) const {
       //
@@ -93,26 +93,25 @@ namespace otf {
 
       for (auto&& n : m_neigh_lists[i]) {
         Vec3<floating> const dr = m_atoms(Position{}, n) - m_atoms(Position{}, i);
-        floating const r_sq = norm_sq(dr);
-        if (r_sq < rcut * rcut) {
-          f(n, r_sq, dr);
+        floating const r = norm(dr);
+        if (r < rcut) {
+          f(n, r, dr);
         }
       }
     }
 
     /**
-     * @brief Call f(n, r_sq, dr) for every neighbour n of atom i, within the cut off specified
+     * @brief Call f(n, dr) for every neighbour n of atom i, within the cut off specified
      * during call to rebuild*.
      *
      * n is the neighbour index which could be a ghost or real atom, to convert to the index of the
-     * real atom regardless of weather it is a ghost or not call .image_to_real(n)
+     * real atom regardless use .image_to_real(n)
      *
-     * dr is the minimum image vector joining i to n and r_sq is the norm_sq of dr
+     * dr is the minimum image vector joining i to n and r is the norm of dr
      */
     template <typename F> void for_neighbours(std::size_t i, F&& f) const {
       for (auto&& n : m_neigh_lists[i]) {
-        Vec3<floating> const dr = m_atoms(Position{}, n) - m_atoms(Position{}, i);
-        f(n, norm_sq(dr), dr);
+        f(n, m_atoms(Position{}, n) - m_atoms(Position{}, i));
       }
     }
 

@@ -1,9 +1,9 @@
 
 #pragma once
 
+#include <string>
 #include <vector>
 
-#include "fmt/core.h"
 #include "libatom/asserts.hpp"
 #include "libatom/utils.hpp"
 
@@ -76,7 +76,8 @@ namespace otf {
     std::pair<floating, Spine const &> fetch(floating x) const {
       ASSERT(x >= 0, "X is less than zero");
       std::size_t i = x * m_inv_dx;
-      ASSERT(i < m_spines.size(), "X is outside tabulated region");
+      ASSERT(i < m_spines.size(), "X is outside tabulated region: " + std::to_string(i) + " "
+                                      + std::to_string(m_spines.size()) + " " + std::to_string(x));
       return {x - i * m_dx, m_spines[i]};
     }
   };

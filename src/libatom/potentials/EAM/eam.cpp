@@ -16,7 +16,7 @@
 
 namespace otf {
 
-  floating EAM::energy(SimCell const &x, NeighbourList const &nl, std::size_t num_threads) const {
+  floating EAM::energy(SimCell const &x, NeighbourList const &nl, std::size_t num_threads) {
     floating v_sum = 0;
     floating f_sum = 0;
 
@@ -29,9 +29,8 @@ namespace otf {
 
       floating rho = 0;
 
-      nl.for_neighbours(a, rcut(), [&](auto bp, floating r_sq, Vec3<floating> const &) {
+      nl.for_neighbours(a, rcut(), [&](auto bp, floating r, Vec3<floating> const &) {
         //
-        floating r = std::sqrt(r_sq);
         std::size_t b = nl.image_to_real(bp);
 
         v_sum += m_data->v(x(AtomicNum{}, a), x(AtomicNum{}, b)).f(r);
@@ -54,9 +53,8 @@ namespace otf {
       floating rho = 0;
 
       // Computes rho at atom
-      nl.for_neighbours(b, [&](std::size_t a, floating r_sq, Vec3<floating> const &) {
-        rho += m_data->phi(x(AtomicNum{}, nl.image_to_real(a)), x(AtomicNum{}, b))
-                   .f(std::sqrt(r_sq));
+      nl.for_neighbours(b, rcut(), [&](std::size_t a, floating r, Vec3<floating> const &) {
+        rho += m_data->phi(x(AtomicNum{}, nl.image_to_real(a)), x(AtomicNum{}, b)).f(r);
       });
 
       // Compute F'(rho) at atom
@@ -70,9 +68,8 @@ namespace otf {
       Vec3<floating> grad = Vec3<floating>::Zero();
 
       if (!x(Frozen{}, g)) {
-        nl.for_neighbours(g, [&](std::size_t ap, floating r_sq, Vec3<floating> const &dr) {
+        nl.for_neighbours(g, rcut(), [&](std::size_t ap, floating r, Vec3<floating> const &dr) {
           //
-          floating r = std::sqrt(r_sq);
           std::size_t a = nl.image_to_real(ap);
 
           floating mag
@@ -89,6 +86,6 @@ namespace otf {
     }
   }
 
-  void EAM::hessian(SimCell const &, NeighbourList const &, std::size_t) const {}
+  void EAM::hessian(SimCell const &, NeighbourList const &, std::size_t) {}
 
 }  // namespace otf

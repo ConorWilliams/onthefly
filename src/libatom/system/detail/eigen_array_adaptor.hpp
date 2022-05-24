@@ -26,6 +26,11 @@ namespace otf::detail {
 
   public:
     /**
+     * @brief An unimplemented meta function for extracting the underlying eigen arrays type.
+     */
+    using underlying_t = decltype(m_data);
+
+    /**
      * @brief Construct a new empty Eigen Array Adaptor object.
      */
     EigenArrayAdaptor() = default;

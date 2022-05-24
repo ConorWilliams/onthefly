@@ -43,6 +43,14 @@ namespace otf {
   template <typename T> using Mat3 = Eigen::Array<T, spatial_dims, spatial_dims>;
 
   /**
+   * @brief Generalised dot-product between to eigen arrays
+   */
+  template <typename E1, typename E2>
+  auto gdot(Eigen::ArrayBase<E1> const& a, Eigen::ArrayBase<E2> const& b) {
+    return (a * b).sum();
+  }
+
+  /**
    * @brief Generic L2-norm squared between two eigen arrays.
    */
   template <typename E> auto norm_sq(Eigen::ArrayBase<E> const& r) { return (r * r).sum(); }

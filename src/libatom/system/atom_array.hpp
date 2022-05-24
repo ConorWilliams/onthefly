@@ -50,6 +50,11 @@ namespace otf {
   template <typename... Mems> class AtomArray : private detail::EigenArrayAdaptor<Mems>... {
   public:
     /**
+     * @brief  Get the eigen array type used to store the data of a member.
+     */
+    template <class Mem> using underlying_t = typename detail::EigenArrayAdaptor<Mem>::underlying_t;
+
+    /**
      * @brief Construct a new empty AtomArray.
      */
     AtomArray() = default;
@@ -99,20 +104,16 @@ namespace otf {
     }
 
     /**
-     * @brief Fetch the entire {extent by size()} underlying array of the Tag member.
+     * @brief Fetch a view of the entire {extent by size()} underlying array of the Tag member.
      */
     template <typename Tag> [[nodiscard]] auto operator()(Tag) const {
-      // Return .leftCols as this is a view type which prevents resizing but allows modification of
-      // the values.
       return raw_array(Tag{}).leftCols(size());
     }
 
     /**
-     * @brief Fetch the entire {extent by size()} underlying array of the Tag member.
+     * @brief Fetch a view of the entire {extent by size()} underlying array of the Tag member.
      */
     template <typename Tag> [[nodiscard]] auto operator()(Tag) {
-      // Return .leftCols as this is a view type which prevents resizing but allows modification of
-      // the values.
       return raw_array(Tag{}).leftCols(size());
     }
 

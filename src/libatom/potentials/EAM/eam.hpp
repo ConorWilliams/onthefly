@@ -6,6 +6,7 @@
 #include "libatom/asserts.hpp"
 #include "libatom/neighbour/neighbour_list.hpp"
 #include "libatom/potentials/EAM/data.hpp"
+#include "libatom/potentials/potential.hpp"
 #include "libatom/system/atom_array.hpp"
 #include "libatom/system/member.hpp"
 #include "libatom/system/sim_cell.hpp"
@@ -13,26 +14,40 @@
 
 namespace otf {
 
-  class EAM {
+  class EAM : public Potential {
   public:
     EAM(std::shared_ptr<DataEAM const> data) : m_data(std::move(data)) {}
 
     /**
-     * @brief Get this potentials cut-off radius
+     * @brief Copies this potentials cut-off radius
      */
-    floating rcut() const { return m_data->rcut(); }
+    std::unique_ptr<Potential> clone() const override { return std::make_unique<EAM>(*this); }
 
     /**
-     * @brief Compute the energy, assumes the neighbour list are ready, ignores contribution from
-     * frozen atoms.
+     * @brief Get this potentials cut-off radius that the neighbour lists should be configured for.
      */
-    floating energy(SimCell const &, NeighbourList const &, std::size_t num_threads = 1) const;
+    floating rcut() const override { return m_data->rcut(); }
 
-    // Compute gradient, assumes the neighbour list are ready, force on frozen atoms will be zero.
-    void gradient(SimCell &, NeighbourList const &, std::size_t num_threads = 1);
+    /**
+     * @brief Compute the energy, assumes the neighbour list are ready.
+     *
+     * Ignores contribution from frozen atoms.
+     */
+    floating energy(SimCell const &, NeighbourList const &, std::size_t num_threads) override;
 
-    // Compute gradient, assumes the neighbour list are ready
-    void hessian(SimCell const &, NeighbourList const &, std::size_t num_threads = 1) const;
+    /**
+     * @brief Compute gradient, assumes the neighbour list are ready.
+     *
+     * Force on frozen atoms will be zero.
+     */
+    void gradient(SimCell &, NeighbourList const &, std::size_t num_threads) override;
+
+    /**
+     * @brief Compute hessian matrix, assumes the neighbour list are ready.
+     *
+     * The resulting hessian will be m by m and only include contributions from the m active atoms.
+     */
+    void hessian(SimCell const &, NeighbourList const &, std::size_t num_threads) override;
 
   private:
     std::shared_ptr<DataEAM const> m_data;

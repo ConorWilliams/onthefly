@@ -11,6 +11,9 @@ namespace otf {
     // Extend spline with one value such that if called with x = ndx which rounds up we have no
     // issues.
     y.push_back(floating(y.back()));
+    y.push_back(floating(y.back()));
+    y.push_back(floating(y.back()));
+    y.push_back(floating(y.back()));
 
     std::size_t n = y.size() - 1;
 

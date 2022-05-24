@@ -77,7 +77,7 @@ namespace otf {
     // In same cell must check not-self
     while (n != std::numeric_limits<std::size_t>::max()) {
       if (n != i) {
-        if (norm_sq(m_atoms(Position{}, i) - m_atoms(Position{}, n)) < m_rcut_sq) {
+        if (norm(m_atoms(Position{}, i) - m_atoms(Position{}, n)) < m_rcut) {
           m_neigh_lists[i].push_back(n);
         }
       }
@@ -90,7 +90,7 @@ namespace otf {
       std::size_t n = m_head[n_cell];
 
       while (n != std::numeric_limits<std::size_t>::max()) {
-        if (norm_sq(m_atoms(Position{}, i) - m_atoms(Position{}, n)) < m_rcut_sq) {
+        if (norm(m_atoms(Position{}, i) - m_atoms(Position{}, n)) < m_rcut) {
           m_neigh_lists[i].push_back(n);
         }
         n = m_atoms(Next{}, n);
