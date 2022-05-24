@@ -12,7 +12,7 @@
 
 namespace otf {
 
-  SimCell::underlying_t<Gradient> const& CoreLBFGS::newton_step(SimCell const& atoms) {
+  SimCell::underlying_t<Gradient>& CoreLBFGS::newton_step(SimCell const& atoms) {
     //
     std::size_t prev = (m_k - 1) % m_n;
 

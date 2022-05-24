@@ -11,6 +11,7 @@
 #include "libatom/asserts.hpp"
 #include "libatom/system/member.hpp"
 #include "libatom/system/ortho_sim_box.hpp"
+#include "libatom/system/sim_cell.hpp"
 #include "libatom/utils.hpp"
 
 namespace otf {
@@ -54,15 +55,15 @@ namespace otf {
     }
   }
 
-  void NeighbourList::update_positions(SimCell const& atoms) {
+  void NeighbourList::update_positions(SimCell::underlying_t<Position> const& deltas) {
     // Copy in atoms
-    for (std::size_t i = 0; i < atoms.size(); ++i) {
-      m_atoms(Position{}, i) = m_grid.canon_grid_pos(atoms(Position{}, i));
+    for (std::size_t i = 0; i < m_neigh_lists.size(); ++i) {
+      m_atoms(Position{}, i) -= deltas.col(i);
     }
 
     // Update ghosts
     for (std::size_t i = m_neigh_lists.size(); i < m_num_plus_ghosts; i++) {
-      m_atoms(Position{}, i) = m_atoms(Position{}, image_to_real(i)) + m_atoms(Offset{}, i);
+      m_atoms(Position{}, i) -= deltas.col(image_to_real(i));
     }
   }
 

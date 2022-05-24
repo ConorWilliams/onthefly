@@ -1,68 +1,94 @@
-// #include "minimise/LBFGS/lbfgs.hpp"
 
-// #include "toml++/toml.h"
-// #include "utility.hpp"
+#include "libatom/minimise/LBFGS/lbfgs.hpp"
 
-// namespace options {
+#include <fmt/core.h>
+#include <fmt/os.h>
 
-// MinimiseLBFGS MinimiseLBFGS::load(toml::v2::table const &config) {
-//     MinimiseLBFGS opt;
+#include <cstddef>
+#include <optional>
+#include <utility>
+#include <vector>
 
-//     opt.n = config["minimiser"]["lbfgs"]["n"].value_or(opt.n);
-//     opt.iter_max = config["minimiser"]["lbfgs"]["iter_max"].value_or(opt.iter_max);
-//     opt.f2norm = config["minimiser"]["lbfgs"]["f2norm"].value_or(opt.f2norm);
-//     opt.proj_tol = config["minimiser"]["lbfgs"]["proj_tol"].value_or(opt.proj_tol);
-//     opt.max_trust = config["minimiser"]["lbfgs"]["max_trust"].value_or(opt.max_trust);
-//     opt.min_trust = config["minimiser"]["lbfgs"]["min_trust"].value_or(opt.min_trust);
-//     opt.grow_trust = config["minimiser"]["lbfgs"]["grow_trust"].value_or(opt.grow_trust);
-//     opt.shrink_trust = config["minimiser"]["lbfgs"]["shrink_trust"].value_or(opt.shrink_trust);
+#include "libatom/asserts.hpp"
+#include "libatom/io/xyz.hpp"
+#include "libatom/minimise/LBFGS/core.hpp"
+#include "libatom/neighbour/neighbour_list.hpp"
+#include "libatom/potentials/potential.hpp"
+#include "libatom/system/member.hpp"
+#include "libatom/system/sim_cell.hpp"
+#include "libatom/utils.hpp"
 
-//     return opt;
-// }
+namespace otf {
 
-// }  // namespace options
+  bool LBFGS::minimise(SimCell &atoms, Potential &pot, std::size_t num_threads) {
+    //
+    // Clear history from previous runs;
+    m_core.clear();
 
-// std::unique_ptr<MinimiserBase> MinimiseLBFGS::clone() const {
-//     return std::make_unique<MinimiseLBFGS>(*this);
-// }
+    m_nl = NeighbourList(atoms.box, pot.rcut() + m_opt.skin);
 
-// bool MinimiseLBFGS::minimise(Supercell &cell, std::unique_ptr<PotentialBase> &ff) {
-//     _core.clear();
+    m_nl->rebuild(atoms, num_threads);
 
-//     ff->gradient(cell, _gx);
+    pot.gradient(atoms, *m_nl, num_threads);
 
-//     double trust = _opt.min_trust;
+    floating trust = m_opt.min_trust;
 
-//     for (std::size_t i = 0; i < _opt.iter_max; ++i) {
-//         // dump_supercell(cell, "olkmc.xyz", true);
+    auto file = [&]() -> std::optional<fmt::ostream> {
+      if (m_opt.debug) {
+        return fmt::output_file("lbfgs_debug.xyz");
+      } else {
+        return std::nullopt;
+      }
+    }();
 
-//         // std::cout << std::scientific << std::setprecision(6) << "it: " << i << "\tf "
-//         //           << dot(_gx, _gx) << "\ttr " << trust << '\n';
+    floating acc = 0;
 
-//         if (dot(_gx, _gx) < _opt.f2norm * _opt.f2norm) {
-//             return true;
-//         }
+    for (std::size_t i = 0; i < m_opt.iter_max; ++i) {
+      //
+      floating mag_g = norm_sq(atoms(Gradient{}));
 
-//         _core(cell.activ.view(), _gx, _q);
+      if (m_opt.debug) {
+        constexpr auto str = "LBFGS: i={:<4} trust={:f} acc={:f} norm(g)={:e}\n";
+        fmt::print(str, i, trust, acc, std::sqrt(mag_g));
+        dump_xyz(*file, atoms, "Debug");
+      }
 
-//         //
-//         CHECK(dot(_gx, _q) > 0, "Ascent direction");
+      if (mag_g < m_opt.f2norm * m_opt.f2norm) {
+        return true;
+      }
 
-//         // Trust-radius based line-search;
-//         cell.activ.view() -= std::min(1.0, trust / norm(_q)) * _q;
+      auto &Hg = m_core.newton_step(atoms);
 
-//         ff->gradient(cell, _gx);
+      ASSERT(gdot(atoms(Gradient{}), Hg) > 0, "Ascent direction");
 
-//         double proj = dot(_gx, _q);
+      // Limit step size.
+      Hg *= std::min(1.0, trust / norm(Hg));
 
-//         if (proj < -_opt.proj_tol) {
-//             trust = std::max(_opt.min_trust, _opt.shrink_trust * trust);
-//         } else if (proj > _opt.proj_tol) {
-//             trust = std::min(_opt.max_trust, _opt.grow_trust * trust);
-//         }
-//     }
+      // Add distance of most displaced atom
+      acc += std::sqrt((Hg * Hg).colwise().sum().maxCoeff());
 
-//     // std::cerr << "Failed to converge!" << std::endl;
+      // Update positions in real space
+      atoms(Position{}) -= Hg;
 
-//     return false;
-// }
+      if (acc > 0.5 * m_opt.skin) {
+        m_nl->rebuild(atoms, num_threads);
+        acc = 0;
+      } else {
+        m_nl->update_positions(Hg);
+      }
+
+      pot.gradient(atoms, *m_nl, num_threads);
+
+      floating proj = gdot(atoms(Gradient{}), Hg);
+
+      if (proj < -m_opt.proj_tol) {
+        trust = std::max(m_opt.min_trust, m_opt.shrink_trust * trust);
+      } else if (proj > m_opt.proj_tol) {
+        trust = std::min(m_opt.max_trust, m_opt.grow_trust * trust);
+      }
+    }
+
+    return false;
+  }
+
+}  // namespace otf

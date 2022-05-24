@@ -9,6 +9,7 @@
 
 #include "libatom/io/xyz.hpp"
 #include "libatom/minimise/LBFGS/core.hpp"
+#include "libatom/minimise/LBFGS/lbfgs.hpp"
 #include "libatom/neighbour/neighbour_list.hpp"
 #include "libatom/potentials/EAM/eam.hpp"
 #include "libatom/system/member.hpp"
@@ -60,6 +61,8 @@ auto main(int, char **) -> int {
 
   //   std::random_shuffle(lat.begin(), lat.end());
 
+  lat.erase(lat.begin() + 1);
+
   SimCell atoms{{a * shape, {true, true, true}}};
 
   atoms.destructive_resize(lat.size());
@@ -70,17 +73,16 @@ auto main(int, char **) -> int {
     atoms(Frozen{}, i) = false;
   }
 
-  auto f = fmt::output_file("dump.xyz");
+  atoms(Frozen{}, 0) = true;
 
-  atoms(Position{}, 0) += Vec3<floating>{1, 1, 1};
-  atoms(Position{}, 3) += Vec3<floating>{1, -1, 1};
+  auto f = fmt::output_file("dump.xyz");
 
   dump_xyz(f, atoms, fmt::format("Temp={}", T));
 
   {
     EAM pot{std::make_shared<DataEAM>(std::ifstream{"../data/wen.eam.fs"})};
 
-    NeighbourList neigh(atoms.box, pot.rcut() + 0.01);
+    NeighbourList neigh(atoms.box, pot.rcut() + 1);
 
     neigh.rebuild(atoms, omp_get_max_threads());
 
@@ -94,34 +96,14 @@ auto main(int, char **) -> int {
 
     timeit("Grad call", [&] { pot.gradient(atoms, neigh, omp_get_max_threads()); });
 
-    CoreLBFGS core(8);
+    LBFGS::Options opt;
 
-    // double acc = 0;
+    opt.debug = true;
+    opt.skin = 1;
 
-    for (size_t i = 0; i < 100; i++) {
-      neigh.rebuild(atoms, omp_get_max_threads() + 1);
-      pot.gradient(atoms, neigh, omp_get_max_threads());
+    LBFGS lbfgs(opt);
 
-      fmt::print("{}: grad = {}\n", i, norm(atoms(Gradient{})));
-
-      auto const &p = core.newton_step(atoms);
-
-      atoms(Position{}) -= std::min(1 / norm(p), 0.5) * p;
-
-      dump_xyz(f, atoms, fmt::format("Temp={}", T));
-    }
-
-    // auto const &Hg = core.newton_step(atoms);
-
-    // atoms(Position{}) -= p;
-
-    // dump_xyz(f, atoms, fmt::format("Temp={}", T));
-
-    // f
-    // fmt::print("grad 1 = {}\n", fmt::join(atoms(Gradient{}, 1), ","));
-
-    // fmt::print("Hg 0 = {}\n", fmt::join(Hg.col(0), ","));
-    // fmt::print("Hg 1 = {}\n", fmt::join(Hg.col(1), ","));
+    lbfgs.minimise(atoms, pot, omp_get_max_threads());
   }
 
   return 0;

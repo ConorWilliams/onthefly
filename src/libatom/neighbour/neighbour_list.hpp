@@ -70,14 +70,14 @@ namespace otf {
      * After a call to this function the for_neighbours methods can be used to iterate over all
      * atoms within rcut of any atom.
      */
-    void rebuild(SimCell const& atoms, std::size_t num_threads = 1);
+    void rebuild(SimCell const& atoms, std::size_t num_threads);
 
     /**
-     * @brief Update the positions of all atoms + ghosts but do not rebuild the neighbour_lists.
+     * @brief Update the positions of all atoms and ghosts to Position{} -= deltas
      *
-     * Usefull if using a skin distance.
+     * Usefull if using a skin distance and wanting to avoid rebuilding the neighbour_lists.
      */
-    void update_positions(SimCell const& atoms);
+    void update_positions(SimCell::underlying_t<Position> const& deltas);
 
     /**
      * @brief Call f(n, r, dr) for every neighbour n of atom i, within distance rcut.
@@ -89,7 +89,7 @@ namespace otf {
      */
     template <typename F> void for_neighbours(std::size_t i, floating rcut, F&& f) const {
       //
-      ASSERT(rcut < m_rcut, "Neighbour lists built with a larger rcut.");
+      ASSERT(rcut <= m_rcut, "Neighbour lists built with a larger rcut.");
 
       for (auto&& n : m_neigh_lists[i]) {
         Vec3<floating> const dr = m_atoms(Position{}, n) - m_atoms(Position{}, i);

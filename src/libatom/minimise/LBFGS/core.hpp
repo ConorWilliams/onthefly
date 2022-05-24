@@ -31,9 +31,10 @@ namespace otf {
      *
      * The newton step towards the minimum is x -= a * H ∇f with a = 1 the best guess.
      *
-     * @return auto A view of the newton step array, H ∇f.
+     * @return auto A view of the newton step array, H ∇f, (it is ok to modify this view it will be
+     * overwritten upon next call).
      */
-    SimCell::underlying_t<Gradient> const& newton_step(SimCell const&);
+    SimCell::underlying_t<Gradient>& newton_step(SimCell const&);
 
   private:
     std::size_t m_n;

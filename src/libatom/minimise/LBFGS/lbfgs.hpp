@@ -1,46 +1,67 @@
-// #pragma once
+#pragma once
 
-// #include <cmath>
-// #include <cstddef>
-// #include <iostream>
-// #include <type_traits>
-// #include <utility>
+#include <cstddef>
+#include <memory>
+#include <utility>
 
-// #include "config.hpp"
-// #include "minimise/LBFGS/core.hpp"
-// #include "minimise/minimiser_base.hpp"
-// #include "supercell.hpp"
-// #include "toml++/toml.h"
-// #include "utility.hpp"
+#include "libatom/asserts.hpp"
+#include "libatom/minimise/LBFGS/core.hpp"
+#include "libatom/neighbour/neighbour_list.hpp"
+#include "libatom/potentials/potential.hpp"
+#include "libatom/system/sim_cell.hpp"
+#include "libatom/utils.hpp"
 
-// namespace options {
+namespace otf {
 
-//   struct MinimiseLBFGS {
-//     std::size_t n = 10;           // Number of previous steps held in memory
-//     std::size_t iter_max = 2000;  // Number of translations before exit
-//     double f2norm = 1e-5;         // Force convergence criterion (eV/Angstroms)
-//     double proj_tol = 0;          // Trust tolerance
-//     double max_trust = 0.5;       // Maximum trust radius (Angstroms)
-//     double min_trust = 0.05;      // Minimum trust radius (Angstroms)
-//     double grow_trust = 1.5;      // Trust radius expansion rate
-//     double shrink_trust = 0.5;    // Trust radius contraction rate
+  /**
+   * @brief A minimiser that uses the LBFGS algorithm.
+   */
+  class LBFGS {
+  public:
+    /**
+     * @brief Used to configure the minimiser.
+     */
+    struct Options {
+      /** @brief Number of previous steps held in memory. */
+      std::size_t n = 10;
+      /** @brief Number of steps before exit with failiure. */
+      std::size_t iter_max = 2000;
+      /** @brief Force convergence criterion (eV/Angstroms). */
+      floating f2norm = 1e-5;
+      /**
+       * @brief Additional ammount added to neighbour list radius.
+       *
+       * Larger = build less often but more non-neighbours in neighlist.
+       */
+      floating skin = 1.0;
+      /** @brief Trust tolerance, set larger to reduce trust radius change. */
+      floating proj_tol = 0;
+      /** @brief Maximum trust radius e.g max steps size (Angstroms). */
+      floating max_trust = 0.5;
+      /** @brief Minimum trust radius e.g initial step size (Angstroms). */
+      floating min_trust = 0.05;
+      /** @brief Trust radius expansion rate. */
+      floating grow_trust = 1.5;
+      /** @brief Trust radius contraction rate. */
+      floating shrink_trust = 0.5;
+      /** @brief Print out debug info and dumps minimisation trace to "lbfgs_debug.xyz" */
+      bool debug = false;
+    };
 
-//     static MinimiseLBFGS load(toml::v2::table const &config);
-//   };
+    explicit LBFGS(Options const &opt) : m_opt{opt}, m_core{opt.n} {}
 
-// }  // namespace options
+    /**
+     * @brief Move the atoms in the SimCell to a local minimum of the potential.
+     *
+     * @return true if minimisation converged.
+     * @return false if failed to converge.
+     */
+    bool minimise(SimCell &, Potential &, std::size_t num_threads);
 
-// // LBFGS optimiser implementation, ignores minimum mode
-// class MinimiseLBFGS {
-// public:
-//   explicit MinimiseLBFGS(options::MinimiseLBFGS const &opt) : _opt{opt}, _core{opt.n} {}
+  private:
+    Options m_opt;
+    CoreLBFGS m_core;
+    std::optional<NeighbourList> m_nl;
+  };
 
-//   bool minimise(Supercell &cell, std::unique_ptr<PotentialBase> &ff) override;
-
-// private:
-//   options::MinimiseLBFGS _opt;
-//   CoreLBFGS _core;
-
-//   VecN<double> _q;
-//   VecN<double> _gx;
-// };
+}  // namespace otf

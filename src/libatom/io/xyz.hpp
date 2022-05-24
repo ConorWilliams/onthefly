@@ -15,7 +15,7 @@ namespace otf {
    * @code{.cpp}
    *
    * #include <fmt/core.h>
-   * #include <fmt/ostream.h>
+   * #include <fmt/os.h>
    *
    * #include "libatom/io/xyz.hpp"
    *
