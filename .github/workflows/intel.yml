@@ -55,4 +55,4 @@ jobs:
       - name: test
         run: |
           cd build
-          ctest --build-config Debug
+          OMP_NUM_THREADS=2 ctest --build-config Debug  --output-on-failure

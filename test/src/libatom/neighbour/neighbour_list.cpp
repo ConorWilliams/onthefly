@@ -53,11 +53,11 @@ void slow_neigh_list(std::vector<std::vector<Neigh>>& nl, SimCell const& atoms, 
   }
 }
 
-void test(SimCell const& atoms, floating rcut) {
+void test(SimCell const& atoms, floating rcut, std::size_t n) {
   //
   NeighbourList neigh(atoms.box, rcut);
 
-  neigh.rebuild(atoms);
+  neigh.rebuild(atoms, n);
 
   std::vector<std::vector<Neigh>> nl;
 
@@ -135,7 +135,8 @@ TEST_CASE("Neighbour list fuzz testing") {
     random_simcell(atoms, 100 + 900 * dis(gen));
 
     for (size_t j = 0; j < 10; j++) {
-      test(atoms, 0.25 + 0.2499 * dis(gen));
+      test(atoms, 0.25 + 0.2499 * dis(gen), 1);
+      test(atoms, 0.25 + 0.2499 * dis(gen), omp_get_max_threads());
     }
   }
 }

@@ -23,14 +23,15 @@ namespace otf {
     floating rcut() const { return m_data->rcut(); }
 
     /**
-     * @brief Compute the energy, assumes the neighbour list are ready
+     * @brief Compute the energy, assumes the neighbour list are ready, ignores contribution from
+     * frozen atoms.
      */
     floating energy(SimCell const &, NeighbourList const &, std::size_t num_threads = 1) const;
 
-    // Compute gradient, force on frozen atoms must be zero
+    // Compute gradient, assumes the neighbour list are ready, force on frozen atoms will be zero.
     void gradient(SimCell &, NeighbourList const &, std::size_t num_threads = 1);
 
-    // Compute gradient, force on frozen atoms must be zero
+    // Compute gradient, assumes the neighbour list are ready
     void hessian(SimCell const &, NeighbourList const &, std::size_t num_threads = 1) const;
 
   private:

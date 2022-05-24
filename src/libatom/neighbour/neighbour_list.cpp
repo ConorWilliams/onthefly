@@ -15,20 +15,11 @@
 
 namespace otf {
 
-  void NeighbourList::rebuild(SimCell const& atoms) {
+  void NeighbourList::rebuild(SimCell const& atoms, std::size_t num_threads) {
     //
     init_and_build_lcl(atoms);
 
-    for (size_t i = 0; i < m_neigh_lists.size(); i++) {
-      build_neigh_list(i);
-    }
-  }
-
-  void NeighbourList::rebuild_parallel(SimCell const& atoms) {
-    //
-    init_and_build_lcl(atoms);
-
-#pragma omp parallel for
+#pragma omp parallel for num_threads(num_threads) schedule(static)
     for (size_t i = 0; i < m_neigh_lists.size(); i++) {
       build_neigh_list(i);
     }

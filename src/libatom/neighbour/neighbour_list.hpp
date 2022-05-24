@@ -65,20 +65,12 @@ namespace otf {
         : m_grid(box, rcut, true), m_rcut(rcut), m_rcut_sq(rcut * rcut) {}
 
     /**
-     * @brief Build the internal neighbour lists serially
-     *
-     * After a call to this function the for_neighbours methods can be used to iterate over all
-     * atoms within rcut of any atom.
-     */
-    void rebuild(SimCell const& atoms);
-
-    /**
      * @brief Build the internal neighbour lists in parallel with openMP.
      *
      * After a call to this function the for_neighbours methods can be used to iterate over all
      * atoms within rcut of any atom.
      */
-    void rebuild_parallel(SimCell const& atoms);
+    void rebuild(SimCell const& atoms, std::size_t num_threads = 1);
 
     /**
      * @brief Update the positions of all atoms + ghosts but do not rebuild the neighbour_lists.

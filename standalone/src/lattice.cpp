@@ -80,7 +80,7 @@ auto main(int, char **) -> int {
 
     NeighbourList neigh(atoms.box, pot.rcut() + 0.01);
 
-    neigh.rebuild_parallel(atoms);
+    neigh.rebuild(atoms, omp_get_max_threads());
 
     double energy = 0;
 

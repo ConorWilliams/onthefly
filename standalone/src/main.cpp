@@ -44,9 +44,9 @@ auto main(int, char**) -> int {
 
   NeighbourList neigh(atoms.box, 6);
 
-  neigh.rebuild_parallel(atoms);
+  neigh.rebuild(atoms, omp_get_max_threads());
 
-  timeit("Fast", [&] { neigh.rebuild_parallel(atoms); });
+  timeit("Fast", [&] { neigh.rebuild(atoms, omp_get_max_threads()); });
 
   return 0;
 }
