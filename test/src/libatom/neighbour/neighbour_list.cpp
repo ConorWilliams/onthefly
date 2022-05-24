@@ -18,7 +18,7 @@ std::uniform_real_distribution<floating> dis(0, 1);
 
 SimCell random_simcell(SimCell& atoms, std::size_t n) {
   //
-  atoms.resize(n);
+  atoms.destructive_resize(n);
 
   for (size_t i = 0; i < n; i++) {
     atoms(Position{}, i) = Vec3<floating>{dis(gen), dis(gen), dis(gen)} * atoms.box.extents();

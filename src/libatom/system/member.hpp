@@ -30,6 +30,11 @@ namespace otf {
   struct Position : Member<floating, spatial_dims> {};
 
   /**
+   * @brief Tag type for gradiant of the potential.
+   */
+  struct Gradient : Member<floating, spatial_dims> {};
+
+  /**
    * @brief Tag type for atomic number.
    */
   struct Velocity : Member<floating, spatial_dims> {};

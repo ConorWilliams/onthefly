@@ -36,9 +36,7 @@ namespace otf {
       return a.k == b.k ? in(Position{}, a.j)[0] < in(Position{}, b.j)[0] : a.k < b.k;
     });
 
-    AtomArray<Mems...> out;
-
-    out.resize(in.size());
+    AtomArray<Mems...> out(in.size());
 
     for (std::size_t i = 0; i < in.size(); i++) {
       ((void)(out(Mems{}, i) = out(Mems{}, aux[i].j)), ...);

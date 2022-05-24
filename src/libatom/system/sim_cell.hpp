@@ -14,7 +14,7 @@ namespace otf {
   /**
    * @brief A SimCell is a collection of atoms augmented with an OrthoSimBox
    */
-  class SimCell : public AtomArray<Position, Frozen, AtomicNum> {
+  class SimCell : public AtomArray<Position, Frozen, AtomicNum, Gradient> {
   public:
     OrthoSimBox box;
 

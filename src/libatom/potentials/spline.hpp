@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include "fmt/core.h"
 #include "libatom/asserts.hpp"
 #include "libatom/utils.hpp"
 

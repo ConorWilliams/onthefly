@@ -3,11 +3,14 @@
 #include <fmt/core.h>
 #include <fmt/ostream.h>
 
+#include <fstream>
 #include <iostream>
+#include <memory>
 #include <random>
 
 #include "libatom/io/xyz.hpp"
 #include "libatom/neighbour/neighbour_list.hpp"
+#include "libatom/potentials/EAM/eam.hpp"
 #include "libatom/system/atom_array.hpp"
 #include "libatom/system/sim_cell.hpp"
 #include "libatom/utils.hpp"
@@ -19,7 +22,7 @@ std::uniform_real_distribution<floating> dis(0, 1);
 
 SimCell random_simcell(SimCell& atoms, std::size_t n) {
   //
-  atoms.resize(n);
+  atoms.destructive_resize(n);
 
   for (size_t i = 0; i < n; i++) {
     atoms(Position{}, i) = Vec3<floating>{dis(gen), dis(gen), dis(gen)} * atoms.box.extents();
@@ -30,35 +33,20 @@ SimCell random_simcell(SimCell& atoms, std::size_t n) {
   return atoms;
 }
 
-#include "libatom/neighbour/lcr_sort.hpp"
-
 auto main(int, char**) -> int {
   //
 
-  SimCell atoms({{34, 34, 34}, {true, true, true}});
+  SimCell atoms({{17, 17, 17}, {true, true, true}});
 
-  random_simcell(atoms, 10'000);
-
-  static_cast<AtomArray<Position, Frozen, AtomicNum>>(atoms)
-      = lcr_sort({atoms.box, 6, false}, atoms);
+  random_simcell(atoms, 1'000);
 
   fmt::print("num atoms is {}\n", atoms.size());
 
-  floating rcut = 6;
+  NeighbourList neigh(atoms.box, 6);
 
-  auto out = fmt::output_file("dump.xyz");
+  neigh.rebuild_parallel(atoms);
 
-  dump_xyz(out, atoms, "My comment");
+  timeit("Fast", [&] { neigh.rebuild_parallel(atoms); });
 
-  {
-    NeighbourList neigh(atoms.box, rcut);
-
-    neigh.rebuild(atoms);  // Warm up + alloc
-
-    timeit("Fast", [&] { neigh.rebuild_parallel(atoms); });
-
-    std::cout << "working\n";
-
-    return 0;
-  }
+  return 0;
 }

@@ -2,7 +2,7 @@
 
 #include <array>
 #include <cstddef>
-#include <istream>
+#include <fstream>
 
 #include "libatom/asserts.hpp"
 #include "libatom/potentials/spline.hpp"
@@ -20,9 +20,9 @@ namespace otf {
      *
      * For detail on file specification see: https://docs.lammps.org/pair_eam.html
      */
-    DataEAM(std::istream &in);
+    DataEAM(std::ifstream in);
 
-    double rcut() const { return m_rcut; }
+    floating rcut() const { return m_rcut; }
 
     /**
      * @brief Fetch the embedding energy function corresponding to the atom with atomic number 'a'.
@@ -58,7 +58,7 @@ namespace otf {
     /**
      * @brief Fetch the mass of the atom with atomic number 'a'.
      */
-    double const &mass(std::size_t a) const {
+    floating const &mass(std::size_t a) const {
       ASSERT(a < m_num_species, "Invalid atomic number");
       ASSERT(m_atomic2mass[a] != 0, "Species not in this potential");
       return m_atomic2mass[a];
@@ -67,7 +67,7 @@ namespace otf {
   private:
     std::size_t m_num_species;
 
-    double m_rcut;
+    floating m_rcut;
 
     std::array<std::size_t, 112> m_atomic2idx;
     std::array<floating, 112> m_atomic2mass;

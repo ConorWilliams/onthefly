@@ -1,7 +1,7 @@
 #include "libatom/potentials/EAM/data.hpp"
 
 #include <cstddef>
-#include <istream>
+#include <fstream>
 #include <limits>
 
 #include "libatom/asserts.hpp"
@@ -12,7 +12,7 @@ namespace otf {
   /**
    * @brief Throwing version of std::getline
    */
-  static std::istringstream getline(std::istream& in) {
+  static std::istringstream getline(std::ifstream& in) {
     if (std::string line; !std::getline(in, line)) {
       throw std::runtime_error("File terminated too soon");
     } else {
@@ -23,7 +23,7 @@ namespace otf {
   /**
    * @brief Read N elements in lines of length K into a vector
    */
-  static std::vector<floating> read_chunked(std::istream& file, std::size_t n, std::size_t k) {
+  static std::vector<floating> read_chunked(std::ifstream& file, std::size_t n, std::size_t k) {
     //
     std::vector<floating> raw;
 
@@ -42,7 +42,7 @@ namespace otf {
     return raw;
   }
 
-  DataEAM::DataEAM(std::istream& in) {
+  DataEAM::DataEAM(std::ifstream in) {
     //
     VERIFY(in.good(), "Could not open eam in");
 

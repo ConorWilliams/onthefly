@@ -1,5 +1,6 @@
 #include <fmt/core.h>
 #include <fmt/ostream.h>
+#include <fmt/ranges.h>
 
 #include <algorithm>
 #include <array>
@@ -8,6 +9,8 @@
 
 #include "libatom/io/xyz.hpp"
 #include "libatom/neighbour/neighbour_list.hpp"
+#include "libatom/potentials/EAM/eam.hpp"
+#include "libatom/system/member.hpp"
 #include "libatom/system/sim_cell.hpp"
 #include "libatom/utils.hpp"
 
@@ -39,7 +42,7 @@ auto main(int, char **) -> int {
 
   std::vector<MotifPt> lat;
 
-  Vec shape{10, 10, 10};  // In unit cells
+  Vec shape{20, 20, 20};  // In unit cells
 
   for (size_t k = 0; k < shape[0]; k++) {
     for (size_t j = 0; j < shape[1]; j++) {
@@ -58,7 +61,7 @@ auto main(int, char **) -> int {
 
   SimCell atoms{{a * shape, {true, true, true}}};
 
-  atoms.resize(lat.size());
+  atoms.destructive_resize(lat.size());
 
   for (size_t i = 0; i < lat.size(); i++) {
     atoms(Position{}, i) = lat[i].off;
@@ -68,21 +71,29 @@ auto main(int, char **) -> int {
 
   auto f = fmt::output_file("dump.xyz");
 
+  atoms(Position{}, 0) += Vec3<floating>{1, 1, 1};
+
   dump_xyz(f, atoms, fmt::format("Temp={}", T));
 
   {
-    fmt::print("Num atoms = {}\n", atoms.size());
+    EAM pot{std::make_shared<DataEAM>(std::ifstream{"../data/wen.eam.fs"})};
 
-    NeighbourList neigh(atoms.box, 6);
+    NeighbourList neigh(atoms.box, pot.rcut() + 0.01);
 
-    neigh.rebuild_parallel(atoms);  // Warm up + alloc
+    neigh.rebuild_parallel(atoms);
 
-    timeit("Fast", [&] { neigh.rebuild_parallel(atoms); });
+    double energy = 0;
 
-    timeit("Fast", [&] { neigh.rebuild_parallel(atoms); });
+    fmt::print("num threads = {}\n", omp_get_max_threads());
 
-    std::cout << "working\n";
+    timeit("Energy call", [&] { energy = pot.energy(atoms, neigh, omp_get_max_threads()); });
 
-    return 0;
+    fmt::print("Energy = {}\n", energy);
+
+    timeit("Grad call", [&] { pot.gradient(atoms, neigh, omp_get_max_threads()); });
+
+    fmt::print("grad = {}\n", fmt::join(atoms(Gradient{}, 0), ","));
   }
+
+  return 0;
 }
