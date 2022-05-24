@@ -4,10 +4,10 @@
 #include <fmt/core.h>
 #include <fmt/os.h>
 
+#include <cmath>
 #include <cstddef>
 #include <optional>
 #include <utility>
-#include <vector>
 
 #include "libatom/asserts.hpp"
 #include "libatom/io/xyz.hpp"
@@ -23,9 +23,16 @@ namespace otf {
   bool LBFGS::minimise(SimCell &atoms, Potential &pot, std::size_t num_threads) {
     //
     // Clear history from previous runs;
+
     m_core.clear();
 
-    m_nl = NeighbourList(atoms.box, pot.rcut() + m_opt.skin);
+    floating skin = std::max(std::pow(m_opt.skin_frac, 1. / 3.) - 1, 0.0) * pot.rcut();
+
+    if (m_opt.debug) {
+      fmt::print("Skin = {}\n", skin);
+    }
+
+    m_nl = NeighbourList(atoms.box, pot.rcut() + skin);
 
     m_nl->rebuild(atoms, num_threads);
 
@@ -70,7 +77,7 @@ namespace otf {
       // Update positions in real space
       atoms(Position{}) -= Hg;
 
-      if (acc > 0.5 * m_opt.skin) {
+      if (acc > 0.5 * skin) {
         m_nl->rebuild(atoms, num_threads);
         acc = 0;
       } else {

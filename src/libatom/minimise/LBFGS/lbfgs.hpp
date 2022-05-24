@@ -29,11 +29,13 @@ namespace otf {
       /** @brief Force convergence criterion (eV/Angstroms). */
       floating f2norm = 1e-5;
       /**
-       * @brief Additional ammount added to neighbour list radius.
+       * @brief Used to determine the skin size.
        *
-       * Larger = build less often but more non-neighbours in neighlist.
+       * Determined such that the expected number of neighbours is skin_frac * (num_neighbours if no
+       * skin used). Hence must be larger than one. If larger then neighbour lists are build less
+       * often but there will be more more non-neighbours in neighbour lists.
        */
-      floating skin = 1.0;
+      floating skin_frac = 1.1;
       /** @brief Trust tolerance, set larger to reduce trust radius change. */
       floating proj_tol = 0;
       /** @brief Maximum trust radius e.g max steps size (Angstroms). */

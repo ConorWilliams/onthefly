@@ -98,12 +98,15 @@ auto main(int, char **) -> int {
 
     LBFGS::Options opt;
 
-    opt.debug = true;
-    opt.skin = 1;
+    opt.debug = false;
+    opt.skin_frac = 1.1;
 
     LBFGS lbfgs(opt);
 
-    lbfgs.minimise(atoms, pot, omp_get_max_threads());
+    timeit("Minimise", [&] {
+      auto copy = atoms;
+      lbfgs.minimise(copy, pot, omp_get_max_threads());
+    });
   }
 
   return 0;
