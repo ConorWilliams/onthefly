@@ -73,7 +73,7 @@ auto main(int, char **) -> int {
     atoms(Frozen{}, i) = false;
   }
 
-  atoms(Frozen{}, 0) = true;
+  //   atoms(Frozen{}, 0) = true;
 
   auto f = fmt::output_file("dump.xyz");
 
@@ -98,8 +98,8 @@ auto main(int, char **) -> int {
 
     LBFGS::Options opt;
 
-    opt.debug = false;
-    opt.skin_frac = 1.1;
+    opt.debug = true;
+    // opt.skin_frac = 1.1;
 
     LBFGS lbfgs(opt);
 

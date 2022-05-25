@@ -1,11 +1,12 @@
 
 #include "libatom/asserts.hpp"
 
+#include <fmt/core.h>
+
 #include <exception>
 #include <stdexcept>
 #include <string_view>
 
-#include "fmt/core.h"
 #include "libatom/utils.hpp"
 
 namespace otf::detail {

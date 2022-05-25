@@ -1,5 +1,9 @@
 #pragma once
 
+#include <fmt/chrono.h>
+#include <fmt/core.h>
+
+#include <Eigen/Core>
 #include <chrono>
 #include <cmath>
 #include <cstddef>
@@ -10,10 +14,6 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
-
-#include "Eigen/Core"
-#include "fmt/chrono.h"
-#include "fmt/core.h"
 
 namespace otf {
 
@@ -64,6 +64,13 @@ namespace otf {
    * @brief Utility to extract first type in a parameter pack.
    */
   template <typename T, typename...> struct First { using type = T; };
+
+  /**
+   * @brief Remove the soft mode (i.e translating all atoms equally) from the array x.
+   */
+  template <typename E> auto remove_soft_mode(Eigen::ArrayBase<E> const& x) {
+    return x - Eigen::ArrayBase<E>::Ones(x.size()) * x.sum() / x.size();
+  }
 
   /**
    * @brief Compute integer powers of arithmetic types at compile time

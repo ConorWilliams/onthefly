@@ -1,8 +1,9 @@
 #include "libatom/utils.hpp"
 
+#include <doctest/doctest.h>
+
 #include <string_view>
 
-#include "doctest/doctest.h"
 #include "onthefly/version.hpp"
 
 TEST_CASE("OnTheFly version") {

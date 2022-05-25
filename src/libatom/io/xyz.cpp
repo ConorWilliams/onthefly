@@ -1,13 +1,13 @@
 #include "libatom/io/xyz.hpp"
 
 #include <fmt/core.h>
+#include <fmt/os.h>
+#include <fmt/ranges.h>
 
 #include <algorithm>
 #include <cstddef>
 #include <optional>
 
-#include "fmt/os.h"
-#include "fmt/ranges.h"
 #include "libatom/asserts.hpp"
 #include "libatom/system/member.hpp"
 #include "libatom/system/sim_cell.hpp"

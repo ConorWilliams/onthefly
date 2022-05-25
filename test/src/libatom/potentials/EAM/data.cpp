@@ -1,9 +1,9 @@
 #include "libatom/potentials/EAM/data.hpp"
 
-#include <fstream>
+#include <doctest/doctest.h>
+#include <fmt/core.h>
 
-#include "doctest/doctest.h"
-#include "fmt/core.h"
+#include <fstream>
 
 using namespace otf;
 

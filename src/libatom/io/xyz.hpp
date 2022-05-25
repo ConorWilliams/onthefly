@@ -1,8 +1,9 @@
 #pragma once
 
+#include <fmt/os.h>
+
 #include <optional>
 
-#include "fmt/os.h"
 #include "libatom/system/sim_cell.hpp"
 
 namespace otf {

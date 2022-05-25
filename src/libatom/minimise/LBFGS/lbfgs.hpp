@@ -32,7 +32,7 @@ namespace otf {
        * @brief Used to determine the skin size.
        *
        * Determined such that the expected number of neighbours is skin_frac * (num_neighbours if no
-       * skin used). Hence must be larger than one. If larger then neighbour lists are build less
+       * skin used). Hence must be larger than one. If larger then neighbour lists are built less
        * often but there will be more more non-neighbours in neighbour lists.
        */
       floating skin_frac = 1.1;

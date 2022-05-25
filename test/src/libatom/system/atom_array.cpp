@@ -1,9 +1,10 @@
 #include "libatom/system/atom_array.hpp"
 
+#include <doctest/doctest.h>
+
 #include <cmath>
 #include <random>
 
-#include "doctest/doctest.h"
 #include "libatom/system/member.hpp"
 #include "libatom/utils.hpp"
 

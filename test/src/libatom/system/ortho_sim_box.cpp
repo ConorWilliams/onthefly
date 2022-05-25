@@ -1,9 +1,10 @@
 #include "libatom/system/ortho_sim_box.hpp"
 
+#include <doctest/doctest.h>
+
 #include <cmath>
 #include <random>
 
-#include "doctest/doctest.h"
 #include "libatom/utils.hpp"
 
 TEST_CASE("Simbox cannon_image") {

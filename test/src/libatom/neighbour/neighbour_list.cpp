@@ -1,12 +1,13 @@
 #include "libatom/neighbour/neighbour_list.hpp"
 
+#include <doctest/doctest.h>
+#include <fmt/core.h>
+
 #include <algorithm>
 #include <cstddef>
 #include <random>
 #include <vector>
 
-#include "doctest/doctest.h"
-#include "fmt/core.h"
 #include "libatom/system/member.hpp"
 #include "libatom/system/sim_cell.hpp"
 #include "libatom/utils.hpp"
