@@ -1,11 +1,9 @@
-#include "libatom/ortho_sim_box.hpp"
-
 #include <doctest/doctest.h>
 
 #include <cmath>
 #include <random>
 
-#include "libatom/utils.hpp"
+#include "libatom/sim_cell.hpp"
 
 TEST_CASE("Simbox cannon_image") {
   using namespace otf;

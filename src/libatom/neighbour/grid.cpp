@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "libatom/asserts.hpp"
-#include "libatom/ortho_sim_box.hpp"
+#include "libatom/sim_cell.hpp"
 #include "libatom/utils.hpp"
 
 namespace otf::neighbour {

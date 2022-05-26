@@ -32,7 +32,7 @@ namespace otf::minimise {
      * @return A view of the newton step array, H ∇f, (it is ok to modify this view it will be
      * overwritten upon next call).
      */
-    SimCell::underlying_t<Gradient>& newton_step(SimCell const&);
+    [[nodiscard]] SimCell::underlying_t<Gradient>& newton_step(SimCell const&);
 
   private:
     std::size_t m_n;

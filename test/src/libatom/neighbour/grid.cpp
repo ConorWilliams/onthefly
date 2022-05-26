@@ -6,7 +6,6 @@
 #include <cmath>
 #include <random>
 
-#include "libatom/ortho_sim_box.hpp"
 #include "libatom/utils.hpp"
 
 TEST_CASE("neighbour::Grid") {

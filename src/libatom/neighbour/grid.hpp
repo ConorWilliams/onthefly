@@ -3,13 +3,13 @@
 
 #include <array>
 #include <cstddef>
+#include <nonstd/span.hpp>
 #include <optional>
 #include <vector>
 
 #include "libatom/asserts.hpp"
-#include "libatom/ortho_sim_box.hpp"
+#include "libatom/sim_cell.hpp"
 #include "libatom/utils.hpp"
-#include "nonstd/span.hpp"
 
 namespace otf::neighbour {
 
@@ -37,26 +37,28 @@ namespace otf::neighbour {
     /**
      * @brief Get shape of a single cell
      */
-    Vec3<floating> const &cell() const noexcept { return m_cell; }
+    [[nodiscard]] Vec3<floating> const &cell() const noexcept { return m_cell; }
 
     /**
      * @brief Get the total number of cells in the neighbour grid.
      */
-    std::size_t num_cells() const noexcept { return m_shape.prod(); }
+    [[nodiscard]] std::size_t num_cells() const noexcept { return m_shape.prod(); }
 
     /**
      * @brief Compute the cell index from an atoms position
      *
      * Assumes atom is in the cannonicle cell + displaced by m_cell
      */
-    std::size_t cell_idx(Vec3<floating> const &x) const { return to_1D(clamp_to_grid_idxs(x)); }
+    [[nodiscard]] std::size_t cell_idx(Vec3<floating> const &x) const {
+      return to_1D(clamp_to_grid_idxs(x));
+    }
 
     /**
      * @brief Get the Canonicle grid position, this is the canonicle image displaced by one grid
      * cell.
      */
     template <typename E>
-    Vec3<floating> canon_grid_pos(Eigen::ArrayBase<E> const &x) const noexcept {
+    [[nodiscard]] Vec3<floating> canon_grid_pos(Eigen::ArrayBase<E> const &x) const noexcept {
       return m_box.canon_image(x) + m_cell;
     }
 
@@ -65,7 +67,7 @@ namespace otf::neighbour {
      *
      * Does not include the nth cell.
      */
-    nonstd::span<std::size_t const> neigh_cells(std::size_t n) const {
+    [[nodiscard]] nonstd::span<std::size_t const> neigh_cells(std::size_t n) const {
       ASSERT(n < m_neigh_cells.size(), "Forgot to calc neigh cells");
       return {m_neigh_cells[n].data() + 1, m_neigh_cells[n][0]};
     }

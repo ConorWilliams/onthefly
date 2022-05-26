@@ -33,7 +33,7 @@ namespace otf::potentials {
      * @param x
      * @return f(x)
      */
-    floating f(floating x) const {
+    [[nodiscard]] floating f(floating x) const {
       auto [x0, spine] = fetch(x);
       return spine.a + x0 * (spine.b + x0 * (spine.c + x0 * spine.d));
     }
@@ -44,7 +44,7 @@ namespace otf::potentials {
      * @param x
      * @return f'(x)
      */
-    floating fp(floating x) const {
+    [[nodiscard]] floating fp(floating x) const {
       auto [x0, spine] = fetch(x);
       return spine.b + x0 * (2.0 * spine.c + x0 * 3.0 * spine.d);
     }
@@ -57,7 +57,7 @@ namespace otf::potentials {
      * @param x
      * @return f''(x)
      */
-    floating fpp(floating x) const {
+    [[nodiscard]] floating fpp(floating x) const {
       auto [x0, spine] = fetch(x);
       return 2 * spine.c + 6.0 * x0 * spine.d;
     }

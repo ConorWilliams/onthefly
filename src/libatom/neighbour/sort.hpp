@@ -7,7 +7,6 @@
 
 #include "libatom/atom_array.hpp"
 #include "libatom/neighbour/grid.hpp"
-#include "libatom/ortho_sim_box.hpp"
 
 namespace otf::neighbour {
 
@@ -16,7 +15,8 @@ namespace otf::neighbour {
    *
    * @return AtomArray<Mems...> A sorted copy of the input.
    */
-  template <typename... Mems> AtomArray<Mems...> sort(Grid grid, AtomArray<Mems...> const& in) {
+  template <typename... Mems>
+  [[nodiscard]] AtomArray<Mems...> sort(Grid grid, AtomArray<Mems...> const& in) {
     //
     struct Pair {
       std::size_t k;

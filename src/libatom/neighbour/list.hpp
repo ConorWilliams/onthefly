@@ -6,7 +6,6 @@
 #include "libatom/asserts.hpp"
 #include "libatom/atom_array.hpp"
 #include "libatom/neighbour/grid.hpp"
-#include "libatom/ortho_sim_box.hpp"
 #include "libatom/sim_cell.hpp"
 #include "libatom/utils.hpp"
 
