@@ -1,4 +1,4 @@
-#include "libatom/system/ortho_sim_box.hpp"
+#include "libatom/ortho_sim_box.hpp"
 
 #include <doctest/doctest.h>
 

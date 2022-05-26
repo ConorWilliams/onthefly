@@ -1,6 +1,6 @@
 
 
-#include "libatom/neighbour/neighbour_list.hpp"
+#include "libatom/neighbour/list.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -9,14 +9,13 @@
 #include <utility>
 
 #include "libatom/asserts.hpp"
-#include "libatom/system/member.hpp"
-#include "libatom/system/ortho_sim_box.hpp"
-#include "libatom/system/sim_cell.hpp"
+#include "libatom/ortho_sim_box.hpp"
+#include "libatom/sim_cell.hpp"
 #include "libatom/utils.hpp"
 
-namespace otf {
+namespace otf::neighbour {
 
-  void NeighbourList::rebuild(SimCell const& atoms, std::size_t num_threads) {
+  void List::rebuild(SimCell const& atoms, std::size_t num_threads) {
     //
     init_and_build_lcl(atoms);
 
@@ -26,7 +25,7 @@ namespace otf {
     }
   }
 
-  void NeighbourList::init_and_build_lcl(SimCell const& atoms) {
+  void List::init_and_build_lcl(SimCell const& atoms) {
     //
     if (m_neigh_lists.size() != atoms.size()) {
       // Allocate space if needed
@@ -55,7 +54,7 @@ namespace otf {
     }
   }
 
-  void NeighbourList::update_positions(SimCell::underlying_t<Position> const& deltas) {
+  void List::update_positions(SimCell::underlying_t<Position> const& deltas) {
     // Copy in atoms
     for (std::size_t i = 0; i < m_neigh_lists.size(); ++i) {
       m_atoms(Position{}, i) -= deltas.col(i);
@@ -67,7 +66,7 @@ namespace otf {
     }
   }
 
-  void NeighbourList::build_neigh_list(std::size_t i) {
+  void List::build_neigh_list(std::size_t i) {
     //
     m_neigh_lists[i].clear();
 
@@ -99,12 +98,9 @@ namespace otf {
     }
   }
 
-  void NeighbourList::make_ghosts(OrthoSimBox const& box) {
+  void List::make_ghosts(OrthoSimBox const& box) {
     //
     std::size_t next_slot = m_neigh_lists.size();
-
-    // Zero all offsets of real atoms
-    m_atoms(Offset{}).leftCols(m_neigh_lists.size()) = 0.0;
 
     for (std::size_t i = 0; i < spatial_dims; ++i) {
       // Only make ghosts if axis is periodic
@@ -122,9 +118,6 @@ namespace otf {
             m_atoms(Position{}, slot) = m_atoms(Position{}, j);
             m_atoms(Position{}, slot)[i] += box.extents()[i];
 
-            m_atoms(Offset{}, slot) = m_atoms(Offset{}, j);
-            m_atoms(Offset{}, slot)[i] += box.extents()[i];
-
             m_atoms(Index{}, slot) = m_atoms(Index{}, j);
           }
 
@@ -137,9 +130,6 @@ namespace otf {
             m_atoms(Position{}, slot) = m_atoms(Position{}, j);
             m_atoms(Position{}, slot)[i] -= box.extents()[i];
 
-            m_atoms(Offset{}, slot) = m_atoms(Offset{}, j);
-            m_atoms(Offset{}, slot)[i] -= box.extents()[i];
-
             m_atoms(Index{}, slot) = m_atoms(Index{}, j);
           }
         }
@@ -148,4 +138,4 @@ namespace otf {
     m_num_plus_ghosts = next_slot;
   }
 
-}  // namespace otf
+}  // namespace otf::neighbour

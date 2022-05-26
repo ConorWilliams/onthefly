@@ -19,11 +19,9 @@
 //  http://www.boost.org/libs/assert/current_function.html
 //
 
-namespace otf {
+namespace otf::external {
 
-  namespace detail {
-
-    inline void current_function_helper() {
+  inline void current_function_helper() {
 #if defined(__GNUC__) || (defined(__MWERKS__) && (__MWERKS__ >= 0x3000)) \
     || (defined(__ICC) && (__ICC >= 600)) || defined(__ghs__)
 
@@ -59,10 +57,8 @@ namespace otf {
 #  define OTF_CURRENT_FUNCTION "(unknown)"
 
 #endif
-    }
+  }
 
-  }  // namespace detail
-
-}  // namespace otf
+}  // namespace otf::external
 
 #endif  // #ifndef OTF_CURRENT_FUNCTION_HPP_INCLUDED

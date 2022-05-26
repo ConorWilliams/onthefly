@@ -8,7 +8,7 @@
 #include "libatom/potentials/spline.hpp"
 #include "libatom/utils.hpp"
 
-namespace otf {
+namespace otf::potentials {
 
   /**
    * @brief Holds the parsed tabulated EAM data and reconstruct f,phi,v smoothly via splines.
@@ -86,4 +86,4 @@ namespace otf {
     }
   };
 
-}  // namespace otf
+}  // namespace otf::potentials

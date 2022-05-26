@@ -7,11 +7,10 @@
 #include "libatom/asserts.hpp"
 #include "libatom/utils.hpp"
 
-namespace otf {
+namespace otf::potentials {
 
   /**
-   * @brief Computes a set of natural cubic spline coefficients for a uniformly tabulated function,
-   * function/gradient can then be interpolated through appropriate methods.
+   * @brief Computes a set of natural cubic spline coefficients for a uniformly tabulated function.
    *
    * See Wikipedia algorithm: https://en.wikipedia.org/wiki/Spline_(mathematics)
    */
@@ -82,4 +81,4 @@ namespace otf {
     }
   };
 
-}  // namespace otf
+}  // namespace otf::potentials

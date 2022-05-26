@@ -4,7 +4,7 @@
 
 #include "libatom/utils.hpp"
 
-namespace otf {
+namespace otf::potentials {
 
   Spline::Spline(std::vector<floating> y, floating dx) : m_spines{}, m_dx(dx), m_inv_dx(1 / dx) {
     //
@@ -77,4 +77,4 @@ namespace otf {
     }
   }
 
-}  // namespace otf
+}  // namespace otf::potentials

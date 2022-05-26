@@ -1,4 +1,4 @@
-#include "libatom/neighbour/neighbour_list.hpp"
+#include "libatom/neighbour/list.hpp"
 
 #include <doctest/doctest.h>
 #include <fmt/core.h>
@@ -8,8 +8,7 @@
 #include <random>
 #include <vector>
 
-#include "libatom/system/member.hpp"
-#include "libatom/system/sim_cell.hpp"
+#include "libatom/sim_cell.hpp"
 #include "libatom/utils.hpp"
 
 using namespace otf;
@@ -56,7 +55,7 @@ void slow_neigh_list(std::vector<std::vector<Neigh>>& nl, SimCell const& atoms, 
 
 void test(SimCell const& atoms, floating rcut, std::size_t n) {
   //
-  NeighbourList neigh(atoms.box, rcut);
+  neighbour::List neigh(atoms.box, rcut);
 
   neigh.rebuild(atoms, n);
 
@@ -96,7 +95,7 @@ void test(SimCell const& atoms, floating rcut, std::size_t n) {
 //   floating rcut = 0.1;
 
 //   {
-//     NeighbourList neigh;
+//     neighbour::List neigh;
 
 //     neigh.rebuild(atoms, rcut);  // Warm up + alloc
 

@@ -4,14 +4,13 @@
 #include <vector>
 
 #include "libatom/asserts.hpp"
-#include "libatom/neighbour/neigh_grid.hpp"
-#include "libatom/system/atom_array.hpp"
-#include "libatom/system/member.hpp"
-#include "libatom/system/ortho_sim_box.hpp"
-#include "libatom/system/sim_cell.hpp"
+#include "libatom/atom_array.hpp"
+#include "libatom/neighbour/grid.hpp"
+#include "libatom/ortho_sim_box.hpp"
+#include "libatom/sim_cell.hpp"
 #include "libatom/utils.hpp"
 
-namespace otf {
+namespace otf::neighbour {
 
   /**
    * @brief The maximum nuber of ghosts neighbour cell supports is MAX_GHOST_RATIO * num_atoms
@@ -21,25 +20,25 @@ namespace otf {
   /**
    * @brief A class to contain, build and manage neighbour lists in shared memory.
    *
-   * Designed with the intention of being reused NeighbourList separates the building, updating and
+   * Designed with the intention of being reused List separates the building, updating and
    * using of neighbour lists (NLs). NLs can be constructed from a SimCell and then used to find all
    * atoms within some cut off of an atom efficiantly.
    *
-   * NeighbourList resolves periodicity using ghost atoms, these are stored and managed internally.
+   * List resolves periodicity using ghost atoms, these are stored and managed internally.
    *
-   * An example of using a NeighbourList to count the average number of atoms within rcut of each
+   * An example of using a List to count the average number of atoms within rcut of each
    * atom:
    *
    * @code{.cpp}
    *
-   * #include "libatom/neighbour/neighbour_list.hpp"
-   * #include "libatom/system/sim_cell.hpp"
+   * #include "libatom/neighbour/list.hpp"
+   * #include "libatom/sim_cell.hpp"
    *
    * using namespace otf;
    *
    * SimCell atoms = ... // Initialise a set of atoms in a {10, 10, 10} cell.
    *
-   * NeighbourList nlist(atoms.box, 3.0);
+   * List nlist(atoms.box, 3.0);
    *
    * nlist.rebuild(atoms); // Build the NL.
    *
@@ -55,13 +54,13 @@ namespace otf {
    *
    * @endcode
    */
-  class NeighbourList {
+  class List {
   public:
     /**
      * @brief Construct a new Neighbour List object. The cut off, rcut, must be smaller than the
      * minimum OrthSimCell extent.
      */
-    NeighbourList(OrthoSimBox const& box, floating rcut)
+    List(OrthoSimBox const& box, floating rcut)
         : m_grid(box, rcut, true), m_rcut(rcut), m_rcut_sq(rcut * rcut) {}
 
     /**
@@ -75,7 +74,7 @@ namespace otf {
     /**
      * @brief Update the positions of all atoms and ghosts to Position{} -= deltas
      *
-     * Usefull if using a skin distance and wanting to avoid rebuilding the neighbour_lists.
+     * Usefull if using a skin distance and wanting to avoid rebuilding the lists.
      */
     void update_positions(SimCell::underlying_t<Position> const& deltas);
 
@@ -126,7 +125,7 @@ namespace otf {
   private:
     //
 
-    NeighGrid m_grid;
+    Grid m_grid;
 
     std::vector<std::size_t> m_head;
 
@@ -136,10 +135,9 @@ namespace otf {
 
     ///
 
-    struct Next : Member<std::size_t, 1> {};
-    struct Offset : Member<floating, 3> {};
+    struct Next : AtomArrayMem<std::size_t, 1> {};
 
-    AtomArray<Position, Index, Next, Offset> m_atoms;
+    AtomArray<Position, Index, Next> m_atoms;
 
     std::size_t m_num_plus_ghosts = 0;
 
@@ -163,4 +161,4 @@ namespace otf {
     void build_neigh_list(std::size_t i);
   };
 
-}  // namespace otf
+}  // namespace otf::neighbour

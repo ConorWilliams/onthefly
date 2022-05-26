@@ -10,6 +10,7 @@
 #include <functional>
 #include <iterator>
 #include <numeric>
+#include <ratio>
 #include <string_view>
 #include <type_traits>
 #include <utility>
@@ -91,6 +92,11 @@ namespace otf {
   }
 
   /**
+   * @brief Utility for defining floating chrono types.
+   */
+  template <typename T> using ftime_t = std::chrono::duration<floating, T>;
+
+  /**
    * @brief Quick and dirty timing utility, prints to stdout.
    *
    * @param name Give a name to what you are timing
@@ -129,22 +135,32 @@ namespace otf {
 
     fmt::print("Performed {} runs in {}\n", dt.size(), elapsed);
 
-    using floating_ns = std::chrono::duration<double, Duration::period>;
+    using default_dur = ftime_t<Duration::period>;
 
-    floating_ns mean = std::accumulate(dt.begin(), dt.end(), floating_ns{0}) / dt.size();
+    default_dur mean = std::accumulate(dt.begin(), dt.end(), default_dur{0}) / dt.size();
 
-    floating_ns nvar{
-        std::accumulate(dt.begin(), dt.end(), 0.0, [&, mean](double acc, floating_ns const& val) {
+    default_dur nvar{
+        std::accumulate(dt.begin(), dt.end(), 0.0, [&, mean](double acc, default_dur const& val) {
           return acc + (val.count() - mean.count()) * (val.count() - mean.count());
         })};
 
-    floating_ns std{std::sqrt(nvar.count() / dt.size())};
+    default_dur std{std::sqrt(nvar.count() / dt.size())};
 
-    fmt::print("Average time = {} ± {}\n", mean, std);
+    constexpr auto str = "Average time = {} ± {}\n";
+
+    if (mean < ftime_t<std::nano>{1000}) {
+      fmt::print(str, ftime_t<std::nano>{mean}, ftime_t<std::nano>{std});
+    } else if (mean < ftime_t<std::micro>{1000}) {
+      fmt::print(str, ftime_t<std::micro>{mean}, ftime_t<std::micro>{std});
+    } else if (mean < ftime_t<std::milli>{1000}) {
+      fmt::print(str, ftime_t<std::milli>{mean}, ftime_t<std::milli>{std});
+    } else {
+      fmt::print(str, ftime_t<std::ratio<1>>{mean}, ftime_t<std::ratio<1>>{std});
+    }
 
     struct Return {
-      floating_ns mean;
-      floating_ns std;
+      default_dur mean;
+      default_dur std;
     };
 
     return Return{mean, std};

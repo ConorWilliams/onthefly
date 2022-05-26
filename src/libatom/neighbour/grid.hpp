@@ -7,16 +7,16 @@
 #include <vector>
 
 #include "libatom/asserts.hpp"
-#include "libatom/system/ortho_sim_box.hpp"
+#include "libatom/ortho_sim_box.hpp"
 #include "libatom/utils.hpp"
 #include "nonstd/span.hpp"
 
-namespace otf {
+namespace otf::neighbour {
 
   /**
    * @brief Maps {xyz} tuples to 1D grid.
    *
-   * The NeighGrid is responisble for managing the mapping from 3D->1D for neighbour lists. Each
+   * The Grid is responisble for managing the mapping from 3D->1D for neighbour lists. Each
    * atom is assigned to a cell (at least as large in each dimension as rcut) through
    * .cell_idx(...). The neighbouring cells to any given cell can then be optained through a call to
    * .neigh_cells(...).
@@ -26,13 +26,13 @@ namespace otf {
    * the (1,1,1) direction. This leaves room for a layer of ghost atom cells around the canonicle
    * cell.
    */
-  class NeighGrid {
+  class Grid {
   public:
     /**
      * @brief Construct a new Neigh Grid object, optionally chose to build the internal list of
      * neighbour cells required for calls to neigh_cells().
      */
-    NeighGrid(OrthoSimBox const &box, floating rcut, bool compute_neigh_cells);
+    Grid(OrthoSimBox const &box, floating rcut, bool compute_neigh_cells);
 
     /**
      * @brief Get shape of a single cell
@@ -101,4 +101,4 @@ namespace otf {
     std::size_t to_1D(Vec3<int> const &indexes) const & { return (indexes * m_prod_shape).sum(); }
   };
 
-}  // namespace otf
+}  // namespace otf::neighbour

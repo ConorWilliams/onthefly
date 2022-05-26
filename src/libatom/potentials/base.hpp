@@ -3,18 +3,18 @@
 #include <cstddef>
 #include <memory>
 
-#include "libatom/neighbour/neighbour_list.hpp"
-#include "libatom/system/sim_cell.hpp"
+#include "libatom/neighbour/list.hpp"
+#include "libatom/sim_cell.hpp"
 
-namespace otf {
+namespace otf::potentials {
 
   /**
    * @brief Specifies the virtual-interface for potentials in OLKMC.
    */
-  class Potential {
+  class Base {
   public:
     // Copy this object
-    virtual std::unique_ptr<Potential> clone() const = 0;
+    virtual std::unique_ptr<Base> clone() const = 0;
 
     /**
      * @brief Get this potentials cut-off radius that the neighbour lists should be configured for.
@@ -26,32 +26,32 @@ namespace otf {
      *
      * Ignores contribution from frozen atoms.
      */
-    virtual floating energy(SimCell const &, NeighbourList const &, std::size_t threads) = 0;
+    virtual floating energy(SimCell const &, neighbour::List const &, std::size_t threads) = 0;
 
     /**
      * @brief Compute gradient, assumes the neighbour list are ready.
      *
      * Force on frozen atoms will be zero.
      */
-    virtual void gradient(SimCell &, NeighbourList const &, std::size_t threads) = 0;
+    virtual void gradient(SimCell &, neighbour::List const &, std::size_t threads) = 0;
 
     /**
      * @brief Compute hessian matrix, assumes the neighbour list are ready.
      *
      * The resulting hessian will be m by m and only include contributions from the m active atoms.
      */
-    virtual void hessian(SimCell const &, NeighbourList const &, std::size_t threads) = 0;
+    virtual void hessian(SimCell const &, neighbour::List const &, std::size_t threads) = 0;
 
     /**
      * @brief Call parent destructor.
      */
-    virtual ~Potential() {}
+    virtual ~Base() {}
 
   protected:
     /**
      * @brief Protected constructor as this is an interface class.
      */
-    constexpr Potential() noexcept = default;
+    constexpr Base() noexcept = default;
   };
 
-}  // namespace otf
+}  // namespace otf::potentials

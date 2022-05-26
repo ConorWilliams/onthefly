@@ -6,10 +6,26 @@
 #include <type_traits>
 
 #include "libatom/asserts.hpp"
-#include "libatom/system/detail/eigen_array_adaptor.hpp"
+#include "libatom/detail/eigen_array_adaptor.hpp"
 #include "libatom/utils.hpp"
 
 namespace otf {
+
+  /**
+   * @brief A base type to derive from for defining members of an atom for use in AtomArrays.
+   *
+   * @tparam Scalar The type of the atoms member.
+   * @tparam Extent How many elements of the Scalar type are in the member (vector dimension).
+   */
+  template <typename Scalar, std::size_t Extent = 1> struct AtomArrayMem {
+    //
+    using scalar_type = Scalar;
+    using vector_type = std::conditional_t<Extent == 1, Scalar, Eigen::Array<Scalar, 1, Extent>>;
+
+    static constexpr std::size_t extent = Extent;
+
+    static_assert(std::is_default_constructible_v<Scalar>);
+  };
 
   /**
    * @brief Models an array of "atoms"
@@ -17,16 +33,15 @@ namespace otf {
    * The default container type used in the libatom; an AtomArray models an array of * "atom" types
    * but decomposes the atom type and stores each member in a separate array. This enables efficient
    * cache use. The members of the "atom" are described through a series of template parameters
-   * which should inherit from otf::Member. A selection of canonical members are provided in
-   * libatom/system/member.hpp. The members of each atom can be accessed either by the index of the
+   * which should inherit from otf::AtomArrayMem. A selection of canonical members are provided in
+   * libatom/member.hpp. The members of each atom can be accessed either by the index of the
    * atom or as an eigen array to enable collective operations.
    *
    * Example of use:
    *
    * @code{.cpp}
    *
-   * #include "libatom/system/atom_array.hpp"
-   * #include "libatom/system/member.hpp"
+   * #include "libatom/atom_array.hpp"
    *
    * using namespace otf;
    *
@@ -123,5 +138,55 @@ namespace otf {
     using detail::EigenArrayAdaptor<Mems>::raw_array...;
     using detail::EigenArrayAdaptor<Mems>::get...;
   };
+
+  /**
+   * @brief A collection of default member types for use in AtomArray's
+   */
+  namespace members {
+
+    /**
+     * @brief Tag type for position (xyz).
+     */
+    struct Position : AtomArrayMem<floating, spatial_dims> {};
+
+    /**
+     * @brief Tag type for gradiant of the potential.
+     */
+    struct Gradient : AtomArrayMem<floating, spatial_dims> {};
+
+    /**
+     * @brief Tag type for atomic number.
+     */
+    struct Velocity : AtomArrayMem<floating, spatial_dims> {};
+
+    /**
+     * @brief Tag type for atomic number.
+     */
+    struct AtomicNum : AtomArrayMem<std::size_t, 1> {};
+
+    /**
+     * @brief Tag type for atomic number.
+     */
+    struct Mass : AtomArrayMem<std::size_t, 1> {};
+
+    /**
+     * @brief Tag type for index.
+     */
+    struct Index : AtomArrayMem<std::size_t, 1> {};
+
+    /**
+     * @brief Tag type for index.
+     */
+    struct Symbol : AtomArrayMem<std::string_view, 1> {};
+
+    /**
+     * @brief Tag type for frozen atoms.
+     */
+    struct Frozen : AtomArrayMem<bool, 1> {};
+
+  }  // namespace members
+
+  // No online namespace as m.css doens't like them :()
+  using namespace members;
 
 }  // namespace otf

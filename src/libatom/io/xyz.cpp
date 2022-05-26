@@ -9,11 +9,10 @@
 #include <optional>
 
 #include "libatom/asserts.hpp"
-#include "libatom/system/member.hpp"
-#include "libatom/system/sim_cell.hpp"
+#include "libatom/sim_cell.hpp"
 #include "libatom/utils.hpp"
 
-namespace otf {
+namespace otf::io {
 
   inline constexpr std::array symbols = {
       "XX", "H",  "He", "Li", "Be", "B",  "C",  "N",  "O",  "F",  "Ne", "Na", "Mg", "Al",
@@ -57,4 +56,4 @@ namespace otf {
     file.flush();
   }
 
-}  // namespace otf
+}  // namespace otf::io

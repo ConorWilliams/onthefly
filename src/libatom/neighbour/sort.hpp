@@ -5,20 +5,18 @@
 #include <utility>
 #include <vector>
 
-#include "libatom/neighbour/neigh_grid.hpp"
-#include "libatom/system/atom_array.hpp"
-#include "libatom/system/member.hpp"
-#include "libatom/system/ortho_sim_box.hpp"
+#include "libatom/atom_array.hpp"
+#include "libatom/neighbour/grid.hpp"
+#include "libatom/ortho_sim_box.hpp"
 
-namespace otf {
+namespace otf::neighbour {
 
   /**
    * @brief Sort an atom array such that atoms in the same grid cell appear close to each other.
    *
    * @return AtomArray<Mems...> A sorted copy of the input.
    */
-  template <typename... Mems>
-  AtomArray<Mems...> lcr_sort(NeighGrid grid, AtomArray<Mems...> const& in) {
+  template <typename... Mems> AtomArray<Mems...> sort(Grid grid, AtomArray<Mems...> const& in) {
     //
     struct Pair {
       std::size_t k;
@@ -45,4 +43,4 @@ namespace otf {
     return out;
   }
 
-}  // namespace otf
+}  // namespace otf::neighbour

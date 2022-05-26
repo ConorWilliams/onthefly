@@ -1,4 +1,4 @@
-#include "libatom/neighbour/neigh_grid.hpp"
+#include "libatom/neighbour/grid.hpp"
 
 #include <doctest/doctest.h>
 
@@ -6,13 +6,13 @@
 #include <cmath>
 #include <random>
 
-#include "libatom/system/ortho_sim_box.hpp"
+#include "libatom/ortho_sim_box.hpp"
 #include "libatom/utils.hpp"
 
-TEST_CASE("NeighGrid") {
+TEST_CASE("neighbour::Grid") {
   otf::OrthoSimBox box{{10, 10, 10}, {true, true, true}};
 
-  otf::NeighGrid grid(box, 3, true);
+  otf::neighbour::Grid grid(box, 3, true);
 
   using V = otf::Vec3<otf::floating>;
 

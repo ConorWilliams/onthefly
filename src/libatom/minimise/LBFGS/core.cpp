@@ -6,11 +6,10 @@
 #include <vector>
 
 #include "libatom/asserts.hpp"
-#include "libatom/system/member.hpp"
-#include "libatom/system/sim_cell.hpp"
+#include "libatom/sim_cell.hpp"
 #include "libatom/utils.hpp"
 
-namespace otf {
+namespace otf::minimise {
 
   SimCell::underlying_t<Gradient>& CoreLBFGS::newton_step(SimCell const& atoms) {
     //
@@ -64,4 +63,4 @@ namespace otf {
     return m_r;
   }
 
-}  // namespace otf
+}  // namespace otf::minimise

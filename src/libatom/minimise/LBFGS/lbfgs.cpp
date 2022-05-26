@@ -12,15 +12,14 @@
 #include "libatom/asserts.hpp"
 #include "libatom/io/xyz.hpp"
 #include "libatom/minimise/LBFGS/core.hpp"
-#include "libatom/neighbour/neighbour_list.hpp"
-#include "libatom/potentials/potential.hpp"
-#include "libatom/system/member.hpp"
-#include "libatom/system/sim_cell.hpp"
+#include "libatom/neighbour/list.hpp"
+#include "libatom/potentials/base.hpp"
+#include "libatom/sim_cell.hpp"
 #include "libatom/utils.hpp"
 
-namespace otf {
+namespace otf::minimise {
 
-  bool LBFGS::minimise(SimCell &atoms, Potential &pot, std::size_t num_threads) {
+  bool LBFGS::minimise(SimCell &atoms, potentials::Base &pot, std::size_t num_threads) {
     //
     // Clear history from previous runs;
 
@@ -32,7 +31,7 @@ namespace otf {
       fmt::print("Skin = {}\n", skin);
     }
 
-    m_nl = NeighbourList(atoms.box, pot.rcut() + skin);
+    m_nl = neighbour::List(atoms.box, pot.rcut() + skin);
 
     m_nl->rebuild(atoms, num_threads);
 
@@ -57,7 +56,7 @@ namespace otf {
       if (m_opt.debug) {
         constexpr auto str = "LBFGS: i={:<4} trust={:f} acc={:f} norm(g)={:e}\n";
         fmt::print(str, i, trust, acc, std::sqrt(mag_g));
-        dump_xyz(*file, atoms, "Debug");
+        io::dump_xyz(*file, atoms, "Debug");
       }
 
       if (mag_g < m_opt.f2norm * m_opt.f2norm) {
@@ -98,4 +97,4 @@ namespace otf {
     return false;
   }
 
-}  // namespace otf
+}  // namespace otf::minimise

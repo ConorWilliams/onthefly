@@ -2,11 +2,11 @@
 
 ## Data components
 
-**AtomArray** The default adaptive container type used in the libatom; an AtomArray models a vector of "atom" types but decomposes the atom type and stores each member in a separate vector. This enables efficient cache use. The members of the "atom" are described through a series of template parameters which should inherit from otf::Member. A selection of canonical members are provided in libatom/system/atomvector.hpp. Example of use:
+**AtomArray** The default adaptive container type used in the libatom; an AtomArray models a vector of "atom" types but decomposes the atom type and stores each member in a separate vector. This enables efficient cache use. The members of the "atom" are described through a series of template parameters which should inherit from otf::AtomArrayMem. A selection of canonical members are provided in libatom/atomvector.hpp. Example of use:
 
 ```c++
 
-#include "libatom/system/atomvector.hpp"
+#include "libatom/atomvector.hpp"
 
 using namespace otf;
 
@@ -44,7 +44,7 @@ NeighLister :
 
 NeighList :  **x**, **Box** -> periodically resolved list of neighbour idxs + xyz for each atom
 
-Potentials : **x**, **z**, **Box** -> energy, force, hessian 
+Bases : **x**, **z**, **Box** -> energy, force, hessian 
 
 Minimise :  **x**, **z**, **Box** -> minimum xyz
 

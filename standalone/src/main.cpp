@@ -8,11 +8,11 @@
 #include <memory>
 #include <random>
 
+#include "libatom/atom_array.hpp"
 #include "libatom/io/xyz.hpp"
-#include "libatom/neighbour/neighbour_list.hpp"
+#include "libatom/neighbour/list.hpp"
 #include "libatom/potentials/EAM/eam.hpp"
-#include "libatom/system/atom_array.hpp"
-#include "libatom/system/sim_cell.hpp"
+#include "libatom/sim_cell.hpp"
 #include "libatom/utils.hpp"
 
 using namespace otf;
@@ -42,7 +42,7 @@ auto main(int, char**) -> int {
 
   fmt::print("num atoms is {}\n", atoms.size());
 
-  NeighbourList neigh(atoms.box, 6);
+  neighbour::List neigh(atoms.box, 6);
 
   neigh.rebuild(atoms, omp_get_max_threads());
 

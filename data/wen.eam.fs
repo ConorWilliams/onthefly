@@ -1,6 +1,6 @@
 CONTRIBUTOR: M. Wen, maowen@sjtu.edu.cn  CITATION:M. Wen. Comput. Mater. Sci. 197 (2021) 110640.
 Made by M. Wen, Tabulated by P. Yu, 2021/6/19, 
-[[Paper]] https://doi.org/10.1016/j.commatsci.2021.110640 [[Source]] https://www.ctcms.nist.gov/potentials/system/H/#Fe-H
+[[Paper]] https://doi.org/10.1016/j.commatsci.2021.110640 [[Source]] https://www.ctcms.nist.gov/potentials/H/#Fe-H
     2   Fe  H  
 10000   1.9999999999999999E-02  10000   5.2999999999999998E-04  5.2999999999999998
     26    55.847   2.855300   BCC

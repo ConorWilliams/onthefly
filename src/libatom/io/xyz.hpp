@@ -4,9 +4,9 @@
 
 #include <optional>
 
-#include "libatom/system/sim_cell.hpp"
+#include "libatom/sim_cell.hpp"
 
-namespace otf {
+namespace otf::io {
 
   /**
    * @brief Write the SimCell to a file in extended xyz format and flush the buffer
@@ -28,8 +28,8 @@ namespace otf {
    *
    * @param file File handle
    * @param cell SimCell to take atom data from
-   * @param time Additional comments, must not contain any newline charachters
+   * @param comment Additional comments, must not contain any newline charachters
    */
   void dump_xyz(fmt::ostream& file, SimCell const& cell, std::string_view comment);
 
-}  // namespace otf
+}  // namespace otf::io

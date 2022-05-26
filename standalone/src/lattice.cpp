@@ -10,10 +10,9 @@
 #include "libatom/io/xyz.hpp"
 #include "libatom/minimise/LBFGS/core.hpp"
 #include "libatom/minimise/LBFGS/lbfgs.hpp"
-#include "libatom/neighbour/neighbour_list.hpp"
+#include "libatom/neighbour/list.hpp"
 #include "libatom/potentials/EAM/eam.hpp"
-#include "libatom/system/member.hpp"
-#include "libatom/system/sim_cell.hpp"
+#include "libatom/sim_cell.hpp"
 #include "libatom/utils.hpp"
 
 using namespace otf;
@@ -77,12 +76,12 @@ auto main(int, char **) -> int {
 
   auto f = fmt::output_file("dump.xyz");
 
-  dump_xyz(f, atoms, fmt::format("Temp={}", T));
+  io::dump_xyz(f, atoms, fmt::format("Temp={}", T));
 
   {
-    EAM pot{std::make_shared<DataEAM>(std::ifstream{"../data/wen.eam.fs"})};
+    potentials::EAM pot{std::make_shared<potentials::DataEAM>(std::ifstream{"../data/wen.eam.fs"})};
 
-    NeighbourList neigh(atoms.box, pot.rcut() + 1);
+    neighbour::List neigh(atoms.box, pot.rcut() + 1);
 
     neigh.rebuild(atoms, omp_get_max_threads());
 
@@ -96,12 +95,12 @@ auto main(int, char **) -> int {
 
     timeit("Grad call", [&] { pot.gradient(atoms, neigh, omp_get_max_threads()); });
 
-    LBFGS::Options opt;
+    minimise::LBFGS::Options opt;
 
-    opt.debug = true;
+    // opt.debug = true;
     // opt.skin_frac = 1.1;
 
-    LBFGS lbfgs(opt);
+    minimise::LBFGS lbfgs(opt);
 
     timeit("Minimise", [&] {
       auto copy = atoms;

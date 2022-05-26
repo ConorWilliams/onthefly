@@ -16,11 +16,11 @@ namespace otf::detail {
    * This is an internal type for use by AtomArray. Each member is tagged with Tag hence, they can
    * be overloaded and selected with the tag type.
    *
-   * @tparam Tag An empty type, derived from otf::Member, defining a scalar_type and extent.
+   * @tparam Tag An empty type, derived from otf::AtomArrayMem, defining a scalar_type and extent.
    */
   template <typename Tag> class EigenArrayAdaptor {
   private:
-    static_assert(std::is_empty_v<Tag>, "Tag (Member) types are required to be empty");
+    static_assert(std::is_empty_v<Tag>, "Tag (AtomArrayMem) types are required to be empty");
 
     Eigen::Array<typename Tag::scalar_type, Tag::extent, Eigen::Dynamic> m_data;
 

@@ -1,16 +1,17 @@
+#include "libatom/neighbour/grid.hpp"
+
 #include <array>
 #include <cstddef>
 #include <optional>
 #include <vector>
 
 #include "libatom/asserts.hpp"
-#include "libatom/neighbour/neigh_grid.hpp"
-#include "libatom/system/ortho_sim_box.hpp"
+#include "libatom/ortho_sim_box.hpp"
 #include "libatom/utils.hpp"
 
-namespace otf {
+namespace otf::neighbour {
 
-  NeighGrid::NeighGrid(OrthoSimBox const &box, floating rcut, bool compute_neigh_cells)
+  Grid::Grid(OrthoSimBox const &box, floating rcut, bool compute_neigh_cells)
       : m_box{box}, m_rcut{rcut} {
     m_shape = 2 + (box.extents() / rcut).cast<int>();
     m_cell = box.extents() / (box.extents() / rcut).floor();
@@ -56,4 +57,4 @@ namespace otf {
     }
   }
 
-}  // namespace otf
+}  // namespace otf::neighbour

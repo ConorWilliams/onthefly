@@ -5,16 +5,14 @@
 #include <vector>
 
 #include "libatom/asserts.hpp"
-#include "libatom/system/atom_array.hpp"
-#include "libatom/system/member.hpp"
-#include "libatom/system/sim_cell.hpp"
+#include "libatom/atom_array.hpp"
+#include "libatom/sim_cell.hpp"
 #include "libatom/utils.hpp"
 
-namespace otf {
+namespace otf::minimise {
 
   /**
-   * @brief LBFGS abstraction, holds variable history and computes the next newton step at each
-   * call.
+   * @brief Holds variable history and computes the next lbfgs newton step at each call.
    */
   class CoreLBFGS {
   public:
@@ -31,7 +29,7 @@ namespace otf {
      *
      * The newton step towards the minimum is x -= a * H ∇f with a = 1 the best guess.
      *
-     * @return auto A view of the newton step array, H ∇f, (it is ok to modify this view it will be
+     * @return A view of the newton step array, H ∇f, (it is ok to modify this view it will be
      * overwritten upon next call).
      */
     SimCell::underlying_t<Gradient>& newton_step(SimCell const&);
@@ -39,9 +37,6 @@ namespace otf {
   private:
     std::size_t m_n;
     std::size_t m_k;
-
-    struct S : Position {};
-    struct Y : Gradient {};
 
     struct Elem {
       SimCell::underlying_t<Position> s;
@@ -59,4 +54,4 @@ namespace otf {
     SimCell::underlying_t<Gradient> m_r;
   };
 
-}  // namespace otf
+}  // namespace otf::minimise

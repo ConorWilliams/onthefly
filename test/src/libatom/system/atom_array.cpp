@@ -1,11 +1,10 @@
-#include "libatom/system/atom_array.hpp"
+#include "libatom/atom_array.hpp"
 
 #include <doctest/doctest.h>
 
 #include <cmath>
 #include <random>
 
-#include "libatom/system/member.hpp"
 #include "libatom/utils.hpp"
 
 TEST_CASE("Atom vec") {

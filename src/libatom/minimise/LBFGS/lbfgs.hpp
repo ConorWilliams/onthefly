@@ -6,12 +6,12 @@
 
 #include "libatom/asserts.hpp"
 #include "libatom/minimise/LBFGS/core.hpp"
-#include "libatom/neighbour/neighbour_list.hpp"
-#include "libatom/potentials/potential.hpp"
-#include "libatom/system/sim_cell.hpp"
+#include "libatom/neighbour/list.hpp"
+#include "libatom/potentials/base.hpp"
+#include "libatom/sim_cell.hpp"
 #include "libatom/utils.hpp"
 
-namespace otf {
+namespace otf::minimise {
 
   /**
    * @brief A minimiser that uses the LBFGS algorithm.
@@ -31,9 +31,10 @@ namespace otf {
       /**
        * @brief Used to determine the skin size.
        *
-       * Determined such that the expected number of neighbours is skin_frac * (num_neighbours if no
-       * skin used). Hence must be larger than one. If larger then neighbour lists are built less
-       * often but there will be more more non-neighbours in neighbour lists.
+       * The skin thickness is determined such that the expected number of neighbours is skin_frac *
+       * (num_neighbours if no skin used). Hence skin_frac must be larger than one. Neighbour lists
+       * are built less often when skin_frac is higher but there will be more more non-neighbours in
+       * neighbour lists.
        */
       floating skin_frac = 1.1;
       /** @brief Trust tolerance, set larger to reduce trust radius change. */
@@ -58,12 +59,12 @@ namespace otf {
      * @return true if minimisation converged.
      * @return false if failed to converge.
      */
-    bool minimise(SimCell &, Potential &, std::size_t num_threads);
+    bool minimise(SimCell &, potentials::Base &, std::size_t num_threads);
 
   private:
     Options m_opt;
     CoreLBFGS m_core;
-    std::optional<NeighbourList> m_nl;
+    std::optional<neighbour::List> m_nl;
   };
 
-}  // namespace otf
+}  // namespace otf::minimise

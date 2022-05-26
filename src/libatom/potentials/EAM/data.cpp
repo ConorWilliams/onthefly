@@ -7,7 +7,7 @@
 #include "libatom/asserts.hpp"
 #include "libatom/utils.hpp"
 
-namespace otf {
+namespace otf::potentials {
 
   /**
    * @brief Throwing version of std::getline
@@ -110,4 +110,4 @@ namespace otf {
     }
   }
 
-}  // namespace otf
+}  // namespace otf::potentials

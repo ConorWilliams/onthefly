@@ -7,16 +7,15 @@
 #include <memory>
 
 #include "libatom/asserts.hpp"
-#include "libatom/neighbour/neighbour_list.hpp"
+#include "libatom/atom_array.hpp"
+#include "libatom/neighbour/list.hpp"
 #include "libatom/potentials/EAM/data.hpp"
-#include "libatom/system/atom_array.hpp"
-#include "libatom/system/member.hpp"
-#include "libatom/system/sim_cell.hpp"
+#include "libatom/sim_cell.hpp"
 #include "libatom/utils.hpp"
 
-namespace otf {
+namespace otf::potentials {
 
-  floating EAM::energy(SimCell const &x, NeighbourList const &nl, std::size_t num_threads) {
+  floating EAM::energy(SimCell const &x, neighbour::List const &nl, std::size_t num_threads) {
     floating v_sum = 0;
     floating f_sum = 0;
 
@@ -43,7 +42,7 @@ namespace otf {
     return (0.5 * v_sum) + f_sum;
   }
 
-  void EAM::gradient(SimCell &x, NeighbourList const &nl, std::size_t num_threads) {
+  void EAM::gradient(SimCell &x, neighbour::List const &nl, std::size_t num_threads) {
     // Usually a noop
     m_aux.destructive_resize(x.size());
 
@@ -86,6 +85,6 @@ namespace otf {
     }
   }
 
-  void EAM::hessian(SimCell const &, NeighbourList const &, std::size_t) {}
+  void EAM::hessian(SimCell const &, neighbour::List const &, std::size_t) {}
 
-}  // namespace otf
+}  // namespace otf::potentials
