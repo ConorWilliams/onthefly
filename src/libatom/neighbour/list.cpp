@@ -19,7 +19,7 @@ namespace otf::neighbour {
     init_and_build_lcl(atoms);
 
 #pragma omp parallel for num_threads(num_threads) schedule(static)
-    for (size_t i = 0; i < m_neigh_lists.size(); i++) {
+    for (std::size_t i = 0; i < m_neigh_lists.size(); i++) {
       build_neigh_list(i);
     }
   }
@@ -48,7 +48,7 @@ namespace otf::neighbour {
     m_head.assign(m_grid.num_cells(), std::numeric_limits<std::size_t>::max());
 
     // Build LCL.
-    for (size_t i = 0; i < m_num_plus_ghosts; i++) {
+    for (std::size_t i = 0; i < m_num_plus_ghosts; i++) {
       m_atoms(Next{}, i) = std::exchange(m_head[m_grid.cell_idx(m_atoms(Position{}, i))], i);
     }
   }
@@ -71,16 +71,18 @@ namespace otf::neighbour {
 
     std::size_t i_cell = m_grid.cell_idx(m_atoms(Position{}, i));
 
-    std::size_t n = m_head[i_cell];
+    {
+      std::size_t n = m_head[i_cell];
 
-    // In same cell must check not-self
-    while (n != std::numeric_limits<std::size_t>::max()) {
-      if (n != i) {
-        if (norm(m_atoms(Position{}, i) - m_atoms(Position{}, n)) < m_rcut) {
-          m_neigh_lists[i].push_back(n);
+      // In same cell must check not-self
+      while (n != std::numeric_limits<std::size_t>::max()) {
+        if (n != i) {
+          if (norm(m_atoms(Position{}, i) - m_atoms(Position{}, n)) < m_rcut) {
+            m_neigh_lists[i].push_back(n);
+          }
         }
+        n = m_atoms(Next{}, n);
       }
-      n = m_atoms(Next{}, n);
     }
 
     // In adjacent cells -- don't need to check against self

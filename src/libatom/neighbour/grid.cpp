@@ -11,8 +11,7 @@
 
 namespace otf::neighbour {
 
-  Grid::Grid(OrthoSimBox const &box, floating rcut, bool compute_neigh_cells)
-      : m_box{box}, m_rcut{rcut} {
+  Grid::Grid(OrthoSimBox const &box, floating rcut, bool compute_neigh_cells) : m_box{box} {
     m_shape = 2 + (box.extents() / rcut).cast<int>();
     m_cell = box.extents() / (box.extents() / rcut).floor();
     m_inv_cell = 1.0 / m_cell;
@@ -25,7 +24,7 @@ namespace otf::neighbour {
 
     m_prod_shape = Vec3<int>::Ones();
 
-    for (size_t i = 1; i < spatial_dims; i++) {
+    for (std::size_t i = 1; i < spatial_dims; i++) {
       m_prod_shape[i] = m_prod_shape[i - 1] * m_shape[i - 1];
     }
 

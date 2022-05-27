@@ -20,7 +20,7 @@ SimCell random_simcell(SimCell& atoms, std::size_t n) {
   //
   atoms.destructive_resize(n);
 
-  for (size_t i = 0; i < n; i++) {
+  for (std::size_t i = 0; i < n; i++) {
     atoms(Position{}, i) = Vec3<floating>{dis(gen), dis(gen), dis(gen)} * atoms.box.extents();
     atoms(AtomicNum{}, i) = 1;
     atoms(Frozen{}, i) = false;
@@ -37,10 +37,10 @@ struct Neigh {
 void slow_neigh_list(std::vector<std::vector<Neigh>>& nl, SimCell const& atoms, floating rcut) {
   nl.resize(atoms.size());
 
-  for (size_t i = 0; i < atoms.size(); i++) {
+  for (std::size_t i = 0; i < atoms.size(); i++) {
     nl[i].clear();
 
-    for (size_t j = 0; j < atoms.size(); j++) {
+    for (std::size_t j = 0; j < atoms.size(); j++) {
       if (i != j) {
         Vec3<floating> dr = atoms.box.min_image(atoms(Position{}, i), atoms(Position{}, j));
 
@@ -63,7 +63,7 @@ void test(SimCell const& atoms, floating rcut, std::size_t n) {
 
   slow_neigh_list(nl, atoms, rcut);
 
-  for (size_t i = 0; i < atoms.size(); i++) {
+  for (std::size_t i = 0; i < atoms.size(); i++) {
     //
     std::vector<Neigh> nl2;
 
@@ -76,7 +76,7 @@ void test(SimCell const& atoms, floating rcut, std::size_t n) {
     // Test same number of neighbours
     REQUIRE(nl2.size() == nl[i].size());
 
-    for (size_t j = 0; j < nl2.size(); j++) {
+    for (std::size_t j = 0; j < nl2.size(); j++) {
       // Test all neighbours have the same index
       REQUIRE(nl2[j].i == nl[i][j].i);
       // Test all neighbours have the same minimum image positions
@@ -105,7 +105,7 @@ void test(SimCell const& atoms, floating rcut, std::size_t n) {
 //     int y = 0;
 
 //     timeit("Counting", [&] {
-//       for (size_t i = 0; i < atoms.size(); i++) {
+//       for (std::size_t i = 0; i < atoms.size(); i++) {
 //         //
 //         x++;
 //         neigh.for_neighbours(i, [&](std::size_t, floating, Vec3<floating> const&) { y++; });
@@ -125,7 +125,7 @@ void test(SimCell const& atoms, floating rcut, std::size_t n) {
 // }
 
 TEST_CASE("Neighbour list fuzz testing") {
-  for (size_t i = 0; i < 100; i++) {
+  for (std::size_t i = 0; i < 100; i++) {
     //
     SimCell atoms({
         {1 + 9 * dis(gen), 1 + 9 * dis(gen), 1 + 9 * dis(gen)},

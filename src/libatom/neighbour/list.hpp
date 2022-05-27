@@ -43,7 +43,7 @@ namespace otf::neighbour {
    *
    * std::size_t num_neigh = 0;
    *
-   * for (size_t i = 0; i < atoms.size(); i++) {
+   * for (std::size_t i = 0; i < atoms.size(); i++) {
    *    nlist.for_neighbours(i, [&](std::size_t, floating, Vec3<floating> const&) {
    *        num_neigh++;
    *    });

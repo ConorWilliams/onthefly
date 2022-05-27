@@ -43,7 +43,7 @@ namespace otf::io {
 
     file.print("Properties=atomic:I:1:species:S:1:pos:R:3:frozen:I:1\n");
 
-    for (size_t i = 0; i < atoms.size(); i++) {
+    for (std::size_t i = 0; i < atoms.size(); i++) {
       //
       std::size_t n = atoms(AtomicNum{}, i);
 

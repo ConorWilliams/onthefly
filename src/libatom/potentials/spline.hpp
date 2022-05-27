@@ -74,9 +74,8 @@ namespace otf::potentials {
 
     std::pair<floating, Spine const &> fetch(floating x) const {
       ASSERT(x >= 0, "X is less than zero");
-      std::size_t i = x * m_inv_dx;
-      ASSERT(i < m_spines.size(), "X is outside tabulated region: " + std::to_string(i) + " "
-                                      + std::to_string(m_spines.size()) + " " + std::to_string(x));
+      std::size_t i = static_cast<std::size_t>(x * m_inv_dx);
+      ASSERT(i < m_spines.size(), "X is outside tabulated region");
       return {x - i * m_dx, m_spines[i]};
     }
   };

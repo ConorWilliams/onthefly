@@ -24,7 +24,7 @@ SimCell random_simcell(SimCell& atoms, std::size_t n) {
   //
   atoms.destructive_resize(n);
 
-  for (size_t i = 0; i < n; i++) {
+  for (std::size_t i = 0; i < n; i++) {
     atoms(Position{}, i) = Vec3<floating>{dis(gen), dis(gen), dis(gen)} * atoms.box.extents();
     atoms(AtomicNum{}, i) = 26;
     atoms(Frozen{}, i) = false;

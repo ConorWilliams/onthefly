@@ -13,7 +13,7 @@ TEST_CASE("Simbox cannon_image") {
 
   auto vrand = [&] { return Vec3<floating>::NullaryExpr([&]() { return dis(gen); }); };
 
-  for (size_t i = 0; i < 100'000; i++) {
+  for (std::size_t i = 0; i < 100'000; i++) {
     //
     Vec3<floating> extents = vrand() + 1;
     Vec3<bool> periodic = vrand() < .5;

@@ -97,8 +97,8 @@ namespace otf::potentials {
         //
         std::vector raw = read_chunked(in, numP, 5);
 
-        for (size_t i = 0; i < raw.size(); i++) {
-          raw[i] /= delR * i;
+        for (std::size_t k = 0; k < raw.size(); k++) {
+          raw[k] /= delR * k;
         }
 
         VERIFY(raw.size() > 0, "no elements!");

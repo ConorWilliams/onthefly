@@ -45,9 +45,9 @@ auto main(int, char **) -> int {
 
   Vec shape{10, 10, 10};  // In unit cells
 
-  for (size_t k = 0; k < shape[0]; k++) {
-    for (size_t j = 0; j < shape[1]; j++) {
-      for (size_t i = 0; i < shape[2]; i++) {
+  for (std::size_t k = 0; k < shape[0]; k++) {
+    for (std::size_t j = 0; j < shape[1]; j++) {
+      for (std::size_t i = 0; i < shape[2]; i++) {
         for (auto &&mot : BCC) {
           //
           Vec lp = Vec{(double)i, (double)j, (double)k} + mot.off;
@@ -66,7 +66,7 @@ auto main(int, char **) -> int {
 
   atoms.destructive_resize(lat.size());
 
-  for (size_t i = 0; i < lat.size(); i++) {
+  for (std::size_t i = 0; i < lat.size(); i++) {
     atoms(Position{}, i) = lat[i].off;
     atoms(AtomicNum{}, i) = lat[i].num;
     atoms(Frozen{}, i) = false;

@@ -88,8 +88,6 @@ namespace otf::neighbour {
 
     OrthoSimBox m_box;
 
-    floating m_rcut = 0;
-
     /**
      * @brief Cast a Vec3<floating> to Vec3<int> and clammp on interval [0, m_shape -1]
      */
