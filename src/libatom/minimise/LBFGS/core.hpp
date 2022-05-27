@@ -32,26 +32,26 @@ namespace otf::minimise {
      * @return A view of the newton step array, H ∇f, (it is ok to modify this view it will be
      * overwritten upon next call).
      */
-    [[nodiscard]] SimCell::underlying_t<Gradient>& newton_step(SimCell const&);
+    [[nodiscard]] Position::matrix_type& newton_step(SimCell const&);
 
   private:
     std::size_t m_n;
     std::size_t m_k;
 
     struct Elem {
-      SimCell::underlying_t<Position> s;
-      SimCell::underlying_t<Gradient> y;
+      Position::matrix_type s;
+      Gradient::matrix_type y;
       floating rho;
       floating alpha;
     };
 
     std::vector<Elem> m_hist;
 
-    SimCell::underlying_t<Position> m_prev_x;
-    SimCell::underlying_t<Gradient> m_prev_g;
+    Position::matrix_type m_prev_x;
+    Gradient::matrix_type m_prev_g;
 
-    SimCell::underlying_t<Gradient> m_q;
-    SimCell::underlying_t<Gradient> m_r;
+    Position::matrix_type m_r;
+    Gradient::matrix_type m_q;
   };
 
 }  // namespace otf::minimise

@@ -37,7 +37,7 @@ namespace otf::neighbour {
    *
    * SimCell atoms = ... // Initialise a set of atoms in a {10, 10, 10} cell.
    *
-   * List nlist(atoms.box, 3.0);
+   * List nlist(atoms, 3.0);
    *
    * nlist.rebuild(atoms); // Build the NL.
    *
@@ -59,8 +59,7 @@ namespace otf::neighbour {
      * @brief Construct a new Neighbour List object. The cut off, rcut, must be smaller than the
      * minimum OrthSimCell extent.
      */
-    List(OrthoSimBox const& box, floating rcut)
-        : m_grid(box, rcut, true), m_rcut(rcut), m_rcut_sq(rcut * rcut) {}
+    List(OrthoSimBox const& box, floating rcut) : m_grid(box, rcut, true), m_rcut(rcut) {}
 
     /**
      * @brief Build the internal neighbour lists in parallel with openMP.
@@ -75,7 +74,7 @@ namespace otf::neighbour {
      *
      * Usefull if using a skin distance and wanting to avoid rebuilding the lists.
      */
-    void update_positions(SimCell::underlying_t<Position> const& deltas);
+    void update_positions(Position::matrix_type const& deltas);
 
     /**
      * @brief Call f(n, r, dr) for every neighbour n of atom i, within distance rcut.
@@ -129,8 +128,6 @@ namespace otf::neighbour {
     std::vector<std::size_t> m_head;
 
     floating m_rcut;
-
-    floating m_rcut_sq;
 
     ///
 

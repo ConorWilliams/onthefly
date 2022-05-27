@@ -21,7 +21,7 @@ SimCell random_simcell(SimCell& atoms, std::size_t n) {
   atoms.destructive_resize(n);
 
   for (std::size_t i = 0; i < n; i++) {
-    atoms(Position{}, i) = Vec3<floating>{dis(gen), dis(gen), dis(gen)} * atoms.box.extents();
+    atoms(Position{}, i) = Vec3<floating>{dis(gen), dis(gen), dis(gen)} * atoms.extents();
     atoms(AtomicNum{}, i) = 1;
     atoms(Frozen{}, i) = false;
   }
@@ -42,7 +42,7 @@ void slow_neigh_list(std::vector<std::vector<Neigh>>& nl, SimCell const& atoms, 
 
     for (std::size_t j = 0; j < atoms.size(); j++) {
       if (i != j) {
-        Vec3<floating> dr = atoms.box.min_image(atoms(Position{}, i), atoms(Position{}, j));
+        Vec3<floating> dr = atoms.min_image(atoms(Position{}, i), atoms(Position{}, j));
 
         if (norm(dr) < rcut) {
           nl[i].push_back({j, dr});
@@ -55,7 +55,7 @@ void slow_neigh_list(std::vector<std::vector<Neigh>>& nl, SimCell const& atoms, 
 
 void test(SimCell const& atoms, floating rcut, std::size_t n) {
   //
-  neighbour::List neigh(atoms.box, rcut);
+  neighbour::List neigh(atoms, rcut);
 
   neigh.rebuild(atoms, n);
 
@@ -88,7 +88,7 @@ void test(SimCell const& atoms, floating rcut, std::size_t n) {
 // TEST_CASE("Neighbour list speed testing") {
 //   SimCell atoms({{1, 2, 1}, {true, true, true}});
 
-//   random_simcell(atoms, 10'000 * atoms.box.extents().prod());
+//   random_simcell(atoms, 10'000 * atoms.extents().prod());
 
 //   fmt::print("num atoms is {}\n", atoms.size());
 

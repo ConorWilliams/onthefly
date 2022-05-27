@@ -22,14 +22,9 @@ namespace otf::detail {
   private:
     static_assert(std::is_empty_v<Tag>, "Tag (AtomArrayMem) types are required to be empty");
 
-    Eigen::Array<typename Tag::scalar_type, Tag::extent, Eigen::Dynamic> m_data;
+    typename Tag::matrix_type m_data;
 
   public:
-    /**
-     * @brief An unimplemented meta function for extracting the underlying eigen arrays type.
-     */
-    using underlying_t = decltype(m_data);
-
     /**
      * @brief Construct a new empty Eigen Array Adaptor object.
      */

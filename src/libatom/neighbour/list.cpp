@@ -42,7 +42,7 @@ namespace otf::neighbour {
       m_atoms(Position{}, i) = m_grid.canon_grid_pos(atoms(Position{}, i));
     }
 
-    make_ghosts(atoms.box);
+    make_ghosts(atoms);
 
     // Update head.
     m_head.assign(m_grid.num_cells(), std::numeric_limits<std::size_t>::max());
@@ -53,7 +53,7 @@ namespace otf::neighbour {
     }
   }
 
-  void List::update_positions(SimCell::underlying_t<Position> const& deltas) {
+  void List::update_positions(Position::matrix_type const& deltas) {
     // Copy in atoms
     for (std::size_t i = 0; i < m_neigh_lists.size(); ++i) {
       m_atoms(Position{}, i) -= deltas.col(i);

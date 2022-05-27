@@ -46,16 +46,17 @@ namespace otf::potentials {
      *
      * The resulting hessian will be m by m and only include contributions from the m active atoms.
      */
-    void hessian(SimCell const &, neighbour::List const &, std::size_t num_threads) override;
+    void hessian(SimCell &, neighbour::List const &, std::size_t num_threads) override;
 
   private:
     std::shared_ptr<DataEAM const> m_data;
 
     struct Fprime : AtomArrayMem<floating, 1> {};
     struct Rho : AtomArrayMem<floating, 1> {};
-    struct Mu : AtomArrayMem<floating, 3> {};
+    struct Mu : AtomArrayMem<floating, spatial_dims> {};
+    struct Hidx : AtomArrayMem<std::size_t, 1> {};
 
-    AtomArray<Fprime, Rho, Mu> m_aux;
+    AtomArray<Fprime, Rho, Mu, Hidx> m_aux;
   };
 
 }  // namespace otf::potentials

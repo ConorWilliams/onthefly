@@ -11,7 +11,7 @@
 
 namespace otf::minimise {
 
-  SimCell::underlying_t<Gradient>& CoreLBFGS::newton_step(SimCell const& atoms) {
+  Position::matrix_type& CoreLBFGS::newton_step(SimCell const& atoms) {
     //
     std::size_t prev = (m_k - 1) % m_n;
 

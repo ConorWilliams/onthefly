@@ -31,7 +31,7 @@ namespace otf::minimise {
       fmt::print("Skin = {}\n", skin);
     }
 
-    m_nl = neighbour::List(atoms.box, pot.rcut() + skin);
+    m_nl = neighbour::List(atoms, pot.rcut() + skin);
 
     m_nl->rebuild(atoms, num_threads);
 

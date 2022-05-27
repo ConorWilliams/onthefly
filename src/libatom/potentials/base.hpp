@@ -40,7 +40,7 @@ namespace otf::potentials {
      *
      * The resulting hessian will be m by m and only include contributions from the m active atoms.
      */
-    virtual void hessian(SimCell const &, neighbour::List const &, std::size_t threads) = 0;
+    virtual void hessian(SimCell &, neighbour::List const &, std::size_t threads) = 0;
 
     /**
      * @brief Call parent destructor.

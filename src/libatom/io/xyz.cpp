@@ -37,7 +37,7 @@ namespace otf::io {
 
     file.print("{} ", comment);
 
-    Vec3<floating> ext = atoms.box.extents();
+    Vec3<floating> ext = atoms.extents();
 
     file.print("Lattice=\"{} 0 0 0 {} 0 0 0 {}\" ", ext[0], ext[1], ext[2]);
 

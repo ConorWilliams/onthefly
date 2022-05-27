@@ -78,34 +78,38 @@ auto main(int, char **) -> int {
 
   io::dump_xyz(f, atoms, fmt::format("Temp={}", T));
 
+  fmt::print("Frozen = {}\n", atoms.count_frozen());
+
   {
     potentials::EAM pot{std::make_shared<potentials::DataEAM>(std::ifstream{"../data/wen.eam.fs"})};
 
-    neighbour::List neigh(atoms.box, pot.rcut() + 1);
+    neighbour::List neigh(atoms, pot.rcut() + 1);
 
     neigh.rebuild(atoms, omp_get_max_threads());
 
-    double energy = 0;
+    // double energy = 0;
 
     fmt::print("num threads = {}\n", omp_get_max_threads());
 
-    timeit("Energy call", [&] { energy = pot.energy(atoms, neigh, omp_get_max_threads()); });
+    // timeit("Energy call", [&] { energy = pot.energy(atoms, neigh, omp_get_max_threads()); });
 
-    fmt::print("Energy = {}\n", energy);
+    // fmt::print("Energy = {}\n", energy);
 
-    timeit("Grad call", [&] { pot.gradient(atoms, neigh, omp_get_max_threads()); });
+    // timeit("Grad call", [&] { pot.gradient(atoms, neigh, omp_get_max_threads()); });
 
-    minimise::LBFGS::Options opt;
+    // minimise::LBFGS::Options opt;
 
-    // opt.debug = true;
-    // opt.skin_frac = 1.1;
+    // // opt.debug = true;
 
-    minimise::LBFGS lbfgs(opt);
+    // minimise::LBFGS lbfgs(opt);
 
-    timeit("Minimise", [&] {
-      auto copy = atoms;
-      lbfgs.minimise(copy, pot, omp_get_max_threads());
-    });
+    // lbfgs.minimise(atoms, pot, omp_get_max_threads());
+
+    atoms.zero_hess();
+
+    timeit("Hess call", [&] { pot.hessian(atoms, neigh, omp_get_max_threads()); });
+
+    std::cout << atoms.hess().block<9, 9>(0, 0) << std::endl;
   }
 
   return 0;

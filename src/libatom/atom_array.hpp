@@ -19,12 +19,16 @@ namespace otf {
    */
   template <typename Scalar, std::size_t Extent = 1> struct AtomArrayMem {
     //
+    static_assert(std::is_default_constructible_v<Scalar>);
+
+    /** @brief This member represents a vector of elements of scalar_type. */
     using scalar_type = Scalar;
+    /** @brief A vector of scalar_type length extent. */
     using vector_type = std::conditional_t<Extent == 1, Scalar, Eigen::Array<Scalar, 1, Extent>>;
+    /** @brief The underlying Eigen type used to store a dynamic number of these members. */
+    using matrix_type = Eigen::Array<Scalar, Extent, Eigen::Dynamic>;
 
     static constexpr std::size_t extent = Extent;
-
-    static_assert(std::is_default_constructible_v<Scalar>);
   };
 
   /**
@@ -64,11 +68,6 @@ namespace otf {
    */
   template <typename... Mems> class AtomArray : private detail::EigenArrayAdaptor<Mems>... {
   public:
-    /**
-     * @brief  Get the eigen array type used to store the data of a member.
-     */
-    template <class Mem> using underlying_t = typename detail::EigenArrayAdaptor<Mem>::underlying_t;
-
     /**
      * @brief Construct a new empty AtomArray.
      */

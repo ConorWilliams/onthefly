@@ -72,13 +72,42 @@ namespace otf {
   /**
    * @brief A SimCell is a collection of atoms augmented with an OrthoSimBox
    */
-  class SimCell : public AtomArray<Position, Frozen, AtomicNum, Gradient> {
+  class SimCell : public OrthoSimBox, public AtomArray<Frozen, AtomicNum, Gradient, Position> {
   public:
-    OrthoSimBox box;
+    SimCell(OrthoSimBox const &arg) : OrthoSimBox{arg} {}
 
-    SimCell(OrthoSimBox const &arg) : box{arg} {}
+    /**
+     * @brief Count the number of frozen atoms in the SimCell
+     */
+    [[nodiscard]] std::size_t count_frozen() const { return (*this)(Frozen{}).count(); }
+
+    /**
+     * @brief Allocate (if required) and zero the storage for the hessian matrix.
+     *
+     * The hessian is an 3m by 3m matrix with m the number of active atoms. Each time this function
+     * is called it will check the number of active atoms has not changed, if it has it will
+     * reallocate a new hessian matrix *destroying* the previous one in the process.
+     */
+    void zero_hess() {
+      std::size_t m = size() - count_frozen();
+      m_hess = Eigen::Array<floating, Eigen::Dynamic, Eigen::Dynamic>::Zero(3 * m, 3 * m);
+    }
+
+    /**
+     * @brief Get the full hessian matrix.
+     */
+    [[nodiscard]] auto hess() { return m_hess.topLeftCorner(m_hess.cols(), m_hess.rows()); }
+
+    /**
+     * @brief Get the spatial_dims * spatial_dims block of the hessian corresponding to the a^th and
+     * b^th atom.
+     */
+    [[nodiscard]] auto hess(std::size_t a, std::size_t b) {
+      return m_hess.block<spatial_dims, spatial_dims>(spatial_dims * a, spatial_dims * b);
+    }
 
   private:
+    Eigen::Array<floating, Eigen::Dynamic, Eigen::Dynamic> m_hess;
   };
 
 }  // namespace otf
