@@ -4,7 +4,6 @@
 #include <type_traits>
 #include <utility>
 
-#include "libatom/asserts.hpp"
 #include "libatom/utils.hpp"
 
 namespace otf::detail {
@@ -43,12 +42,12 @@ namespace otf::detail {
     /**
      * @brief Get the raw {extent by n} underlying array.
      */
-    [[nodiscard]] auto const &raw_array(Tag) const noexcept { return m_data; };
+    [[nodiscard]] typename Tag::matrix_type const &raw_array(Tag) const noexcept { return m_data; };
 
     /**
      * @brief Get the raw {extent by n} underlying array.
      */
-    [[nodiscard]] auto &raw_array(Tag) noexcept { return m_data; };
+    [[nodiscard]] typename Tag::matrix_type &raw_array(Tag) noexcept { return m_data; };
 
     /**
      * @brief Get the ith column of the underlying array, returns a reference to the element in the

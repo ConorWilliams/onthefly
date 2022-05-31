@@ -10,6 +10,7 @@
 #include <utility>
 
 #include "libatom/asserts.hpp"
+#include "libatom/atom_array.hpp"
 #include "libatom/io/xyz.hpp"
 #include "libatom/minimise/LBFGS/core.hpp"
 #include "libatom/neighbour/list.hpp"
@@ -63,7 +64,7 @@ namespace otf::minimise {
         return true;
       }
 
-      auto &Hg = m_core.newton_step(atoms);
+      Position::matrix_type &Hg = m_core.newton_step(atoms(Position{}), atoms(Gradient{}));
 
       ASSERT(gdot(atoms(Gradient{}), Hg) > 0, "Ascent direction");
 

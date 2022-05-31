@@ -4,7 +4,6 @@
 #include <memory>
 #include <utility>
 
-#include "libatom/asserts.hpp"
 #include "libatom/minimise/LBFGS/core.hpp"
 #include "libatom/neighbour/list.hpp"
 #include "libatom/potentials/base.hpp"

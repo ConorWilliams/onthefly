@@ -8,6 +8,8 @@
 #include <vector>
 
 #include "libatom/io/xyz.hpp"
+#include "libatom/random/xoshiro.hpp"
+#include "libatom/saddle/perturb.hpp"
 #include "libatom/minimise/LBFGS/core.hpp"
 #include "libatom/minimise/LBFGS/lbfgs.hpp"
 #include "libatom/neighbour/list.hpp"
@@ -72,6 +74,7 @@ auto main(int, char **) -> int {
     atoms(Frozen{}, i) = false;
   }
 
+  //   atoms(Frozen{}, 1) = true;
   //   atoms(Frozen{}, 0) = true;
 
   auto f = fmt::output_file("dump.xyz");
@@ -83,33 +86,13 @@ auto main(int, char **) -> int {
   {
     potentials::EAM pot{std::make_shared<potentials::DataEAM>(std::ifstream{"../data/wen.eam.fs"})};
 
-    neighbour::List neigh(atoms, pot.rcut() + 1);
+    minimise::LBFGS::Options opt;
 
-    neigh.rebuild(atoms, omp_get_max_threads());
+    opt.debug = true;
 
-    // double energy = 0;
+    minimise::LBFGS lbfgs(opt);
 
-    fmt::print("num threads = {}\n", omp_get_max_threads());
-
-    // timeit("Energy call", [&] { energy = pot.energy(atoms, neigh, omp_get_max_threads()); });
-
-    // fmt::print("Energy = {}\n", energy);
-
-    // timeit("Grad call", [&] { pot.gradient(atoms, neigh, omp_get_max_threads()); });
-
-    // minimise::LBFGS::Options opt;
-
-    // // opt.debug = true;
-
-    // minimise::LBFGS lbfgs(opt);
-
-    // lbfgs.minimise(atoms, pot, omp_get_max_threads());
-
-    atoms.zero_hess();
-
-    timeit("Hess call", [&] { pot.hessian(atoms, neigh, omp_get_max_threads()); });
-
-    std::cout << atoms.hess().block<9, 9>(0, 0) << std::endl;
+    lbfgs.minimise(atoms, pot, omp_get_max_threads());
   }
 
   return 0;

@@ -5,7 +5,6 @@
 #include <iostream>
 #include <type_traits>
 
-#include "libatom/asserts.hpp"
 #include "libatom/detail/eigen_array_adaptor.hpp"
 #include "libatom/utils.hpp"
 
@@ -120,15 +119,15 @@ namespace otf {
     /**
      * @brief Fetch a view of the entire {extent by size()} underlying array of the Tag member.
      */
-    template <typename Tag> [[nodiscard]] auto operator()(Tag) const {
-      return raw_array(Tag{}).leftCols(size());
+    template <typename Tag> [[nodiscard]] typename Tag::matrix_type const& operator()(Tag) const {
+      return raw_array(Tag{});
     }
 
     /**
      * @brief Fetch a view of the entire {extent by size()} underlying array of the Tag member.
      */
-    template <typename Tag> [[nodiscard]] auto operator()(Tag) {
-      return raw_array(Tag{}).leftCols(size());
+    template <typename Tag> [[nodiscard]] typename Tag::matrix_type& operator()(Tag) {
+      return raw_array(Tag{});
     }
 
   private:
@@ -147,6 +146,11 @@ namespace otf {
      * @brief Tag type for position (xyz).
      */
     struct Position : AtomArrayMem<floating, spatial_dims> {};
+
+    /**
+     * @brief Tag type for dimer axis (xyz).
+     */
+    struct Axis : Position {};
 
     /**
      * @brief Tag type for gradiant of the potential.

@@ -1,12 +1,18 @@
 #pragma once
 
 #include <cstddef>
+#include <exception>
 #include <memory>
 
 #include "libatom/neighbour/list.hpp"
 #include "libatom/sim_cell.hpp"
 
 namespace otf::potentials {
+
+  /**
+   * @brief thown from parent classes if a pure virtual function is not supported.
+   */
+  struct unsupported : std::exception {};
 
   /**
    * @brief Specifies the virtual-interface for potentials in OLKMC.

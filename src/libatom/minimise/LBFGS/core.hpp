@@ -4,7 +4,6 @@
 #include <utility>
 #include <vector>
 
-#include "libatom/asserts.hpp"
 #include "libatom/atom_array.hpp"
 #include "libatom/sim_cell.hpp"
 #include "libatom/utils.hpp"
@@ -32,7 +31,8 @@ namespace otf::minimise {
      * @return A view of the newton step array, H ∇f, (it is ok to modify this view it will be
      * overwritten upon next call).
      */
-    [[nodiscard]] Position::matrix_type& newton_step(SimCell const&);
+    [[nodiscard]] Position::matrix_type& newton_step(Position::matrix_type const&,
+                                                     Gradient::matrix_type const&);
 
   private:
     std::size_t m_n;

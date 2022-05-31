@@ -11,25 +11,26 @@
 
 namespace otf::minimise {
 
-  Position::matrix_type& CoreLBFGS::newton_step(SimCell const& atoms) {
+  Position::matrix_type& CoreLBFGS::newton_step(Position::matrix_type const& x,
+                                                Gradient::matrix_type const& g) {
     //
     std::size_t prev = (m_k - 1) % m_n;
 
     // Compute the k-1 th y, s and rho
     if (m_k > 0) {
       //
-      m_hist[prev].s = atoms(Position{}) - m_prev_x;
-      m_hist[prev].y = atoms(Gradient{}) - m_prev_g;
+      m_hist[prev].s = x - m_prev_x;
+      m_hist[prev].y = g - m_prev_g;
 
       // If Wolfie conditions fulfiled during the line search then dot(y, s) > 0. Otherwise we take
       // absolute value to prevent ascent direction.
       m_hist[prev].rho = 1.0 / std::abs(gdot(m_hist[prev].s, m_hist[prev].y));
     }
 
-    m_prev_x = atoms(Position{});
-    m_prev_g = atoms(Gradient{});
+    m_prev_x = x;
+    m_prev_g = g;
 
-    m_q = atoms(Gradient{});
+    m_q = g;
 
     int incur = m_k <= m_n ? 0 : m_k - m_n;
     int bound = m_k <= m_n ? m_k : m_n;
