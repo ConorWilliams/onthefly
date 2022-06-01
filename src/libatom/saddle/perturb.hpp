@@ -8,6 +8,7 @@
 
 namespace otf::saddle {
 
-   void perturb(std::size_t i, SimCell &, floating dr);
+
+   void perturb(Vec3<floating> const& centre, SimCell & cell, floating rcut, floating stddev);
 
 }  // namespace otf::saddle

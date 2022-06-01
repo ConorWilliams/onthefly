@@ -76,6 +76,18 @@ namespace otf::neighbour {
      */
     void update_positions(Position::matrix_type const& deltas);
 
+    void update_positions_plus(Position::matrix_type const& deltas) {
+      // Copy in atoms
+      for (std::size_t i = 0; i < m_neigh_lists.size(); ++i) {
+        m_atoms(Position{}, i) += deltas.col(i);
+      }
+
+      // Update ghosts
+      for (std::size_t i = m_neigh_lists.size(); i < m_num_plus_ghosts; i++) {
+        m_atoms(Position{}, i) += deltas.col(image_to_real(i));
+      }
+    }
+
     /**
      * @brief Call f(n, r, dr) for every neighbour n of atom i, within distance rcut.
      *

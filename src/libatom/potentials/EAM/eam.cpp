@@ -16,7 +16,7 @@
 
 namespace otf::potentials {
 
-  floating EAM::energy(SimCell const &x, neighbour::List const &nl, std::size_t num_threads) {
+  floating EAM::energy(SimCell const &x, neighbour::List &nl, std::size_t num_threads) {
     floating v_sum = 0;
     floating f_sum = 0;
 
@@ -43,7 +43,7 @@ namespace otf::potentials {
     return (0.5 * v_sum) + f_sum;
   }
 
-  void EAM::gradient(SimCell &x, neighbour::List const &nl, std::size_t num_threads) {
+  void EAM::gradient(SimCell &x, neighbour::List &nl, std::size_t num_threads) {
     // Usually a noop
     m_aux.destructive_resize(x.size());
 
@@ -86,7 +86,7 @@ namespace otf::potentials {
     }
   }
 
-  void EAM::hessian(SimCell &x, neighbour::List const &nl, std::size_t) {
+  void EAM::hessian(SimCell &x, neighbour::List &nl, std::size_t) {
     // Usually a noop, make space in aux
     m_aux.destructive_resize(x.size());
 

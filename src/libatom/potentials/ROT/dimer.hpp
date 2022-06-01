@@ -29,10 +29,11 @@ namespace otf::potentials {
       /** @brief Maximum number of iterations during rotation minimization */
       std::size_t iter_max_rot = 20;
       /** @brief Half dimer length */
-      double delta_r = 0.005;
+      double delta_r = 0.01;
       /** @brief (Rad) rotation convergence criterion */
       double theta_tol = 0.01;
-      /** @brief If false then in the convex region we return only the component parallel to the minimum mode. */
+      /** @brief If true in the convex region we return only the component parallel to the minimum
+       * mode. */
       bool relax_in_convex = true;
       /** @brief Print out debug info */
       bool debug = false;
@@ -59,21 +60,21 @@ namespace otf::potentials {
     /**
      * @brief Dimer does not support energy.
      */
-    [[noreturn]] floating energy(SimCell const &, neighbour::List const &, std::size_t) override {
+    [[noreturn]] floating energy(SimCell const &, neighbour::List &, std::size_t) override {
       throw unsupported{};
     }
 
     /**
-     * @brief Compute gradient, assumes the neighbour list are ready. 
+     * @brief Compute gradient, assumes the neighbour list are ready.
      *
      * Force on frozen atoms will be zero.
      */
-    void gradient(SimCell &, neighbour::List const &, std::size_t num_threads) override;
+    void gradient(SimCell &, neighbour::List &, std::size_t num_threads) override;
 
     /**
      * @brief Dimer does not support hessians.
      */
-    [[noreturn]] void hessian(SimCell &, neighbour::List const &, std::size_t) override {
+    [[noreturn]] void hessian(SimCell &, neighbour::List &, std::size_t) override {
       throw unsupported{};
     }
 
@@ -82,8 +83,9 @@ namespace otf::potentials {
     minimise::CoreLBFGS m_core;
     std::unique_ptr<Base> m_wrapped;
 
-    Position::matrix_type m_active;  // Store active atoms
-    Position::matrix_type m_axisp;   // Temporary axis
+    Position::matrix_type m_delta;       // Store displacement for updates
+    Position::matrix_type m_delta_prev;  // Store previous displacement for updates
+    Position::matrix_type m_axisp;       // Temporary axis
 
     Gradient::matrix_type m_g0;       // Central grad
     Gradient::matrix_type m_g1;       // Temp end grad

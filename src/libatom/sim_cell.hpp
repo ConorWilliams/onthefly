@@ -72,9 +72,20 @@ namespace otf {
   /**
    * @brief A SimCell is a collection of atoms augmented with an OrthoSimBox
    */
-  class SimCell : public OrthoSimBox, public AtomArray<Frozen, AtomicNum, Gradient, Position> {
+  class SimCell : public OrthoSimBox,
+                  public AtomArray<Frozen, AtomicNum, Gradient, Position, Axis> {
   public:
     SimCell(OrthoSimBox const &arg) : OrthoSimBox{arg} {}
+
+    void remove_soft_modes() {
+      if (count_frozen() == 0) {
+        for (std::size_t i = 0; i < spatial_dims; i++) {
+          if (this->periodic()[i]) {
+            (*this)(Gradient{}).row(i) = remove_soft_mode((*this)(Gradient{}).row(i));
+          }
+        }
+      }
+    }
 
     /**
      * @brief Count the number of frozen atoms in the SimCell

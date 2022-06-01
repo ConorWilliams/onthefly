@@ -1,12 +1,31 @@
 #include <random>
 
 #include "libatom/asserts.hpp"
-#include "libatom/sim_cell.hpp"
 #include "libatom/random/xoshiro.hpp"
+#include "libatom/sim_cell.hpp"
 #include "libatom/utils.hpp"
 
 namespace otf::saddle {
 
-  void perturb(std::size_t , SimCell &, floating ){}
+  void perturb(Vec3<floating> const& centre, SimCell& cell, floating rcut, floating stddev) {
+    // PRNG
+    static thread_local random::Xoshiro rng({12203, 12324, 1585, 99909});
+
+    std::normal_distribution<floating> normal(0, 1);
+    std::normal_distribution<floating> gauss(0, stddev);
+
+    cell(Axis{}) = 0;  // Zero the rotatio axis.
+
+    for (std::size_t i = 0; i < cell.size(); i++) {
+      //
+      if (!cell(Frozen{}, i)
+          && norm_sq(cell.min_image(cell(Position{}, i), centre)) < rcut * rcut) {
+        cell(Position{}, i) += Vec3<floating>{gauss(rng), gauss(rng), gauss(rng)};
+        cell(Axis{}, i) += Vec3<floating>{normal(rng), normal(rng), normal(rng)};
+      }
+    }
+
+    cell(Axis{}) /= norm(cell(Axis{}));
+  }
 
 }  // namespace otf::saddle

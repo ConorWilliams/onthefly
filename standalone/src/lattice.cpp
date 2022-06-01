@@ -8,12 +8,13 @@
 #include <vector>
 
 #include "libatom/io/xyz.hpp"
-#include "libatom/random/xoshiro.hpp"
-#include "libatom/saddle/perturb.hpp"
 #include "libatom/minimise/LBFGS/core.hpp"
 #include "libatom/minimise/LBFGS/lbfgs.hpp"
 #include "libatom/neighbour/list.hpp"
 #include "libatom/potentials/EAM/eam.hpp"
+#include "libatom/potentials/ROT/dimer.hpp"
+#include "libatom/random/xoshiro.hpp"
+#include "libatom/saddle/perturb.hpp"
 #include "libatom/sim_cell.hpp"
 #include "libatom/utils.hpp"
 
@@ -45,7 +46,7 @@ auto main(int, char **) -> int {
 
   std::vector<MotifPt> lat;
 
-  Vec shape{10, 10, 10};  // In unit cells
+  Vec shape{7, 7, 7};  // In unit cells
 
   for (std::size_t k = 0; k < shape[0]; k++) {
     for (std::size_t j = 0; j < shape[1]; j++) {
@@ -77,14 +78,28 @@ auto main(int, char **) -> int {
   //   atoms(Frozen{}, 1) = true;
   //   atoms(Frozen{}, 0) = true;
 
-  auto f = fmt::output_file("dump.xyz");
+  auto f = fmt::output_file("lbfgs_debug.xyz");
 
   io::dump_xyz(f, atoms, fmt::format("Temp={}", T));
 
   fmt::print("Frozen = {}\n", atoms.count_frozen());
 
   {
+    saddle::perturb({2.8, 2.8, 2.8}, atoms, 5.3, 0.3);
+
+    // std::cout << atoms(Axis{}) << std::endl;
+
     potentials::EAM pot{std::make_shared<potentials::DataEAM>(std::ifstream{"../data/wen.eam.fs"})};
+
+    std::unique_ptr<potentials::Base> tmp = std::make_unique<potentials::EAM>(std::move(pot));
+
+    potentials::Dimer::Options A;
+
+    A.debug = true;
+    // A.relax_in_convex = false;
+    A.theta_tol = 5 * 2 * 3.141 / 360;
+
+    potentials::Dimer dim(A, std::move(tmp));
 
     minimise::LBFGS::Options opt;
 
@@ -92,7 +107,7 @@ auto main(int, char **) -> int {
 
     minimise::LBFGS lbfgs(opt);
 
-    lbfgs.minimise(atoms, pot, omp_get_max_threads());
+    lbfgs.minimise(atoms, dim, omp_get_max_threads());
   }
 
   return 0;

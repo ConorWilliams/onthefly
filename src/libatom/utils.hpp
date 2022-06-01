@@ -62,16 +62,16 @@ namespace otf {
   template <typename E> auto norm(Eigen::ArrayBase<E> const& r) { return std::sqrt(norm_sq(r)); }
 
   /**
-   * @brief Utility to extract first type in a parameter pack.
-   */
-  template <typename T, typename...> struct First { using type = T; };
-
-  /**
    * @brief Remove the soft mode (i.e translating all atoms equally) from the array x.
    */
   template <typename E> auto remove_soft_mode(Eigen::ArrayBase<E> const& x) {
     return x - Eigen::ArrayBase<E>::Ones(x.size()) * x.sum() / x.size();
   }
+
+  /**
+   * @brief Utility to extract first type in a parameter pack.
+   */
+  template <typename T, typename...> struct First { using type = T; };
 
   /**
    * @brief Compute integer powers of arithmetic types at compile time
