@@ -69,7 +69,7 @@ namespace otf::potentials {
      *
      * Force on frozen atoms will be zero.
      */
-    void gradient(SimCell &, neighbour::List &, std::size_t num_threads) override;
+    std::optional<floating> gradient(SimCell &, neighbour::List &, std::size_t num_thread) override;
 
     /**
      * @brief Dimer does not support hessians.

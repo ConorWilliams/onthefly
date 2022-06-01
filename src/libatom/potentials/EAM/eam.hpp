@@ -31,21 +31,21 @@ namespace otf::potentials {
      *
      * Ignores contribution from frozen atoms.
      */
-    floating energy(SimCell const &, neighbour::List &, std::size_t num_threads) override;
+    floating energy(SimCell const &, neighbour::List &, std::size_t num_thread) override;
 
     /**
      * @brief Compute gradient, assumes the neighbour list are ready.
      *
      * Force on frozen atoms will be zero.
      */
-    void gradient(SimCell &, neighbour::List &, std::size_t num_threads) override;
+    std::optional<floating> gradient(SimCell &, neighbour::List &, std::size_t num_thread) override;
 
     /**
      * @brief Compute hessian matrix, assumes the neighbour list are ready.
      *
      * The resulting hessian will be m by m and only include contributions from the m active atoms.
      */
-    void hessian(SimCell &, neighbour::List &, std::size_t num_threads) override;
+    void hessian(SimCell &, neighbour::List &, std::size_t num_thread) override;
 
   private:
     std::shared_ptr<DataEAM const> m_data;

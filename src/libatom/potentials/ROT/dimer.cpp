@@ -20,7 +20,8 @@
 
 namespace otf::potentials {
 
-  void Dimer::gradient(SimCell &cell, neighbour::List &nl, std::size_t num_threads) {
+  std::optional<floating> Dimer::gradient(SimCell &cell, neighbour::List &nl,
+                                          std::size_t num_threads) {
     //
     m_core.clear();
 
@@ -101,7 +102,7 @@ namespace otf::potentials {
       cell(Gradient{}) = m_g0 - 2 * gdot(m_g0, cell(Axis{})) * cell(Axis{});
     }
 
-    // return curv;
+    return curv;
   }
 
 }  // namespace otf::potentials

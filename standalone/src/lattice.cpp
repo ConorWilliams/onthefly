@@ -46,7 +46,7 @@ auto main(int, char **) -> int {
 
   std::vector<MotifPt> lat;
 
-  Vec shape{7, 7, 7};  // In unit cells
+  Vec shape{6, 6, 6};  // In unit cells
 
   for (std::size_t k = 0; k < shape[0]; k++) {
     for (std::size_t j = 0; j < shape[1]; j++) {
@@ -85,7 +85,8 @@ auto main(int, char **) -> int {
   fmt::print("Frozen = {}\n", atoms.count_frozen());
 
   {
-    saddle::perturb({2.8, 2.8, 2.8}, atoms, 5.3, 0.2);
+    saddle::perturb({7, 7, 7}, atoms, 4, 0.6);
+    // saddle::perturb({2.8, 2.8, 2.8}, atoms, 4, 0.6);
 
     // std::cout << atoms(Axis{}) << std::endl;
 
@@ -95,7 +96,8 @@ auto main(int, char **) -> int {
 
     potentials::Dimer::Options A;
 
-    // A.debug = true;
+    A.debug = true;
+    // A.iter_max_rot = 100;
     // A.relax_in_convex = false;
     // A.theta_tol = 5 * 2 * 3.141 / 360;
 
@@ -103,14 +105,12 @@ auto main(int, char **) -> int {
 
     minimise::LBFGS::Options opt;
 
-    // opt.debug = true;
+    opt.debug = true;
+    // opt.convex_max = 7;
 
     minimise::LBFGS lbfgs(opt);
 
-    timeit("sp search", [&] {
-      auto copy = atoms;
-      lbfgs.minimise(copy, dim, omp_get_max_threads());
-    });
+    lbfgs.minimise(atoms, dim, omp_get_max_threads());
   }
 
   return 0;

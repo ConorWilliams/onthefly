@@ -33,7 +33,7 @@ namespace otf::potentials {
      * Ignores contribution from frozen atoms.
      *
      * A conforming potential must only use the positions of the atoms as defined in the nighbour
-     * list which may be different from those in the SimCell
+     * list which *may* be different from those in the SimCell
      */
     virtual floating energy(SimCell const &, neighbour::List &, std::size_t threads) = 0;
 
@@ -43,9 +43,11 @@ namespace otf::potentials {
      * Force on frozen atoms will be zero.
      *
      * A conforming potential must only use the positions of the atoms as defined in the nighbour
-     * list which may be different from those in the SimCell
+     * list which *may* be different from those in the SimCell
+     *
+     * @return May optionally return curvature along the minimum mode.
      */
-    virtual void gradient(SimCell &, neighbour::List &, std::size_t threads) = 0;
+    virtual std::optional<floating> gradient(SimCell &, neighbour::List &, std::size_t threads) = 0;
 
     /**
      * @brief Compute hessian matrix, assumes the neighbour list are ready.
@@ -53,7 +55,7 @@ namespace otf::potentials {
      * The resulting hessian will be m by m and only include contributions from the m active atoms.
      *
      * A conforming potential must only use the positions of the atoms as defined in the nighbour
-     * list which may be different from those in the SimCell
+     * list which *may* be different from those in the SimCell
      */
     virtual void hessian(SimCell &, neighbour::List &, std::size_t threads) = 0;
 

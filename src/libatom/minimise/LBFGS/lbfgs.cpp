@@ -49,6 +49,7 @@ namespace otf::minimise {
     }();
 
     floating acc = 0;
+    floating convex_count = 0;
 
     for (std::size_t i = 0; i < m_opt.iter_max; ++i) {
       //
@@ -62,6 +63,8 @@ namespace otf::minimise {
 
       if (mag_g < m_opt.f2norm * m_opt.f2norm) {
         return true;
+      } else if (convex_count >= m_opt.convex_max) {
+        return false;
       }
 
       Position::matrix_type &Hg = m_core.newton_step(atoms(Position{}), atoms(Gradient{}));
@@ -84,7 +87,13 @@ namespace otf::minimise {
         m_nl->update_positions(Hg);
       }
 
-      pot.gradient(atoms, *m_nl, num_threads);
+      std::optional curv = pot.gradient(atoms, *m_nl, num_threads);
+
+      if (curv > 0) {
+        convex_count += 1;
+      } else {
+        convex_count = 0;
+      }
 
       floating proj = gdot(atoms(Gradient{}), Hg);
 

@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstddef>
 #include <memory>
+#include <optional>
 
 #include "fmt/core.h"
 #include "libatom/asserts.hpp"
@@ -43,7 +44,7 @@ namespace otf::potentials {
     return (0.5 * v_sum) + f_sum;
   }
 
-  void EAM::gradient(SimCell &x, neighbour::List &nl, std::size_t num_threads) {
+  std::optional<floating> EAM::gradient(SimCell &x, neighbour::List &nl, std::size_t num_threads) {
     // Usually a noop
     m_aux.destructive_resize(x.size());
 
@@ -84,6 +85,8 @@ namespace otf::potentials {
       // Write grad to atom
       x(Gradient{}, g) = grad;
     }
+
+    return std::nullopt;
   }
 
   void EAM::hessian(SimCell &x, neighbour::List &nl, std::size_t) {
