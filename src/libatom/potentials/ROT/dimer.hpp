@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <cstddef>
 #include <memory>
 
@@ -29,11 +30,10 @@ namespace otf::potentials {
       /** @brief Maximum number of iterations during rotation minimization */
       std::size_t iter_max_rot = 20;
       /** @brief Half dimer length */
-      double delta_r = 0.01;
+      double delta_r = 0.001;
       /** @brief (Rad) rotation convergence criterion */
-      double theta_tol = 0.01;
-      /** @brief If true in the convex region we return only the component parallel to the minimum
-       * mode. */
+      double theta_tol = 2 * M_PI / 360.;
+      /** @brief If true when convex we return only the component parallel to the min mode. */
       bool relax_in_convex = true;
       /** @brief Print out debug info */
       bool debug = false;

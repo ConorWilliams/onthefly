@@ -9,7 +9,9 @@ namespace otf::saddle {
 
   void perturb(Vec3<floating> const& centre, SimCell& cell, floating rcut, floating stddev) {
     // PRNG
-    static thread_local random::Xoshiro rng({12203, 12324, 1585, 99909});
+    static thread_local std::random_device rd;
+    // static thread_local random::Xoshiro rng({rd(), rd(), rd(), rd()});
+    static thread_local random::Xoshiro rng({1, 1, 1, 1});
 
     std::normal_distribution<floating> normal(0, 1);
     std::normal_distribution<floating> gauss(0, stddev);

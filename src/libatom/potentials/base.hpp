@@ -31,28 +31,31 @@ namespace otf::potentials {
      * @brief Compute the energy, assumes the neighbour list are ready.
      *
      * Ignores contribution from frozen atoms.
-     * 
-     * A conforming potential must only use the positions of the atoms as defined in the nighbour list which may be different from those in the SimCell
+     *
+     * A conforming potential must only use the positions of the atoms as defined in the nighbour
+     * list which may be different from those in the SimCell
      */
-    virtual floating energy(SimCell const &, neighbour::List  &, std::size_t threads) = 0;
+    virtual floating energy(SimCell const &, neighbour::List &, std::size_t threads) = 0;
 
     /**
      * @brief Compute gradient, assumes the neighbour list are ready.
      *
      * Force on frozen atoms will be zero.
-     * 
-     * A conforming potential must only use the positions of the atoms as defined in the nighbour list which may be different from those in the SimCell
+     *
+     * A conforming potential must only use the positions of the atoms as defined in the nighbour
+     * list which may be different from those in the SimCell
      */
-    virtual void gradient(SimCell &, neighbour::List  &, std::size_t threads) = 0;
+    virtual void gradient(SimCell &, neighbour::List &, std::size_t threads) = 0;
 
     /**
      * @brief Compute hessian matrix, assumes the neighbour list are ready.
      *
      * The resulting hessian will be m by m and only include contributions from the m active atoms.
-     * 
-     * A conforming potential must only use the positions of the atoms as defined in the nighbour list which may be different from those in the SimCell
+     *
+     * A conforming potential must only use the positions of the atoms as defined in the nighbour
+     * list which may be different from those in the SimCell
      */
-    virtual void hessian(SimCell &, neighbour::List  &, std::size_t threads) = 0;
+    virtual void hessian(SimCell &, neighbour::List &, std::size_t threads) = 0;
 
     /**
      * @brief Call parent destructor.

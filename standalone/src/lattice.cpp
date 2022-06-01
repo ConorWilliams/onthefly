@@ -75,7 +75,7 @@ auto main(int, char **) -> int {
     atoms(Frozen{}, i) = false;
   }
 
-  //   atoms(Frozen{}, 1) = true;
+  //   atoms(Frozen{}, 341) = true;
   //   atoms(Frozen{}, 0) = true;
 
   auto f = fmt::output_file("lbfgs_debug.xyz");
@@ -85,7 +85,7 @@ auto main(int, char **) -> int {
   fmt::print("Frozen = {}\n", atoms.count_frozen());
 
   {
-    saddle::perturb({2.8, 2.8, 2.8}, atoms, 5.3, 0.3);
+    saddle::perturb({2.8, 2.8, 2.8}, atoms, 5.3, 0.2);
 
     // std::cout << atoms(Axis{}) << std::endl;
 
@@ -95,19 +95,22 @@ auto main(int, char **) -> int {
 
     potentials::Dimer::Options A;
 
-    A.debug = true;
+    // A.debug = true;
     // A.relax_in_convex = false;
-    A.theta_tol = 5 * 2 * 3.141 / 360;
+    // A.theta_tol = 5 * 2 * 3.141 / 360;
 
     potentials::Dimer dim(A, std::move(tmp));
 
     minimise::LBFGS::Options opt;
 
-    opt.debug = true;
+    // opt.debug = true;
 
     minimise::LBFGS lbfgs(opt);
 
-    lbfgs.minimise(atoms, dim, omp_get_max_threads());
+    timeit("sp search", [&] {
+      auto copy = atoms;
+      lbfgs.minimise(copy, dim, omp_get_max_threads());
+    });
   }
 
   return 0;

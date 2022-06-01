@@ -81,7 +81,8 @@ namespace otf::potentials {
 
           if (m_opt.debug) {
             constexpr auto str = "    Dimer: i={:<4} theta={:f} curv={:f}\n";
-            fmt::print(str, i, theta_min, gdot(m_g1 - m_g0, cell(Axis{})) / m_opt.delta_r);
+            fmt::print(str, i, std::abs(theta_min),
+                       gdot(m_g1 - m_g0, cell(Axis{})) / m_opt.delta_r);
           }
 
           if (std::abs(theta_min) < m_opt.theta_tol) {

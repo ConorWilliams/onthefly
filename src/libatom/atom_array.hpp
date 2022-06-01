@@ -150,7 +150,7 @@ namespace otf {
     /**
      * @brief Tag type for dimer axis (xyz).
      */
-    struct Axis : AtomArrayMem<floating, spatial_dims>{};
+    struct Axis : AtomArrayMem<floating, spatial_dims> {};
 
     /**
      * @brief Tag type for gradiant of the potential.
