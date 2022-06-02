@@ -47,7 +47,7 @@ namespace otf::minimise {
       /** @brief Trust radius contraction rate. */
       floating shrink_trust = 0.5;
       /** @brief If minimising a dimer and convex_max steps with +Ve curvature exit. */
-      floating convex_max = 5;
+      floating convex_max = 3;
       /** @brief Print out debug info and dumps minimisation trace to "lbfgs_debug.xyz" */
       bool debug = false;
     };

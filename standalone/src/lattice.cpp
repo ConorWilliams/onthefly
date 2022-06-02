@@ -85,8 +85,8 @@ auto main(int, char **) -> int {
   fmt::print("Frozen = {}\n", atoms.count_frozen());
 
   {
-    saddle::perturb({7, 7, 7}, atoms, 4, 0.6);
-    // saddle::perturb({2.8, 2.8, 2.8}, atoms, 4, 0.6);
+    // saddle::perturb({7, 7, 7}, atoms, 4, 0.6);
+    saddle::perturb({2.8, 2.8, 2.8}, atoms, 4, 0.6);
 
     // std::cout << atoms(Axis{}) << std::endl;
 
@@ -110,7 +110,9 @@ auto main(int, char **) -> int {
 
     minimise::LBFGS lbfgs(opt);
 
-    lbfgs.minimise(atoms, dim, omp_get_max_threads());
+    if (lbfgs.minimise(atoms, dim, omp_get_max_threads())){
+        io::dump_xyz(fmt::output_file("saddle.xyz"), atoms, "");
+    }
   }
 
   return 0;

@@ -47,7 +47,7 @@ namespace otf::io {
       //
       std::size_t n = atoms(AtomicNum{}, i);
 
-      ASSERT(n > 0 && n <= 111, "Atomic number out of bounds");
+      ASSERT(n > 0 && n < symbols.size(), "Atomic number out of bounds");
 
       file.print("{}\t{}\t{}\t{}\n", n, symbols[n], fmt::join(atoms(Position{}, i), "\t"),
                  (int)atoms(Frozen{}, i));

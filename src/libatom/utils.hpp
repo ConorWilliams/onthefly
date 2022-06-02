@@ -67,7 +67,7 @@ namespace otf {
   template <typename E> auto remove_soft_mode(Eigen::ArrayBase<E> const& x) {
     return x - Eigen::ArrayBase<E>::Ones(x.size()) * x.sum() / x.size();
   }
-
+  
   /**
    * @brief Utility to extract first type in a parameter pack.
    */
