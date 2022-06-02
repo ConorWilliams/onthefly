@@ -25,7 +25,7 @@ namespace otf {
     /** @brief This member represents a vector of elements of scalar_type. */
     using scalar_type = Scalar;
     /** @brief A vector of scalar_type length extent. */
-    using vector_type = std::conditional_t<Extent == 1, Scalar, Eigen::Array<Scalar, 1, Extent>>;
+    using vector_type = std::conditional_t<Extent == 1, Scalar, Eigen::Array<Scalar, Extent, 1>>;
     /** @brief The underlying Eigen type used to store a dynamic number of these members. */
     using matrix_type = Eigen::Array<Scalar, Extent, Eigen::Dynamic>;
 
@@ -38,6 +38,7 @@ namespace otf {
    * @tparam Mems a series of empty types, derived from otf::MemTag, to describe each member.
    */
   template <typename... Mems> struct Atom : detail::AtomMem<Mems>... {
+    using detail::AtomMem<Mems>::operator()...;
     /**
      * @brief Construct a new Atom object, forwards each argument to a member.
      */
@@ -60,7 +61,9 @@ namespace otf {
    *
    * using namespace otf;
    *
-   * AtomVector<Pos> atoms{10}; // Initialise an array of 10 atoms.
+   * AtomVector<Position> atoms; // Initialise a vector of 0 atoms.
+   *
+   * atoms.emplace_back({1,2,3});
    *
    *
    * @endcode
@@ -73,8 +76,10 @@ namespace otf {
 
   public:
     // Expose subset of underlying vector API
+    using Vector::begin;
     using Vector::clear;
     using Vector::emplace_back;
+    using Vector::end;
     using Vector::push_back;
     using Vector::size;
     using Vector::Vector;
@@ -121,18 +126,18 @@ namespace otf {
    *
    * using namespace otf;
    *
-   * AtomArray<Pos, AtomicNum> atoms{10}; // Initialise an array of 10 atoms.
+   * AtomArray<Position, AtomicNum> atoms{10}; // Initialise an array of 10 atoms.
    *
    * // Add a hydrogen atom at the origin.
    *
-   * atoms(Pos{}, 0) =  Vec3<double>{0, 0, 0};
+   * atoms(Position{}, 0) =  Vec3<double>{0, 0, 0};
    * atoms(AtomicNum{}, 0) = 1;
    *
-   * Vec3 xyz = atoms(Pos{}, 0); // Get the position of the zeroth atom.
+   * Vec3 xyz = atoms(Position{}, 0); // Get the position of the zeroth atom.
    *
    * std::size_t n = = atoms(AtomicNum{}, 0); // Get the atomic number of the zeroth atom.
    *
-   * atoms(Pos{}) += 1; // Add 1 to each of every atoms coordinates.
+   * atoms(Position{}) += 1; // Add 1 to each of every atoms coordinates.
    *
    * atoms(AtomicNum{}) = 6; // Set all the atoms to carbon atoms.
    *
@@ -226,7 +231,7 @@ namespace otf {
     struct Axis : MemTag<floating, spatial_dims> {};
 
     /**
-     * @brief Tag type for gradiant of the potential.
+     * @brief Tag type for gradient of the potential.
      */
     struct Gradient : MemTag<floating, spatial_dims> {};
 
@@ -260,9 +265,14 @@ namespace otf {
      */
     struct Frozen : MemTag<bool, 1> {};
 
+    /**
+     * @brief Tag type for atom colour (generalisation of atomic number)
+     */
+    struct Colour : MemTag<std::size_t, 1> {};
+
   }  // namespace builtin_members
 
-  // No online namespace as m.css doens't like them :(
+  // No online namespace as m.css doesn't like them :(
   using namespace builtin_members;
 
 }  // namespace otf

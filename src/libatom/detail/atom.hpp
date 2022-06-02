@@ -22,7 +22,7 @@ namespace otf::detail {
     template <typename... Args> AtomMem(Args&&... args) : m_data(std::forward<Args>(args)...) {}
 
     [[nodiscard]] typename Tag::vector_type const& operator()(Tag) const { return m_data; }
-    [[nodiscard]] typename Tag::vector_type const& operator()(Tag) { return m_data; }
+    [[nodiscard]] typename Tag::vector_type& operator()(Tag) { return m_data; }
 
   private:
     typename Tag::vector_type m_data;

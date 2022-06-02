@@ -7,6 +7,8 @@
 #include <cstddef>
 #include <vector>
 
+#include "libatom/atom.hpp"
+#include "libatom/env/geometry.hpp"
 #include "libatom/io/xyz.hpp"
 #include "libatom/minimise/LBFGS/core.hpp"
 #include "libatom/minimise/LBFGS/lbfgs.hpp"
@@ -83,6 +85,16 @@ auto main(int, char **) -> int {
   io::dump_xyz(f, atoms, fmt::format("Temp={}", T));
 
   fmt::print("Frozen = {}\n", atoms.count_frozen());
+
+  AtomVector<Position, AtomicNum> x;  // Initialise a vector of 0 atoms.
+
+  x.emplace_back({1, 2, 3}, 11);  // Ad an atom
+
+  Vec3<floating> p = x[0](Position{});
+
+  fmt::print("{},{}\n", x[0](AtomicNum{}), p[0]);
+
+  // exit(1);
 
   {
     // saddle::perturb({7, 7, 7}, atoms, 4, 0.6);

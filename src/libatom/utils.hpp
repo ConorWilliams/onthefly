@@ -41,7 +41,7 @@ namespace otf {
   // Types aliases
 
   template <typename T> using Vec3 = Eigen::Array<T, spatial_dims, 1>;
-  template <typename T> using Mat3 = Eigen::Array<T, spatial_dims, spatial_dims>;
+  template <typename T> using Mat3 = Eigen::Matrix<T, spatial_dims, spatial_dims>;
 
   /**
    * @brief Generalised dot-product between to eigen arrays
@@ -67,7 +67,7 @@ namespace otf {
   template <typename E> auto remove_soft_mode(Eigen::ArrayBase<E> const& x) {
     return x - Eigen::ArrayBase<E>::Ones(x.size()) * x.sum() / x.size();
   }
-  
+
   /**
    * @brief Utility to extract first type in a parameter pack.
    */

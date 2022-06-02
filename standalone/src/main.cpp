@@ -3,50 +3,52 @@
 #include <fmt/core.h>
 #include <fmt/ostream.h>
 
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <memory>
 #include <random>
 
 #include "libatom/atom.hpp"
-#include "libatom/io/xyz.hpp"
-#include "libatom/neighbour/list.hpp"
-#include "libatom/potentials/EAM/eam.hpp"
-#include "libatom/sim_cell.hpp"
-#include "libatom/utils.hpp"
+#include "libatom/env/geometry.hpp"
 
 using namespace otf;
 
 std::mt19937 gen(33);
-std::uniform_real_distribution<floating> dis(0, 1);
-
-SimCell random_simcell(SimCell& atoms, std::size_t n) {
-  //
-  atoms.destructive_resize(n);
-
-  for (std::size_t i = 0; i < n; i++) {
-    atoms(Position{}, i) = Vec3<floating>{dis(gen), dis(gen), dis(gen)} * atoms.extents();
-    atoms(AtomicNum{}, i) = 26;
-    atoms(Frozen{}, i) = false;
-  }
-
-  return atoms;
-}
+std::uniform_real_distribution<floating> dis(-10, 10);
 
 auto main(int, char**) -> int {
   //
 
-  SimCell atoms({{17, 17, 17}, {true, true, true}});
+  env::Geometry<Position, Colour> P;
 
-  random_simcell(atoms, 1'000);
+  P.emplace_back({0, 0, 0}, 0);
 
-  fmt::print("num atoms is {}\n", atoms.size());
+  for (std::size_t i = 0; i < 64; i++) {
+    P.emplace_back({dis(gen), dis(gen), dis(gen)}, 0);
+  }
 
-  neighbour::List neigh(atoms, 6);
+  auto COM = P.com();
 
-  neigh.rebuild(atoms, omp_get_max_threads());
+  for (auto&& elem : P) {
+    elem(Position{}) -= COM;
+  }
 
-  timeit("Fast", [&] { neigh.rebuild(atoms, omp_get_max_threads()); });
+  std::cout << P.com() << std::endl;
+
+  ///////////////////////////////
+
+  env::Geometry Q = P;
+
+  Mat3<floating> Rot{
+      {std::cos(1.0), -std::sin(1.0), 0},
+      {std::sin(1.0), +std::cos(1.0), 0},
+      {0, 0, 1},
+  };
+
+  for (auto& elem : P) {
+    elem(Position{}) = Rot * elem(Position{}).matrix();
+  }
 
   return 0;
 }
