@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Eigen/Dense>
 #include <Eigen/SVD>
 #include <cmath>
 #include <cstddef>
@@ -8,6 +9,7 @@
 #include <utility>
 #include <vector>
 
+#include "fmt/core.h"
 #include "libatom/asserts.hpp"
 #include "libatom/atom.hpp"
 #include "libatom/utils.hpp"
@@ -128,6 +130,20 @@ namespace otf::env {
         }
 
         if (sum_sq < delta * delta) {
+          fmt::print("Det={}, Trace={} ", R.determinant(), R.trace());
+
+          if (R.determinant() < 0) {
+            fmt::print("Theta={:<3}deg : ", 360. / 2 / M_PI * std::acos(0.5 * (R.trace() + 1)));
+          } else {
+            fmt::print("Theta={:<3}deg : ", 360. / 2 / M_PI * std::acos(0.5 * (R.trace() - 1)));
+          }
+
+          for (std::size_t i = 0; i < mut.size(); i++) {
+            fmt::print("{}, ", mut[i](Index{}));
+          }
+
+          fmt::print("\n");
+
           return PermResult{std::sqrt(sum_sq), R};
         } else {
           return std::nullopt;
@@ -145,7 +161,7 @@ namespace otf::env {
           // Verify all other distances then recurse
           if (within_tol_up_to(mut, ref, delta * M_SQRT2, n)) {
             if (std::optional rot = _permute_onto(mut, ref, delta, n + 1)) {
-              return rot;
+              // return rot;
             }
           }
 
