@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "libatom/asserts.hpp"
-#include "libatom/atom_array.hpp"
+#include "libatom/atom.hpp"
 #include "libatom/neighbour/grid.hpp"
 #include "libatom/sim_cell.hpp"
 #include "libatom/utils.hpp"
@@ -131,7 +131,7 @@ namespace otf::neighbour {
 
     ///
 
-    struct Next : AtomArrayMem<std::size_t, 1> {};
+    struct Next : MemTag<std::size_t, 1> {};
 
     AtomArray<Position, Index, Next> m_atoms;
 

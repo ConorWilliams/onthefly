@@ -8,7 +8,7 @@
 #include <memory>
 #include <random>
 
-#include "libatom/atom_array.hpp"
+#include "libatom/atom.hpp"
 #include "libatom/io/xyz.hpp"
 #include "libatom/neighbour/list.hpp"
 #include "libatom/potentials/EAM/eam.hpp"

@@ -5,7 +5,7 @@
 #include <memory>
 
 #include "libatom/asserts.hpp"
-#include "libatom/atom_array.hpp"
+#include "libatom/atom.hpp"
 #include "libatom/minimise/LBFGS/core.hpp"
 #include "libatom/neighbour/list.hpp"
 #include "libatom/potentials/base.hpp"

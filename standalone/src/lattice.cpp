@@ -110,8 +110,8 @@ auto main(int, char **) -> int {
 
     minimise::LBFGS lbfgs(opt);
 
-    if (lbfgs.minimise(atoms, dim, omp_get_max_threads())){
-        io::dump_xyz(fmt::output_file("saddle.xyz"), atoms, "");
+    if (lbfgs.minimise(atoms, dim, omp_get_max_threads())) {
+      io::dump_xyz(fmt::output_file("saddle.xyz"), atoms, "");
     }
   }
 

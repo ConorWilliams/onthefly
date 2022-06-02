@@ -5,7 +5,7 @@
 #include <utility>
 #include <vector>
 
-#include "libatom/atom_array.hpp"
+#include "libatom/atom.hpp"
 #include "libatom/neighbour/grid.hpp"
 
 namespace otf::neighbour {

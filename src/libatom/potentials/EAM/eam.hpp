@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <memory>
 
-#include "libatom/atom_array.hpp"
+#include "libatom/atom.hpp"
 #include "libatom/neighbour/list.hpp"
 #include "libatom/potentials/EAM/data.hpp"
 #include "libatom/potentials/base.hpp"
@@ -50,10 +50,10 @@ namespace otf::potentials {
   private:
     std::shared_ptr<DataEAM const> m_data;
 
-    struct Fprime : AtomArrayMem<floating, 1> {};
-    struct Rho : AtomArrayMem<floating, 1> {};
-    struct Mu : AtomArrayMem<floating, spatial_dims> {};
-    struct Hidx : AtomArrayMem<std::size_t, 1> {};
+    struct Fprime : MemTag<floating, 1> {};
+    struct Rho : MemTag<floating, 1> {};
+    struct Mu : MemTag<floating, spatial_dims> {};
+    struct Hidx : MemTag<std::size_t, 1> {};
 
     AtomArray<Fprime, Rho, Mu, Hidx> m_aux;
   };

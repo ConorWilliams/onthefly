@@ -9,7 +9,7 @@
 
 #include "fmt/core.h"
 #include "libatom/asserts.hpp"
-#include "libatom/atom_array.hpp"
+#include "libatom/atom.hpp"
 #include "libatom/neighbour/list.hpp"
 #include "libatom/potentials/EAM/data.hpp"
 #include "libatom/sim_cell.hpp"

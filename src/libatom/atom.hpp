@@ -1,22 +1,24 @@
 #pragma once
 
 #include <algorithm>
+#include <cassert>
 #include <cstddef>
 #include <iostream>
 #include <type_traits>
 
-#include "libatom/detail/eigen_array_adaptor.hpp"
+#include "libatom/asserts.hpp"
+#include "libatom/detail/atom.hpp"
 #include "libatom/utils.hpp"
 
 namespace otf {
 
   /**
-   * @brief A base type to derive from for defining members of an atom for use in AtomArrays.
+   * @brief A base type to derive from for defining members of an Atom type.
    *
    * @tparam Scalar The type of the atoms member.
    * @tparam Extent How many elements of the Scalar type are in the member (vector dimension).
    */
-  template <typename Scalar, std::size_t Extent = 1> struct AtomArrayMem {
+  template <typename Scalar, std::size_t Extent = 1> struct MemTag {
     //
     static_assert(std::is_default_constructible_v<Scalar>);
 
@@ -31,20 +33,91 @@ namespace otf {
   };
 
   /**
-   * @brief Models an array of "atoms"
+   * @brief The otf representation of an atom.
    *
-   * The default container type used in the libatom; an AtomArray models an array of * "atom" types
-   * but decomposes the atom type and stores each member in a separate array. This enables efficient
-   * cache use. The members of the "atom" are described through a series of template parameters
-   * which should inherit from otf::AtomArrayMem. A selection of canonical members are provided in
-   * libatom/member.hpp. The members of each atom can be accessed either by the index of the
-   * atom or as an eigen array to enable collective operations.
+   * @tparam Mems a series of empty types, derived from otf::MemTag, to describe each member.
+   */
+  template <typename... Mems> struct Atom : detail::AtomMem<Mems>... {
+    /**
+     * @brief Construct a new Atom object, forwards each argument to a member.
+     */
+    template <typename... Args> Atom(Args&&... args)
+        : detail::AtomMem<Mems>(std::forward<Args>(args))... {}
+  };
+
+  /**
+   * @brief A container that models a std::vector of Atom types.
+   *
+   * The members of the "atom" are described through a series of template parameters which should
+   * inherit from otf::MemTag. A selection of canonical members are provided in the namespace
+   * builtin_members.
    *
    * Example of use:
    *
    * @code{.cpp}
    *
-   * #include "libatom/atom_array.hpp"
+   * #include "libatom/atom.hpp"
+   *
+   * using namespace otf;
+   *
+   * AtomVector<Pos> atoms{10}; // Initialise an array of 10 atoms.
+   *
+   *
+   * @endcode
+   */
+  template <typename... Mems> class AtomVector : private std::vector<Atom<Mems...>> {
+  private:
+    static_assert(sizeof...(Mems) > 0, "Need at least one member in an AtomVector");
+
+    using Vector = std::vector<Atom<Mems...>>;
+
+  public:
+    // Expose subset of underlying vector API
+    using Vector::clear;
+    using Vector::emplace_back;
+    using Vector::push_back;
+    using Vector::size;
+    using Vector::Vector;
+
+    /**
+     * @brief Bounds checked version of operator [].
+     */
+    decltype(auto) operator[](std::size_t i) {
+      ASSERT(i < size(), "Out of bounds");
+      return Vector::operator[](i);
+    }
+
+    /**
+     * @brief Bounds checked version of operator [] const.
+     */
+    decltype(auto) operator[](std::size_t i) const {
+      ASSERT(i < size(), "Out of bounds");
+      return Vector::operator[](i);
+    }
+
+    /**
+     * @brief Provides an emplace_back with explicit vector_types.
+     */
+    decltype(auto) emplace_back(typename Mems::vector_type const&... args) {
+      return Vector::emplace_back(args...);
+    }
+  };
+
+  /**
+   * @brief A container that stores a Atom types decomposed by member.
+   *
+   * The default container type used in the libatom; an AtomArray models an array of "atom" types
+   * but decomposes the atom type and stores each member in a separate array. This enables efficient
+   * cache use. The members of the "atom" are described through a series of template parameters
+   * which should inherit from otf::MemTag. A selection of canonical members are provided in the
+   * namespace builtin_members. The members of each atom can be accessed either by the index of the
+   * atom or as an Eigen array to enable collective operations.
+   *
+   * Example of use:
+   *
+   * @code{.cpp}
+   *
+   * #include "libatom/atom.hpp"
    *
    * using namespace otf;
    *
@@ -140,56 +213,56 @@ namespace otf {
   /**
    * @brief A collection of default member types for use in AtomArray's
    */
-  namespace members {
+  namespace builtin_members {
 
     /**
      * @brief Tag type for position (xyz).
      */
-    struct Position : AtomArrayMem<floating, spatial_dims> {};
+    struct Position : MemTag<floating, spatial_dims> {};
 
     /**
      * @brief Tag type for dimer axis (xyz).
      */
-    struct Axis : AtomArrayMem<floating, spatial_dims> {};
+    struct Axis : MemTag<floating, spatial_dims> {};
 
     /**
      * @brief Tag type for gradiant of the potential.
      */
-    struct Gradient : AtomArrayMem<floating, spatial_dims> {};
+    struct Gradient : MemTag<floating, spatial_dims> {};
+
+    /**
+     * @brief Tag type for velocity.
+     */
+    struct Velocity : MemTag<floating, spatial_dims> {};
 
     /**
      * @brief Tag type for atomic number.
      */
-    struct Velocity : AtomArrayMem<floating, spatial_dims> {};
+    struct AtomicNum : MemTag<std::size_t, 1> {};
 
     /**
-     * @brief Tag type for atomic number.
+     * @brief Tag type for atomic mass.
      */
-    struct AtomicNum : AtomArrayMem<std::size_t, 1> {};
-
-    /**
-     * @brief Tag type for atomic number.
-     */
-    struct Mass : AtomArrayMem<std::size_t, 1> {};
+    struct Mass : MemTag<std::size_t, 1> {};
 
     /**
      * @brief Tag type for index.
      */
-    struct Index : AtomArrayMem<std::size_t, 1> {};
+    struct Index : MemTag<std::size_t, 1> {};
 
     /**
-     * @brief Tag type for index.
+     * @brief Tag type for atomic symbol.
      */
-    struct Symbol : AtomArrayMem<std::string_view, 1> {};
+    struct Symbol : MemTag<std::string_view, 1> {};
 
     /**
      * @brief Tag type for frozen atoms.
      */
-    struct Frozen : AtomArrayMem<bool, 1> {};
+    struct Frozen : MemTag<bool, 1> {};
 
-  }  // namespace members
+  }  // namespace builtin_members
 
-  // No online namespace as m.css doens't like them :()
-  using namespace members;
+  // No online namespace as m.css doens't like them :(
+  using namespace builtin_members;
 
 }  // namespace otf

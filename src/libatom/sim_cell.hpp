@@ -3,7 +3,7 @@
 #include <cmath>
 
 #include "libatom/asserts.hpp"
-#include "libatom/atom_array.hpp"
+#include "libatom/atom.hpp"
 #include "libatom/utils.hpp"
 
 namespace otf {
