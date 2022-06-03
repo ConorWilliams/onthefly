@@ -32,7 +32,7 @@ TEST_CASE("env::geo ortho_onto, perm_onto") {
     elem(Position{}) = Rot * elem(Position{}).matrix();
   }
 
-  Mat3<floating> Rp = P.ortho_onto(Q);
+  Mat3<floating> Rp = ortho_onto(P, Q);
 
   floating diff = (Rp.transpose() - Rot).array().abs().sum();
 

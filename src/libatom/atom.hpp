@@ -43,7 +43,9 @@ namespace otf {
      * @brief Construct a new Atom object, forwards each argument to a member.
      */
     template <typename... Args> Atom(Args&&... args)
-        : detail::AtomMem<Mems>(std::forward<Args>(args))... {}
+        : detail::AtomMem<Mems>(std::forward<Args>(args))... {
+      static_assert(sizeof...(Mems) == sizeof...(Args));
+    }
   };
 
   /**

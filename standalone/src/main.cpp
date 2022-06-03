@@ -5,11 +5,13 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <fstream>
 #include <iostream>
 #include <memory>
 #include <random>
 
+#include "libatom/asserts.hpp"
 #include "libatom/atom.hpp"
 #include "libatom/env/geometry.hpp"
 #include "libatom/utils.hpp"
@@ -26,7 +28,55 @@ auto main(int, char**) -> int {
 
   P.emplace_back({0, 0, 0}, 0, 0);
 
-  constexpr int N = 4;
+  for (std::size_t i = 0; i < 64; i++) {
+    P.emplace_back({dis(gen), dis(gen), dis(gen)}, 0, i);
+  }
+
+  {
+    auto COM = com(P);
+
+    for (auto&& elem : P) {
+      elem(Position{}) -= COM;
+    }
+  }
+
+  env::Geometry Q = P;
+
+  {  // Compute min sep
+    floating delta = 9999;
+
+    for (auto const& a : P) {
+      for (auto const& b : P) {
+        if (&a != &b) {
+          delta = std::min(delta, norm(a(Position{}) - b(Position{})));
+        }
+      }
+    }
+
+    fmt::print("rmin = {}\n", delta);
+  }
+
+  // Randomly perturb P
+
+  for (auto& elem : P) {
+    elem(Position{}) += 0.01 * Vec3<floating>{dis(gen), dis(gen), dis(gen)};
+  }
+
+  {
+    auto COM = com(P);
+
+    for (auto&& elem : P) {
+      elem(Position{}) -= COM;
+    }
+  }
+
+  // Shuffle P
+
+  std::shuffle(std::next(P.begin()), P.end(), gen);
+
+  // Rotate P
+
+  std::size_t N = 6;
 
   Mat3<floating> Rot{
       {std::cos(2 * M_PI / N), -std::sin(2 * M_PI / N), 0},
@@ -34,58 +84,21 @@ auto main(int, char**) -> int {
       {0, 0, 1},
   };
 
-  Vec3<floating> basis{1, 0, 0};
-
-  for (size_t i = 0; i < N; i++) {
-    P.emplace_back(basis, 0, i + 1);
-    basis = Rot * basis.matrix();
+  for (auto& elem : P) {
+    elem(Position{}) = Rot * elem(Position{}).matrix();
   }
-
-  // for (std::size_t i = 0; i < 64; i++) {
-  //   P.emplace_back({dis(gen), dis(gen), dis(gen)}, 0);
-  // }
-
-  {
-    auto COM = P.com();
-
-    for (auto&& elem : P) {
-      elem(Position{}) -= COM;
-    }
-  }
-
-  // Randomly perturb P
-
-  // for (auto& elem : P) {
-  //   elem(Position{}) += 0.005 * Vec3<floating>{dis(gen), dis(gen), dis(gen)};
-  // }
-
-  // {
-  //   auto COM = P.com();
-
-  //   for (auto&& elem : P) {
-  //     elem(Position{}) -= COM;
-  //   }
-  // }
-
-  for (size_t i = 0; i < 5; i++) {
-    std::cout << P[i](Position{}).transpose() << std::endl;
-  }
-
-  env::Geometry Q = P;
-
-  // Shuffle P
-
-  // std::shuffle(std::next(P.begin()), P.end(), gen);
-
-  // Rotate P
-
-  // for (auto& elem : P) {
-  //   elem(Position{}) = Rot * elem(Position{}).matrix();
-  // }
 
   //  Permute and transform P
 
-  auto [rmsd, O] = *P.permute_onto(Q, 0.15);
+  std::optional tmp = P.permute_onto(Q, 1.36);
+
+  ASSERT(tmp, "No rotor");
+
+  auto [rmsd, O] = *tmp;
+
+  fmt::print("rmsd={}\n", rmsd);
+
+  fmt::print("rmsd={}\n", env::rmsd(O, P, Q));
 
   for (auto&& elem : P) {
     elem(Position{}) = O * elem(Position{}).matrix();

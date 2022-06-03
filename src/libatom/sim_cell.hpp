@@ -9,7 +9,7 @@
 namespace otf {
 
   /**
-   * @brief Provides details of the simulations Orthoganal supercell geometry,
+   * @brief Provides details of the simulations Orthogonal supercell geometry,
    *
    * All queries of the space in which the atoms exist are provided by this class. It is assumed
    * (and must be ensured) all non-periodic atoms are within the OrthoSimBox extents.
