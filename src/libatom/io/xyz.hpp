@@ -52,7 +52,7 @@ namespace otf::io {
    * @param cell SimCell to take atom data from
    * @param comment Additional comments, must not contain any newline charachters
    */
-  inline void dump_xyz(fmt::ostream &&file, SimCell const&cell, std::string_view comment){
+  inline void dump_xyz(fmt::ostream&& file, SimCell const& cell, std::string_view comment) {
     dump_xyz(file, cell, comment);
   }
 

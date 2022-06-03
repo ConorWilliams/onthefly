@@ -20,7 +20,7 @@ namespace otf::env {
   /**
    * @brief Compute the centre of mass of a set of atom.
    */
-  template <typename... M> [[nodiscard]] Vec3<floating> com(AtomVector<M...> const &ref) {
+  template <typename... M>[[nodiscard]] Vec3<floating> com(AtomVector<M...> const &ref) {
     Vec3<floating> sum = Vec3<floating>::Zero();
 
     for (auto const &elem : ref) {
