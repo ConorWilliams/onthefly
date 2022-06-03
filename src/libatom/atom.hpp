@@ -80,7 +80,7 @@ namespace otf {
     // Expose subset of underlying vector API
     using Vector::begin;
     using Vector::clear;
-    using Vector::emplace_back;
+    // using Vector::emplace_back;
     using Vector::end;
     using Vector::push_back;
     using Vector::size;

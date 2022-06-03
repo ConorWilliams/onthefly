@@ -171,9 +171,10 @@ namespace otf::env {
    *
    * @code{.cpp}
    *
-   * for_equiv_perms(ref, 0.2)(mut, [](Mat3<floating> const & O, floating rmsd){
+   * for_equiv_perms(ref, 0.2)(1, mut, [](Mat3<floating> const & O, floating rmsd){
    *     // If this function is called then "mut" has been permuted into an equivalent permutation.
-   *     // "O" is the matrix that maps "mut" to "ref" that "rmsd" == rmsd(O, mut, ref).
+   *     // "O" is the matrix that maps "mut" to "ref" such that that:
+   *     //     "rmsd" == rmsd(O, mut, ref) and "rmsd" < delta.
    *
    *     // We could now do something with "rmsd" and "O". We must not mutate "ref" or "mut".
    *
@@ -183,16 +184,19 @@ namespace otf::env {
    *
    * @endcode
    *
+   * for_equiv_perms will not permute the first "n" (== 1 in the above example) atoms in "mut". This
+   * is useful if there exist a number of atoms who's permutation is known.
+   *
    */
   template <typename... M> auto for_equiv_perms(AtomVector<M...> const &ref, floating delta) {
-    return [&ref, delta](auto &mut, auto &&callback) {
+    return [&ref, delta](std::size_t n, auto &mut, auto &&callback) {
       ASSERT(ref.size() == mut.size(), "Sizes must match!");
 
       if constexpr (std::is_same_v<decltype(mut), AtomVector<M...>>) {
         ASSERT(&ref != &mut, "Cannot perm onto self.");
       }
 
-      detail::for_equiv_perms_impl(mut, ref, delta, 0, callback);
+      detail::for_equiv_perms_impl(mut, ref, delta, n, callback);
     };
   }
 
@@ -224,7 +228,7 @@ namespace otf::env {
                                                          floating delta) {
       std::optional<PermResult> res = std::nullopt;
 
-      for_equiv_perms(other, delta)(*this, [&](Mat3<floating> const &O, floating rmsd) {
+      for_equiv_perms(other, delta)(1, *this, [&](Mat3<floating> const &O, floating rmsd) {
         res = PermResult{O, rmsd};
         // First match accepted
         return true;

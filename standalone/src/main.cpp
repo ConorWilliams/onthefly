@@ -4,11 +4,13 @@
 #include <fmt/ostream.h>
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <cstddef>
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <random>
 
 #include "libatom/asserts.hpp"
@@ -18,33 +20,46 @@
 
 using namespace otf;
 
-std::mt19937 gen(33);
-std::uniform_real_distribution<floating> dis(-10, 10);
+std::random_device rd{};
+std::mt19937 gen(rd());
+std::uniform_real_distribution<floating> dis(-1, 1);
 
 auto main(int, char**) -> int {
-  // Set up P and Q <- P
-
+  //
   env::Geometry<Position, Colour, Index> P;
 
-  P.emplace_back({0, 0, 0}, 0, 0);
+  constexpr size_t N = 6;
 
-  for (std::size_t i = 0; i < 64; i++) {
-    P.emplace_back({dis(gen), dis(gen), dis(gen)}, 0, i);
+  {  // Set up P
+
+    P.emplace_back({0, 0, 0}, 0, 0);
+
+    Mat3<floating> Rot{
+        {std::cos(2 * M_PI / N), -std::sin(2 * M_PI / N), 0},
+        {std::sin(2 * M_PI / N), +std::cos(2 * M_PI / N), 0},
+        {0, 0, 1},
+    };
+
+    Vec3<floating> x{1.0, 0.0, 0.0};
+
+    for (size_t i = 0; i < N; i++) {
+      P.emplace_back(x, 0, i + 1);
+      x = Rot * x.matrix();
+    }
+
+    // Origin is the position if atom[0]
   }
 
-  {
-    auto COM = com(P);
+  {  // Randomly perturb P
 
-    for (auto&& elem : P) {
-      elem(Position{}) -= COM;
+    for (size_t i = 1; i <= N; i++) {
+      P[i](Position{}) += 0.05 * Vec3<floating>{dis(gen), dis(gen), dis(gen)};
     }
   }
 
-  env::Geometry Q = P;
+  floating delta = 9999;
 
   {  // Compute min sep
-    floating delta = 9999;
-
     for (auto const& a : P) {
       for (auto const& b : P) {
         if (&a != &b) {
@@ -53,56 +68,25 @@ auto main(int, char**) -> int {
       }
     }
 
-    fmt::print("rmin = {}\n", delta);
+    fmt::print("R_min = {:e}\n", delta);
   }
 
-  // Randomly perturb P
+  ///
 
-  for (auto& elem : P) {
-    elem(Position{}) += 0.01 * Vec3<floating>{dis(gen), dis(gen), dis(gen)};
-  }
+  auto primed = P;
 
-  {
-    auto COM = com(P);
+  int count = 0;
 
-    for (auto&& elem : P) {
-      elem(Position{}) -= COM;
-    }
-  }
+  for_equiv_perms(P, 0.4 * delta)(1, primed, [&](Mat3<floating> const&, floating rmsd) {
+    //
+    fmt::print("rmsd = {:e}\n", rmsd);
 
-  // Shuffle P
+    ++count;
 
-  std::shuffle(std::next(P.begin()), P.end(), gen);
+    return false;
+  });
 
-  // Rotate P
-
-  std::size_t N = 6;
-
-  Mat3<floating> Rot{
-      {std::cos(2 * M_PI / N), -std::sin(2 * M_PI / N), 0},
-      {std::sin(2 * M_PI / N), +std::cos(2 * M_PI / N), 0},
-      {0, 0, 1},
-  };
-
-  for (auto& elem : P) {
-    elem(Position{}) = Rot * elem(Position{}).matrix();
-  }
-
-  //  Permute and transform P
-
-  std::optional tmp = P.permute_onto(Q, 1.36);
-
-  ASSERT(tmp, "No rotor");
-
-  auto [rmsd, O] = *tmp;
-
-  fmt::print("rmsd={}\n", rmsd);
-
-  fmt::print("rmsd={}\n", env::rmsd(O, P, Q));
-
-  for (auto&& elem : P) {
-    elem(Position{}) = O * elem(Position{}).matrix();
-  }
+  fmt::print("count = {}\n", count);
 
   return 0;
 }

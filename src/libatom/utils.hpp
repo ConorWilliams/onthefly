@@ -106,7 +106,7 @@ namespace otf {
    * @return auto A struct with members .mean and .std sutible for structured binding decomposition
    */
   template <typename F> auto timeit(std::string_view name, F const& f,
-                                    std::chrono::seconds timeout = std::chrono::seconds{1}) {
+                                    std::chrono::nanoseconds timeout = std::chrono::seconds{1}) {
     //
     using Duration = std::chrono::high_resolution_clock::duration;
 
