@@ -38,14 +38,24 @@ namespace otf {
    * @tparam Mems a series of empty types, derived from otf::MemTag, to describe each member.
    */
   template <typename... Mems> struct Atom : detail::AtomMem<Mems>... {
+    // Expose tagged dispatch.
     using detail::AtomMem<Mems>::operator()...;
+
+    // /**
+    //  * @brief Construct a new Atom object, explicitly defaulted.
+    //  */
+    // Atom(Atom const&) = default;
+
+    // /**
+    //  * @brief Construct a new Atom object, explicitly defaulted.
+    //  */
+    // Atom(Atom&&) = default;
+
     /**
      * @brief Construct a new Atom object, forwards each argument to a member.
      */
-    template <typename... Args> Atom(Args&&... args)
-        : detail::AtomMem<Mems>(std::forward<Args>(args))... {
-      static_assert(sizeof...(Mems) == sizeof...(Args));
-    }
+    template <typename... Args, std::enable_if_t<sizeof...(Mems) == sizeof...(Args), int> = 0>
+    Atom(Args&&... args) : detail::AtomMem<Mems>(std::forward<Args>(args))... {}
   };
 
   /**
