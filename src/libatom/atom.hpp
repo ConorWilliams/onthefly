@@ -182,7 +182,7 @@ namespace otf {
      * @return decltype(auto) Either an Eigen view into a vector or a reference to the element if
      * 1D.
      */
-    template <typename Tag>[[nodiscard]] decltype(auto) operator()(Tag, std::size_t i) const {
+    template <typename Tag> [[nodiscard]] decltype(auto) operator()(Tag, std::size_t i) const {
       return get(Tag{}, i);
     }
 
@@ -192,21 +192,21 @@ namespace otf {
      * @return decltype(auto) Either an Eigen view into a vector or a reference to the element if
      * 1D.
      */
-    template <typename Tag>[[nodiscard]] decltype(auto) operator()(Tag, std::size_t i) {
+    template <typename Tag> [[nodiscard]] decltype(auto) operator()(Tag, std::size_t i) {
       return get(Tag{}, i);
     }
 
     /**
      * @brief Fetch a view of the entire {extent by size()} underlying array of the Tag member.
      */
-    template <typename Tag>[[nodiscard]] auto operator()(Tag) const {
+    template <typename Tag> [[nodiscard]] auto operator()(Tag) const {
       return raw_array(Tag{}).leftCols(size());
     }
 
     /**
      * @brief Fetch a view of the entire {extent by size()} underlying array of the Tag member.
      */
-    template <typename Tag>[[nodiscard]] auto operator()(Tag) {
+    template <typename Tag> [[nodiscard]] auto operator()(Tag) {
       return raw_array(Tag{}).leftCols(size());
     }
 
