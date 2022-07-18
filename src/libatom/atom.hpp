@@ -41,21 +41,11 @@ namespace otf {
     // Expose tagged dispatch.
     using detail::AtomMem<Mems>::operator()...;
 
-    // /**
-    //  * @brief Construct a new Atom object, explicitly defaulted.
-    //  */
-    // Atom(Atom const&) = default;
-
-    // /**
-    //  * @brief Construct a new Atom object, explicitly defaulted.
-    //  */
-    // Atom(Atom&&) = default;
-
     /**
      * @brief Construct a new Atom object, forwards each argument to a member.
      */
     template <typename... Args, std::enable_if_t<sizeof...(Mems) == sizeof...(Args), int> = 0>
-    Atom(Args&&... args) : detail::AtomMem<Mems>(std::forward<Args>(args))... {}
+    explicit Atom(Args&&... args) : detail::AtomMem<Mems>(std::forward<Args>(args))... {}
   };
 
   /**
@@ -284,7 +274,7 @@ namespace otf {
 
   }  // namespace builtin_members
 
-  // No online namespace as m.css doesn't like them :(
+  // No inline namespace as m.css doesn't like them :(
   using namespace builtin_members;
 
 }  // namespace otf

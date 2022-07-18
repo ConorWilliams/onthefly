@@ -38,6 +38,11 @@ namespace otf {
 
 #undef LIBATOM_FLOAT_TYPE
 
+  /**
+   * @brief The maximum atomic number that any atom can have.
+   */
+  inline constexpr std::size_t max_atomic_num = 111;
+
   // Types aliases
 
   template <typename T> using Vec3 = Eigen::Array<T, spatial_dims, 1>;

@@ -28,7 +28,7 @@ namespace otf::potentials {
      * @brief Fetch the embedding energy function corresponding to the atom with atomic number 'a'.
      */
     Spline const &f(std::size_t a) const {
-      ASSERT(a < 112, "Invalid atomic number");
+      ASSERT(a <= max_atomic_num, "Invalid atomic number");
       ASSERT(m_atomic2idx[a] < m_num_species, "Species not in this potential");
       return m_f[m_atomic2idx[a]];
     }
@@ -38,7 +38,7 @@ namespace otf::potentials {
      * 'a' and 'b'.
      */
     Spline const &phi(std::size_t a, std::size_t b) const {
-      ASSERT(a < 112 && b < 112, "Invalid atomic number");
+      ASSERT(a <= max_atomic_num && b <= max_atomic_num, "Invalid atomic number");
       ASSERT(m_atomic2idx[a] < m_num_species, "Species not in this potential");
       ASSERT(m_atomic2idx[b] < m_num_species, "Species not in this potential");
       return m_phi[index(m_atomic2idx[a], m_atomic2idx[b])];
@@ -49,7 +49,7 @@ namespace otf::potentials {
      * numbers 'a' and 'b'.
      */
     Spline const &v(std::size_t a, std::size_t b) const {
-      ASSERT(a < 112 && b < 112, "Species out of bounds");
+      ASSERT(a <= max_atomic_num && b <= max_atomic_num, "Species out of bounds");
       ASSERT(m_atomic2idx[a] < m_num_species, "Species not in this potential");
       ASSERT(m_atomic2idx[b] < m_num_species, "Species not in this potential");
       return m_v[sym_index(m_atomic2idx[a], m_atomic2idx[b])];
@@ -69,8 +69,8 @@ namespace otf::potentials {
 
     floating m_rcut;
 
-    std::array<std::size_t, 112> m_atomic2idx;
-    std::array<floating, 112> m_atomic2mass;
+    std::array<std::size_t, max_atomic_num + 1> m_atomic2idx;
+    std::array<floating, max_atomic_num + 1> m_atomic2mass;
 
     std::vector<Spline> m_f;
     std::vector<Spline> m_phi;

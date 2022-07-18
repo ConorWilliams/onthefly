@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "libatom/atom.hpp"
+#include "libatom/env/classify.hpp"
 #include "libatom/env/geometry.hpp"
 #include "libatom/io/xyz.hpp"
 #include "libatom/minimise/LBFGS/core.hpp"
@@ -48,7 +49,7 @@ auto main(int, char **) -> int {
 
   std::vector<MotifPt> lat;
 
-  Vec shape{6, 6, 6};  // In unit cells
+  Vec shape{7, 7, 7};  // In unit cells
 
   for (std::size_t k = 0; k < shape[0]; k++) {
     for (std::size_t j = 0; j < shape[1]; j++) {
@@ -80,31 +81,30 @@ auto main(int, char **) -> int {
   //   atoms(Frozen{}, 341) = true;
   //   atoms(Frozen{}, 0) = true;
 
-  auto f = fmt::output_file("lbfgs_debug.xyz");
-
-  io::dump_xyz(f, atoms, fmt::format("Temp={}", T));
-
-  fmt::print("Frozen = {}\n", atoms.count_frozen());
-
-  AtomVector<Position, AtomicNum> x;  // Initialise a vector of 0 atoms.
-
-  x.emplace_back({1, 2, 3}, 11);  // Ad an atom
-
-  Vec3<floating> p = x[0](Position{});
-
-  fmt::print("{},{}\n", x[0](AtomicNum{}), p[0]);
-
   // exit(1);
 
-  {
-    // saddle::perturb({7, 7, 7}, atoms, 4, 0.6);
-    saddle::perturb({2.8, 2.8, 2.8}, atoms, 4, 0.6);
+  {  //
+    env::EnvCell classifyer({5.2}, atoms);
 
+    classifyer.rebuild(atoms, omp_get_max_threads());
+  }
+
+  {
     // std::cout << atoms(Axis{}) << std::endl;
 
     potentials::EAM pot{std::make_shared<potentials::DataEAM>(std::ifstream{"../data/wen.eam.fs"})};
 
-    std::unique_ptr<potentials::Base> tmp = std::make_unique<potentials::EAM>(std::move(pot));
+    neighbour::List nl(atoms, pot.rcut());
+
+    nl.rebuild(atoms, omp_get_max_threads());
+
+    floating E0 = pot.energy(atoms, nl, omp_get_max_threads());
+
+    fmt::print("E0={}\n", E0);
+
+    saddle::perturb({2.8, 2.8, 2.8}, atoms, 4, 0.6);
+
+    // saddle::perturb({1.54758, 1.48733, 4.30367}, atoms, 4, 0.6);
 
     potentials::Dimer::Options A;
 
@@ -113,7 +113,7 @@ auto main(int, char **) -> int {
     // A.relax_in_convex = false;
     // A.theta_tol = 5 * 2 * 3.141 / 360;
 
-    potentials::Dimer dim(A, std::move(tmp));
+    potentials::Dimer dim(A, std::make_unique<potentials::EAM>(pot));
 
     minimise::LBFGS::Options opt;
 
@@ -124,6 +124,12 @@ auto main(int, char **) -> int {
 
     if (lbfgs.minimise(atoms, dim, omp_get_max_threads())) {
       io::dump_xyz(fmt::output_file("saddle.xyz"), atoms, "");
+
+      nl.rebuild(atoms, omp_get_max_threads());
+
+      floating Ef = pot.energy(atoms, nl, omp_get_max_threads());
+
+      fmt::print("Ef-E0={}\n", Ef - E0);
     }
   }
 

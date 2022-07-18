@@ -10,8 +10,6 @@
 #include <utility>
 #include <vector>
 
-#include "Eigen/src/Core/MatrixBase.h"
-#include "fmt/core.h"
 #include "libatom/asserts.hpp"
 #include "libatom/atom.hpp"
 #include "libatom/utils.hpp"
@@ -188,11 +186,12 @@ namespace otf::env {
    * is useful if there exist a number of atoms who's permutation is known.
    *
    */
-  template <typename... M> auto for_equiv_perms(AtomVector<M...> const &ref, floating delta) {
+  template <typename... M>
+  [[nodiscard]] auto for_equiv_perms(AtomVector<M...> const &ref, floating delta) {
     return [&ref, delta](std::size_t n, auto &mut, auto &&callback) {
       ASSERT(ref.size() == mut.size(), "Sizes must match!");
 
-      if constexpr (std::is_same_v<decltype(mut), AtomVector<M...>>) {
+      if constexpr (std::is_same_v<std::remove_cv_t<decltype(mut)>, AtomVector<M...>>) {
         ASSERT(&ref != &mut, "Cannot perm onto self.");
       }
 
@@ -203,7 +202,7 @@ namespace otf::env {
   /**
    * @brief A geometry models a local distribution of periodically resolved Atoms.
    *
-   * The distribution is centred on the first atom.
+   * The distribution of atoms is centred on the first atom.
    */
   template <typename... Mems> class Geometry : public AtomVector<Mems...> {
   public:
@@ -236,8 +235,6 @@ namespace otf::env {
 
       return res;
     }
-
-  private:
   };
 
 }  // namespace otf::env

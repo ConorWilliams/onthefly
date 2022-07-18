@@ -75,7 +75,7 @@ namespace otf::potentials {
         floating mass;
         getline(in) >> atomic >> mass;
 
-        VERIFY(atomic < 112, "Not a valid atomic number");
+        VERIFY(atomic <= max_atomic_num, "Not a valid atomic number");
 
         m_atomic2idx[atomic] = i;
         m_atomic2mass[atomic] = mass;

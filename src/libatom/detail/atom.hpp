@@ -6,6 +6,9 @@
 
 #include "libatom/utils.hpp"
 
+/**
+ * @brief Internal namespace, not part of the API.
+ */
 namespace otf::detail {
 
   /**
@@ -55,7 +58,7 @@ namespace otf::detail {
     EigenArrayAdaptor(std::size_t n) : m_data(Tag::extent, n) {}
 
     /**
-     * @brief Get the number of ellements/columns in the array
+     * @brief Get the number of elements/columns in the array
      */
     [[nodiscard]] std::size_t size() const noexcept { return m_data.cols(); }
 

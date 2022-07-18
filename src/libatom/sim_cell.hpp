@@ -1,6 +1,11 @@
 #pragma once
 
+#include <algorithm>
+#include <array>
 #include <cmath>
+#include <cstddef>
+#include <numeric>
+#include <vector>
 
 #include "libatom/asserts.hpp"
 #include "libatom/atom.hpp"
@@ -85,6 +90,13 @@ namespace otf {
           }
         }
       }
+    }
+
+    /**
+     * @brief Get the colour (mixture of atomic number and Frozen status) of the idx'th atom.
+     */
+    [[nodiscard]] std::size_t index_to_colour(std::size_t idx) const noexcept {
+      return 2 * (*this)(AtomicNum{}, idx) + ((*this)(Frozen{}, idx) ? 1 : 0);
     }
 
     /**
