@@ -134,7 +134,7 @@ TEST_CASE("Neighbour list fuzz testing") {
 
     random_simcell(atoms, 100 + 900 * dis(gen));
 
-    for (size_t j = 0; j < 10; j++) {
+    for (std::size_t j = 0; j < 10; j++) {
       test(atoms, 0.25 + 0.2499 * dis(gen), 1);
       test(atoms, 0.25 + 0.2499 * dis(gen), omp_get_max_threads());
     }

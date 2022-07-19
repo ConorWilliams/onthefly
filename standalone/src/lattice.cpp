@@ -8,8 +8,8 @@
 #include <vector>
 
 #include "libatom/atom.hpp"
-#include "libatom/env/classify.hpp"
 #include "libatom/env/geometry.hpp"
+#include "libatom/env/topology.hpp"
 #include "libatom/io/xyz.hpp"
 #include "libatom/minimise/LBFGS/core.hpp"
 #include "libatom/minimise/LBFGS/lbfgs.hpp"

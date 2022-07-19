@@ -9,6 +9,7 @@
 #include <optional>
 
 #include "libatom/asserts.hpp"
+#include "libatom/atom.hpp"
 #include "libatom/sim_cell.hpp"
 #include "libatom/utils.hpp"
 
@@ -39,9 +40,13 @@ namespace otf::io {
 
     Vec3<floating> ext = atoms.extents();
 
+    Vec3<bool> prd = atoms.periodic();
+
     file.print("Lattice=\"{} 0 0 0 {} 0 0 0 {}\" ", ext[0], ext[1], ext[2]);
 
-    file.print("Properties=atomic:I:1:species:S:1:pos:R:3:frozen:I:1\n");
+    file.print("Periodic=\"{} {} {}\" ", prd[0], prd[1], prd[2]);
+
+    file.print("Properties=atomic:I:1:species:S:1:pos:R:3:frozen:I:1");
 
     for (std::size_t i = 0; i < atoms.size(); i++) {
       //
@@ -49,11 +54,39 @@ namespace otf::io {
 
       ASSERT(n < symbols.size(), "Atomic number out of bounds");
 
-      file.print("{}\t{}\t{}\t{}\n", n, symbols[n], fmt::join(atoms(Position{}, i), "\t"),
+      file.print("\n{}\t{}\t{}\t{}", n, symbols[n], fmt::join(atoms(Position{}, i), "\t"),
                  (int)atoms(Frozen{}, i));
     }
 
     file.flush();
+  }
+
+  void stream_xyz(std::ifstream& file, SimCell& cell) {
+    //
+    std::size_t num_atoms;
+
+    ASSERT(file, "Bad file supplied");
+
+    file >> num_atoms;
+
+    ASSERT(file && num_atoms == cell.size(), "Streaming the wrong number of atoms into the file");
+
+    file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');  // Skip to end of num line.
+    file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');  // end of comments line.
+
+    for (std::size_t i = 0; i < cell.size(); i++) {
+      //
+      file.ignore(1);  // Ignore species
+
+      // Parse xyz
+      file >> cell(Position{}, i)[0];
+      file >> cell(Position{}, i)[1];
+      file >> cell(Position{}, i)[2];
+
+      ASSERT(file, "XYZ parsing error");
+
+      file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');  // Skip to end of line.
+    }
   }
 
 }  // namespace otf::io

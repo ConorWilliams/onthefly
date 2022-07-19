@@ -80,7 +80,7 @@ namespace otf {
   class SimCell : public OrthoSimBox,
                   public AtomArray<Frozen, AtomicNum, Gradient, Position, Axis> {
   public:
-    SimCell(OrthoSimBox const &arg) : OrthoSimBox{arg} {}
+    explicit SimCell(OrthoSimBox const &arg) : OrthoSimBox{arg} {}
 
     void remove_soft_modes() {
       if (count_frozen() == 0) {
@@ -96,7 +96,7 @@ namespace otf {
      * @brief Get the colour (mixture of atomic number and Frozen status) of the idx'th atom.
      */
     [[nodiscard]] std::size_t index_to_colour(std::size_t idx) const noexcept {
-      return 2 * (*this)(AtomicNum{}, idx) + ((*this)(Frozen{}, idx) ? 1 : 0);
+      return 2 * (*this)(AtomicNum{}, idx) + (*this)(Frozen{}, idx);
     }
 
     /**

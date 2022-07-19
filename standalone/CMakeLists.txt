@@ -21,3 +21,9 @@ target_link_libraries(${PROJECT_NAME} OnTheFly::OnTheFly)
 add_executable(lattice ${CMAKE_CURRENT_SOURCE_DIR}/src/lattice.cpp)
 set_target_properties(lattice PROPERTIES CXX_STANDARD 17 OUTPUT_NAME "lattice")
 target_link_libraries(lattice OnTheFly::OnTheFly)
+
+
+add_executable(env_analysis ${CMAKE_CURRENT_SOURCE_DIR}/src/env_analysis.cpp)
+set_target_properties(env_analysis PROPERTIES CXX_STANDARD 17 OUTPUT_NAME "env_analysis")
+target_link_libraries(env_analysis OnTheFly::OnTheFly)
+

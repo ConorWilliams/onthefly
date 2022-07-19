@@ -37,33 +37,44 @@ namespace otf::env {
       for (std::size_t i = 1; i < m_key.size(); i++) {
         if (m_key[i].first == n_col) {
           m_key[i].first++;
-          goto py_break;
+          return;
         }
       }
-      // If here then we did not find an entry (no goto) in m_key so we must create one.
+      // If here then we did not find an entry (no return) in m_key so we must create one.
       m_key.emplace_back(n_col, 1);
-
-    py_break:
-
-      std::sort(m_fingerprint.m_r_0j.begin(), m_fingerprint.m_r_0j.end());
-
-      // Build r_ij part of the fingerprint
-      for (std::size_t i = 1; i < size(); i++) {
-        for (std::size_t j = 1; j < i; j++) {
-          m_fingerprint.m_r_ij.push_back(norm((*this)[i](Position{}) - (*this)[j](Position{})));
-        }
-      }
-
-      std::sort(m_fingerprint.m_r_ij.begin(), m_fingerprint.m_r_ij.end());
-
-      // Set COM == 0,0,0
-
-      Vec3<floating> shift = com(*this) / (floating)size();
-
-      for (auto &&elem : *this) {
-        elem(Position{}) -= shift;
-      }
     });
+
+    // Sort the r_0j part of the fingerprint
+    std::sort(m_fingerprint.m_r_0j.begin(), m_fingerprint.m_r_0j.end());
+
+    // Build r_ij part of the fingerprint
+    for (std::size_t i = 1; i < size(); i++) {
+      for (std::size_t j = 1; j < i; j++) {
+        m_fingerprint.m_r_ij.push_back(norm((*this)[i](Position{}) - (*this)[j](Position{})));
+      }
+    }
+
+    std::sort(m_fingerprint.m_r_ij.begin(), m_fingerprint.m_r_ij.end());
+
+    // Set COM == 0,0,0
+
+    Vec3<floating> shift = com(*this) / (floating)size();
+
+    for (auto &&elem : *this) {
+      elem(Position{}) -= shift;
+    }
+  }
+
+  void EnvCell::rebuild(SimCell const &atoms, std::size_t num_threads) {
+    // Always rebuild, no idea what has happened to atoms.
+    m_nl.rebuild(atoms, num_threads);
+
+    m_envs.resize(atoms.size());
+
+#pragma omp parallel for num_threads(num_threads) schedule(static)
+    for (std::size_t i = 0; i < atoms.size(); i++) {
+      m_envs[i].rebuild(atoms, m_nl, i);
+    }
   }
 
 }  // namespace otf::env
