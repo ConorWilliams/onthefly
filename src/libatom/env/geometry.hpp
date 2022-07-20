@@ -119,7 +119,7 @@ namespace otf::env {
      */
     template <typename... M1, typename... M2, typename F>
     bool for_equiv_perms_impl(AtomVector<M1...> &mut, AtomVector<M2...> const &ref, floating delta,
-                              std::size_t n, F &&f) {
+                              std::size_t n, F const &f) {
       // Termination criterion.
       if (n >= mut.size()) {
         //
@@ -195,7 +195,7 @@ namespace otf::env {
         ASSERT(&ref != &mut, "Cannot perm onto self.");
       }
 
-      detail::for_equiv_perms_impl(mut, ref, delta, n, callback);
+      detail::for_equiv_perms_impl(mut, ref, delta, n, std::forward<decltype(callback)>(callback));
     };
   }
 
@@ -232,6 +232,33 @@ namespace otf::env {
         // First match accepted
         return true;
       });
+
+      return res;
+    }
+
+    /**
+     * @brief Find the best permutation of the atoms in this geomety onto other
+     *
+     * @return std::optional<PermResult> An engaged PermResult if a permutation was found.
+     */
+    template <typename... Ts>
+    [[nodiscard]] std::optional<PermResult> best_perm_onto(AtomVector<Ts...> const &other,
+                                                           floating delta,
+                                                           Geometry<Mems...> &scratch) {
+      std::optional<PermResult> res = std::nullopt;
+
+      for_equiv_perms(other, delta)(1, *this, [&](Mat3<floating> const &O, floating rmsd) {
+        if (!res || res->rmsd < rmsd) {
+          res = PermResult{O, rmsd};
+          scratch = *this;
+        }
+
+        return false;
+      });
+
+      if (res) {
+        *this = scratch;
+      }
 
       return res;
     }

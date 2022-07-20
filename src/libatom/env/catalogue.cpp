@@ -8,6 +8,7 @@
 #include <optional>
 #include <vector>
 
+#include "fmt/core.h"
 #include "libatom/asserts.hpp"
 #include "libatom/atom.hpp"
 #include "libatom/env/geometry.hpp"
@@ -22,23 +23,21 @@ namespace otf::env {
 
     if (!inserted) {
       // Existing key, must search bucket for explicit match
-      auto match = std::find_if(it->second.begin(), it->second.end(), [&](Environment const& ref) {
+      auto match = std::find_if(it->second.begin(), it->second.end(), [&](Environment& ref) {
         //
         floating r_min = std::min(mut.fingerprint().r_min(), ref.fingerprint.r_min());
 
         floating delta = std::min(0.4 * ref.delta_mod * r_min, m_opt.delta_max);
 
-        // fmt::print(stderr, "Delta:{}, r_min:{}\n", delta, r_min);
-
         // Test if fuzzy keys match (fast)
-        if (!equiv(ref.fingerprint, mut.fingerprint(), M_SQRT2 * delta)) {
+        if (!equiv(ref.fingerprint, mut.fingerprint(), M_SQRT2 * delta * 0.5)) {
           return false;
         }
 
         if (mut.permute_onto(ref.ref_geo, delta)) {
+          ref.freq += 1;
           return true;
         } else {
-          //   fmt::print(stderr, "False equiv\n");
           return false;
         }
       });

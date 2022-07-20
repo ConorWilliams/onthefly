@@ -2,6 +2,7 @@
 #include <fmt/os.h>
 
 #include <chrono>
+#include <cmath>
 #include <cstddef>
 #include <fstream>
 #include <optional>
@@ -45,37 +46,51 @@ auto main(int, char **) -> int {
 
   std::ifstream file("/home/cdt1902/phd/P2021/data/v1h1/300k/olkmc.xyz", std::ios::in);
 
-  floating D = 1e-10;
-
   env::EnvCell envs({5.2}, cell);
 
-  env::Catalogue cat({D});
-
-  auto fout = fmt::output_file("/home/cdt1902/phd/P2021/data/envs" + std::to_string(D) + ".txt");
-
-  fout.print("delta_max={}, num_atoms={}", D, cell.size());
-
-  int iter = 0;
-
-  while (!file.eof() && iter++ < 10'000) {
-    //
+  for (std::size_t i = 0; i < 3; i++) {
     io::stream_xyz(file, cell);
+  }
 
-    envs.rebuild(cell, omp_get_max_threads());
+  envs.rebuild(cell, omp_get_max_threads());
 
-    for (std::size_t j = 0; j < cell.size(); j++) {
-      if (!cat.canon_find(envs[j])) {
-        cat.insert(envs[j]);
+  floating minx = 100;
+
+  for (std::size_t i = 0; i < envs.size(); i++) {
+    minx = std::min(minx, envs[i].fingerprint().r_min());
+  }
+
+  return 0;
+
+  fmt::print("rmin={}\n", minx);
+
+  floating start = 1e-10;
+  floating stop = 1;
+
+  std::size_t N = 1000;
+
+  floating log_mult = std::log(stop / start) / (N - 1);
+
+  auto fout = fmt::output_file("/home/cdt1902/phd/P2021/data/v2h1_envs_once.txt");
+
+  fout.print("delta num_envs");
+
+  for (std::size_t i = 0; i < N; i++) {
+    floating delta = start * std::exp(log_mult * i);
+
+    env::Catalogue cat({delta});
+
+    time_call("canon", [&] {
+      for (std::size_t j = 0; j < cell.size(); j++) {
+        if (!cat.canon_find(envs[j])) {
+          cat.insert(envs[j]);
+        }
       }
-    }
+    });
 
-    fout.print("\n{} {}", iter, cat.size());
+    fout.print("\n{} {}", delta, cat.size());
 
-    fmt::print("iter={} tot={} keys={}\n", iter, cat.size(), cat.num_keys());
-
-    if (iter % 100 == 0) {
-      fout.flush();
-    }
+    fmt::print("iter={} tot={} delta={}\n", i, cat.size(), delta);
   }
 
   fmt::print("Done\n");

@@ -62,11 +62,15 @@ namespace otf::env {
 
     std::size_t size() const noexcept { return m_size; }
 
+    std::size_t num_keys() const noexcept { return m_cat.size(); }
+
     /**
      * @brief Simultaniously canonise the input local environment and find its match in the
      * catalogue.
      *
      * This is a deterministic search and will find the first match that is equivilent to env.
+     *
+     * Each call to canon_find increases the frequency count if a match is found.
      *
      * @return std::optional<Pointer> Empty if no match.
      */

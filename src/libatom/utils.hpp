@@ -97,6 +97,65 @@ namespace otf {
   }
 
   /**
+   * @brief A basic implementation of a defer call
+   *
+   * @code{.cpp}
+   *
+   * #include <fmt/core.h>
+   *
+   * #include "libatom/utils.hpp"
+   *
+   * { // This is a new scope
+   *
+   *    finally _ = [&] {
+   *        fmt::print("Bang!\n");
+   *    };
+   *
+   *    // Do other things here
+   *
+   * } // <- At scope exit print: Bang!
+   *
+   * @endcode
+   *
+   * @tparam F
+   */
+  template <class F> class [[nodiscard]] finally {
+  public:
+    finally(F f) : m_f(std::move(f)) {}
+
+    finally(const finally&) = delete;
+    finally(finally&& other) = delete;
+    finally& operator=(const finally&) = delete;
+    finally& operator=(finally&&) = delete;
+
+    ~finally() noexcept { std::invoke(std::move(m_f)); }
+
+  private:
+    F m_f;
+  };
+
+  /**
+   * @brief Transparent function wrapper that measures the execution time of a function.
+   *
+   * The execution time is printed to stdout.
+   */
+  template <typename F, typename... Args>
+  std::invoke_result_t<F&&, Args&&...> time_call(std::string_view name, F&& f, Args&&... args) {
+    //
+    auto start = std::chrono::steady_clock::now();
+
+    finally _ = [&] {
+      fmt::print("Timing \"{}\" ... {}\n", name, std::chrono::steady_clock::now() - start);
+    };
+
+    if constexpr (std::is_void_v<std::invoke_result_t<F&&, Args&&...>>) {
+      std::invoke(std::forward<F>(f), std::forward<Args>(args)...);
+    } else {
+      return std::invoke(std::forward<F>(f), std::forward<Args>(args)...);
+    }
+  }
+
+  /**
    * @brief Utility for defining floating chrono types.
    */
   template <typename T> using ftime_t = std::chrono::duration<floating, T>;

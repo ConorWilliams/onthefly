@@ -116,14 +116,19 @@ namespace otf::env {
     EnvCell(Options const& opt, OrthoSimBox const& box) : m_nl(box, opt.r_env){};
 
     /**
-     * @brief Get the ith local environment
+     * @brief Get the number of Environments in the cell.
      */
-    LocalEnv const& env(std::size_t i) const noexcept { return m_envs[i]; }
+    std::size_t size() const noexcept { return m_envs.size(); }
 
     /**
      * @brief Get the ith local environment
      */
-    LocalEnv& env(std::size_t i) noexcept { return m_envs[i]; }
+    LocalEnv const& operator[](std::size_t i) const noexcept { return m_envs[i]; }
+
+    /**
+     * @brief Get the ith local environment
+     */
+    LocalEnv& operator[](std::size_t i) noexcept { return m_envs[i]; }
 
     /**
      * @brief Construct the local environemnts around all the atom.
