@@ -29,10 +29,8 @@ namespace otf::env {
 
         floating delta = std::min(0.4 * ref.delta_mod * r_min, m_opt.delta_max);
 
-        // delta = m_opt.delta_max;
-
         // Test if fuzzy keys match (fast)
-        if (!equiv(ref.fingerprint, mut.fingerprint(), M_SQRT2 * delta * 0.5)) {
+        if (!equiv(ref.fingerprint, mut.fingerprint(), M_SQRT2 * delta * m_opt.overfuzz)) {
           return false;
         }
 
@@ -40,6 +38,8 @@ namespace otf::env {
           ref.freq += 1;
           return true;
         } else {
+          //   fmt::print("false +Ve\n");
+          //   ref.delta_mod /= 2;
           return false;
         }
       });

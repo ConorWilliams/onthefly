@@ -145,7 +145,26 @@ namespace otf {
     auto start = std::chrono::steady_clock::now();
 
     finally _ = [&] {
-      fmt::print("Timing \"{}\" ... {}\n", name, std::chrono::steady_clock::now() - start);
+      //
+      using namespace std::chrono;
+
+      auto elapsed = std::chrono::steady_clock::now() - start;
+
+      auto sec = duration_cast<seconds>(elapsed);
+
+      elapsed -= sec;
+
+      auto mil = duration_cast<milliseconds>(elapsed);
+
+      elapsed -= mil;
+
+      auto mic = duration_cast<microseconds>(elapsed);
+
+      elapsed -= mic;
+
+      auto nan = duration_cast<nanoseconds>(elapsed);
+
+      fmt::print("Timing \"{}\" {:>4} {:>5} {:>5} {:>5}\n", name, sec, mil, mic, nan);
     };
 
     if constexpr (std::is_void_v<std::invoke_result_t<F&&, Args&&...>>) {

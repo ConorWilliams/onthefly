@@ -18,11 +18,10 @@ namespace otf::env {
   class Catalogue {
   public:
     struct Options {
-      /**
-       * @brief Maximum difference in L2 norm between local-environments for them to be considered
-       * the same environment
-       */
-      double delta_max = 0.4;
+      /** @brief Maximum difference in L2 norm between LEs for them to be considered the same. */
+      double delta_max = 0.5;
+      /** @brief Smaller to decrease false positives but, values < 1.0 introduce false negatives. */
+      double overfuzz = 0.5;
     };
 
     /**

@@ -20,7 +20,6 @@ namespace otf::env {
     this->clear();
     m_key.clear();
     m_fingerprint.m_r_0j.clear();
-    m_fingerprint.m_r_ij.clear();
 
     // Add central atom
     std::size_t centre_col = atoms.index_to_colour(idx);
@@ -52,21 +51,25 @@ namespace otf::env {
     // Sort the r_0j part of the fingerprint
     std::sort(m_fingerprint.m_r_0j.begin(), m_fingerprint.m_r_0j.end());
 
-    // Build r_ij part of the fingerprint
-    for (std::size_t i = 1; i < size(); i++) {
-      for (std::size_t j = 1; j < i; j++) {
-        m_fingerprint.m_r_ij.push_back(norm((*this)[i](Position{}) - (*this)[j](Position{})));
+    {  // Build r_ij part of the fingerprint
+
+      m_fingerprint.m_r_ij.clear();
+
+      for (std::size_t i = 1; i < size(); i++) {
+        for (std::size_t j = 1; j < i; j++) {
+          m_fingerprint.m_r_ij.push_back(norm((*this)[i](Position{}) - (*this)[j](Position{})));
+        }
       }
+
+      std::sort(m_fingerprint.m_r_ij.begin(), m_fingerprint.m_r_ij.end());
     }
 
-    std::sort(m_fingerprint.m_r_ij.begin(), m_fingerprint.m_r_ij.end());
+    {  // Set COM == 0,0,0
+      Vec3<floating> shift = com(*this) / (floating)size();
 
-    // Set COM == 0,0,0
-
-    Vec3<floating> shift = com(*this) / (floating)size();
-
-    for (auto &&elem : *this) {
-      elem(Position{}) -= shift;
+      for (auto &&elem : *this) {
+        elem(Position{}) -= shift;
+      }
     }
   }
 

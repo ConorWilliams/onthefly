@@ -80,6 +80,8 @@ auto main(int, char **) -> int {
 
     time_call("canon", [&] {
       for (std::size_t j = 0; j < cell.size(); j++) {
+        // time_call("canon_find", &env::Catalogue::canon_find, cat, envs[j])
+
         if (!cat.canon_find(envs[j])) {
           cat.insert(envs[j]);
         }
