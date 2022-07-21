@@ -60,18 +60,16 @@ auto main(int, char **) -> int {
     minx = std::min(minx, envs[i].fingerprint().r_min());
   }
 
-  return 0;
-
   fmt::print("rmin={}\n", minx);
 
   floating start = 1e-10;
-  floating stop = 1;
+  floating stop = 0.75;
 
   std::size_t N = 1000;
 
   floating log_mult = std::log(stop / start) / (N - 1);
 
-  auto fout = fmt::output_file("/home/cdt1902/phd/P2021/data/v2h1_envs_once.txt");
+  auto fout = fmt::output_file("/home/cdt1902/phd/P2021/data/v2h1_envs_test.txt");
 
   fout.print("delta num_envs");
 
@@ -90,7 +88,7 @@ auto main(int, char **) -> int {
 
     fout.print("\n{} {}", delta, cat.size());
 
-    fmt::print("iter={} tot={} delta={}\n", i, cat.size(), delta);
+    fmt::print("iter={} tot={} delta={}, keys={}\n", i, cat.size(), delta, cat.num_keys());
   }
 
   fmt::print("Done\n");

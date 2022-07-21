@@ -25,17 +25,21 @@ namespace otf::env {
       double delta_max = 0.4;
     };
 
-    struct Environment {
+    /**
+     * @brief Struct used to represent LocalEnv in the catalogue
+     *
+     */
+    struct Env : Geometry<Position, Colour> {
+      //
       LocalEnv::Fingerprint fingerprint;
 
-      Geometry<Position, Colour> ref_geo{};
       std::vector<Mechanism> mechs{};
       std::size_t freq = 1;
       floating delta_mod = 1;
 
-      Environment() = default;
+      Env() = default;
 
-      explicit Environment(LocalEnv::Fingerprint const &f) : fingerprint(f) {}
+      explicit Env(LocalEnv::Fingerprint const &f) : fingerprint(f) {}
     };
 
     /**
@@ -43,14 +47,14 @@ namespace otf::env {
      */
     struct Pointer {
     public:
-      Environment *operator->() const noexcept { return m_it->second.data() + m_offset; }
+      Env *operator->() const noexcept { return m_it->second.data() + m_offset; }
 
     private:
       friend class Catalogue;
 
       Pointer() = default;
 
-      using iterator = std::map<LocalEnv::Key, std::vector<Environment>, std::less<>>::iterator;
+      using iterator = std::map<LocalEnv::Key, std::vector<Env>, std::less<>>::iterator;
 
       Pointer(iterator it, std::size_t offset) noexcept : m_it{it}, m_offset{offset} {}
 
@@ -86,7 +90,7 @@ namespace otf::env {
   private:
     Options m_opt;
     std::size_t m_size = 0;
-    std::map<LocalEnv::Key, std::vector<Environment>, std::less<>> m_cat;
+    std::map<LocalEnv::Key, std::vector<Env>, std::less<>> m_cat;
   };
 
 }  // namespace otf::env

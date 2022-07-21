@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <exception>
 #include <vector>
 
 #include "libatom/asserts.hpp"
@@ -18,7 +19,8 @@ namespace otf::env {
     // Reuses our storage
     this->clear();
     m_key.clear();
-    m_fingerprint.clear();
+    m_fingerprint.m_r_0j.clear();
+    m_fingerprint.m_r_ij.clear();
 
     // Add central atom
     std::size_t centre_col = atoms.index_to_colour(idx);
@@ -36,13 +38,16 @@ namespace otf::env {
 
       for (std::size_t i = 1; i < m_key.size(); i++) {
         if (m_key[i].first == n_col) {
-          m_key[i].first++;
+          m_key[i].second++;
           return;
         }
       }
       // If here then we did not find an entry (no return) in m_key so we must create one.
       m_key.emplace_back(n_col, 1);
     });
+
+    // Sort the colour orders
+    std::sort(std::next(m_key.begin()), m_key.end());
 
     // Sort the r_0j part of the fingerprint
     std::sort(m_fingerprint.m_r_0j.begin(), m_fingerprint.m_r_0j.end());

@@ -1,6 +1,7 @@
 #include <fmt/core.h>
 #include <fmt/os.h>
 
+#include <array>
 #include <chrono>
 #include <cstddef>
 #include <fstream>
@@ -41,23 +42,25 @@ auto main(int, char **) -> int {
 
   fmt::print(stderr, "num_threads={}\n", omp_get_max_threads());
 
+  exit(1);
+
   auto cell = init_cell();
 
   std::ifstream file("/home/cdt1902/phd/P2021/data/v1h1/300k/olkmc.xyz", std::ios::in);
 
-  floating D = 1e-10;
+  floating D = 0.1;
 
   env::EnvCell envs({5.2}, cell);
 
   env::Catalogue cat({D});
 
-  auto fout = fmt::output_file("/home/cdt1902/phd/P2021/data/envs" + std::to_string(D) + ".txt");
+  auto fout = fmt::output_file("/home/cdt1902/phd/P2021/data/Xenvs" + std::to_string(D) + ".txt");
 
   fout.print("delta_max={}, num_atoms={}", D, cell.size());
 
   int iter = 0;
 
-  while (!file.eof() && iter++ < 10'000) {
+  while (!file.eof() && iter++ < 2'000) {
     //
     io::stream_xyz(file, cell);
 

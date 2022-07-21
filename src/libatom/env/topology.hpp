@@ -12,8 +12,6 @@
 
 namespace otf::env {
 
-  class LocalEnv;
-
   /**
    * @brief A local environment represent a localised geometry augemented with a key and
    * fingerprint.
@@ -69,11 +67,6 @@ namespace otf::env {
 
     private:
       friend class LocalEnv;
-
-      void clear() noexcept {
-        m_r_0j.clear();
-        m_r_ij.clear();
-      }
 
       std::vector<floating> m_r_0j;
       std::vector<floating> m_r_ij;

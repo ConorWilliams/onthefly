@@ -23,18 +23,20 @@ namespace otf::env {
 
     if (!inserted) {
       // Existing key, must search bucket for explicit match
-      auto match = std::find_if(it->second.begin(), it->second.end(), [&](Environment& ref) {
+      auto match = std::find_if(it->second.begin(), it->second.end(), [&](Env& ref) {
         //
         floating r_min = std::min(mut.fingerprint().r_min(), ref.fingerprint.r_min());
 
         floating delta = std::min(0.4 * ref.delta_mod * r_min, m_opt.delta_max);
+
+        // delta = m_opt.delta_max;
 
         // Test if fuzzy keys match (fast)
         if (!equiv(ref.fingerprint, mut.fingerprint(), M_SQRT2 * delta * 0.5)) {
           return false;
         }
 
-        if (mut.permute_onto(ref.ref_geo, delta)) {
+        if (mut.permute_onto(ref, delta)) {
           ref.freq += 1;
           return true;
         } else {
@@ -60,7 +62,7 @@ namespace otf::env {
     auto& new_ref = it->second.emplace_back(env.fingerprint());
 
     for (auto&& elem : env) {
-      new_ref.ref_geo.emplace_back(elem(Position{}), elem(Colour{}));
+      new_ref.emplace_back(elem(Position{}), elem(Colour{}));
     }
 
     m_size++;
