@@ -14,7 +14,7 @@ namespace otf::neighbour {
   /**
    * @brief The maximum nuber of ghosts neighbour cell supports is MAX_GHOST_RATIO * num_atoms
    */
-  inline constexpr std::size_t MAX_GHOST_RATIO = 4;
+  inline constexpr std::size_t MAX_GHOST_RATIO = 6;
 
   /**
    * @brief A class to contain, build and manage neighbour lists in shared memory.

@@ -87,9 +87,7 @@ namespace otf::minimise {
         m_nl->update_positions(Hg);
       }
 
-      std::optional curv = pot.gradient(atoms, *m_nl, num_threads);
-
-      if (curv > 0) {
+      if (std::optional curv = pot.gradient(atoms, *m_nl, num_threads); curv > 0) {
         convex_count += 1;
       } else {
         convex_count = 0;

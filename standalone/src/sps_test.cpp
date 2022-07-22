@@ -47,7 +47,7 @@ auto main(int, char **) -> int {
 
   SimCell atoms = init_cell(431, 17.1598406);
 
-  potentials::EAM pot{std::make_shared<potentials::DataEAM>(std::ifstream{"../data/FeH-BB.fs"})};
+  potentials::EAM pot{std::make_shared<potentials::DataEAM>(std::ifstream{"../data/FeH-A.fs"})};
 
   minimise::LBFGS lbfgs = [&]() {
     //
@@ -79,7 +79,7 @@ auto main(int, char **) -> int {
     //
     potentials::Dimer::Options opt;
 
-    opt.debug = false;
+    opt.debug = true;
 
     potentials::Dimer dim{opt, std::make_unique<potentials::EAM>(pot)};
 
