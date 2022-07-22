@@ -17,7 +17,7 @@ namespace otf::potentials {
   /**
    * @brief Dimer is a potential adaptor.
    *
-   * It wraps a potential and inverts the component of the gradient parallel to the minimum mode.
+   * Wraps a potential and inverts the component of the gradient parallel to the minimum mode.
    */
   class Dimer : public Base {
   public:

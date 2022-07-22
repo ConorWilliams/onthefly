@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <vector>
 
+#include "libatom/asserts.hpp"
 #include "libatom/atom.hpp"
 #include "libatom/env/geometry.hpp"
 #include "libatom/env/topology.hpp"
@@ -34,7 +35,9 @@ SimCell init_cell(int n, floating l) {
     cell(AtomicNum{}, i) = 26;
   }
 
-  cell(AtomicNum{}, cell.size() - 1) = 1;  // Set last is hydrogen
+  std::ifstream file("/home/cdt1902/phd/onthefly/data/xyz/V1.xyz", std::ios::in);
+
+  io::stream_xyz(file, cell);
 
   return cell;
 }
@@ -42,66 +45,64 @@ SimCell init_cell(int n, floating l) {
 auto main(int, char **) -> int {
   //
 
-  std::ifstream file("/home/cdt1902/phd/onthefly/data/xyz/V1.xyz", std::ios::in);
+  SimCell atoms = init_cell(431, 17.1598406);
 
-  SimCell cell = init_cell(431, 17.1598406);
+  potentials::EAM pot{std::make_shared<potentials::DataEAM>(std::ifstream{"../data/FeH-BB.fs"})};
 
-  env::EnvCell envs({5.2}, cell);
+  minimise::LBFGS lbfgs = [&]() {
+    //
+    minimise::LBFGS::Options opt;
 
-  io::stream_xyz(file, cell);
+    opt.debug = true;
 
-  io::stream_xyz(file, cell);
+    return minimise::LBFGS{opt};
+  }();
 
-  //   {  //
-  //     env::EnvCell classifyer({5.2}, atoms);
+  neighbour::List nl(atoms, pot.rcut());
 
-  //     classifyer.rebuild(atoms, omp_get_max_threads());
-  //   }
+  floating E0 = [&] {
+    //
+    fmt::print("Initial minimisation...\n");
 
-  //   {
-  //     // std::cout << atoms(Axis{}) << std::endl;
+    bool x = time_call("min", &minimise::LBFGS::minimise, lbfgs, atoms, pot, omp_get_max_threads());
 
-  //     potentials::EAM
-  //     pot{std::make_shared<potentials::DataEAM>(std::ifstream{"../data/wen.eam.fs"})};
+    ASSERT(x, "initial min failed");
 
-  //     neighbour::List nl(atoms, pot.rcut());
+    nl.rebuild(atoms, omp_get_max_threads());
 
-  //     nl.rebuild(atoms, omp_get_max_threads());
+    return pot.energy(atoms, nl, omp_get_max_threads());
+  }();
 
-  //     floating E0 = pot.energy(atoms, nl, omp_get_max_threads());
+  fmt::print("E0={}\n", E0);
 
-  //     fmt::print("E0={}\n", E0);
+  floating Ef = [&] {
+    //
+    potentials::Dimer::Options opt;
 
-  //     saddle::perturb({2.8, 2.8, 2.8}, atoms, 4, 0.6);
+    opt.debug = false;
 
-  //     // saddle::perturb({1.54758, 1.48733, 4.30367}, atoms, 4, 0.6);
+    potentials::Dimer dim{opt, std::make_unique<potentials::EAM>(pot)};
 
-  //     potentials::Dimer::Options A;
+    while (true) {
+      auto copy = atoms;
 
-  //     A.debug = true;
-  //     // A.iter_max_rot = 100;
-  //     // A.relax_in_convex = false;
-  //     // A.theta_tol = 5 * 2 * 3.141 / 360;
+      //   saddle::perturb({2.8, 2.8, 2.8}, copy, 4, 0.6);
 
-  //     potentials::Dimer dim(A, std::make_unique<potentials::EAM>(pot));
+      saddle::perturb({3.85852, 3.85841, 6.75341}, copy, 4, 0.6);
 
-  //     minimise::LBFGS::Options opt;
+      if (time_call("SPS", &minimise::LBFGS::minimise, lbfgs, copy, dim, omp_get_max_threads())) {
+        //
+        nl.rebuild(copy, omp_get_max_threads());
 
-  //     opt.debug = true;
-  //     // opt.convex_max = 7;
+        return pot.energy(copy, nl, omp_get_max_threads());
 
-  //     minimise::LBFGS lbfgs(opt);
+      } else {
+        fmt::print("SPS-fail\n");
+      }
+    }
+  }();
 
-  //     if (lbfgs.minimise(atoms, dim, omp_get_max_threads())) {
-  //       io::dump_xyz(fmt::output_file("saddle.xyz"), atoms, "");
-
-  //       nl.rebuild(atoms, omp_get_max_threads());
-
-  //       floating Ef = pot.energy(atoms, nl, omp_get_max_threads());
-
-  //       fmt::print("Ef-E0={}\n", Ef - E0);
-  //     }
-  //   }
+  fmt::print("Ef-E0={}\n", Ef - E0);
 
   return 0;
 }

@@ -46,7 +46,7 @@ namespace otf::io {
 
     file.print("Periodic=\"{} {} {}\" ", prd[0], prd[1], prd[2]);
 
-    file.print("Properties=atomic:I:1:species:S:1:pos:R:3:frozen:I:1");
+    file.print("Properties=atomic:I:1:species:S:1:pos:R:3:frozen:I:1\n");
 
     for (std::size_t i = 0; i < atoms.size(); i++) {
       //
@@ -54,7 +54,7 @@ namespace otf::io {
 
       ASSERT(n < symbols.size(), "Atomic number out of bounds");
 
-      file.print("\n{}\t{}\t{}\t{}", n, symbols[n], fmt::join(atoms(Position{}, i), "\t"),
+      file.print("{}\t{}\t{}\t{}\n", n, symbols[n], fmt::join(atoms(Position{}, i), "\t"),
                  (int)atoms(Frozen{}, i));
     }
 
