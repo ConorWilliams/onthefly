@@ -31,4 +31,9 @@ add_executable(env_analysis2 ${CMAKE_CURRENT_SOURCE_DIR}/src/env_analysis2.cpp)
 set_target_properties(env_analysis2 PROPERTIES CXX_STANDARD 17 OUTPUT_NAME "env_analysis2")
 target_link_libraries(env_analysis2 OnTheFly::OnTheFly)
 
+add_executable(sps_test ${CMAKE_CURRENT_SOURCE_DIR}/src/sps_test.cpp)
+set_target_properties(sps_test PROPERTIES CXX_STANDARD 17 OUTPUT_NAME "sps_test")
+target_link_libraries(sps_test OnTheFly::OnTheFly)
+
+
 

@@ -17,13 +17,13 @@
 
 using namespace otf;
 
-SimCell init_cell() {
+SimCell init_cell(int n, floating l) {
   //   432
   //   It=-1 Lattice="17.1598406 0.0 0.0 0.0 17.1598406 0.0 0.0 0.0 17.1598406"
 
-  SimCell cell({{17.1598406, 17.1598406, 17.1598406}, {true, true, true}});
+  SimCell cell({{l, l, l}, {true, true, true}});
 
-  cell.destructive_resize(432);
+  cell.destructive_resize(n);
 
   for (std::size_t i = 0; i < cell.size(); i++) {
     cell(Frozen{}, i) = false;
@@ -42,13 +42,13 @@ auto main(int, char **) -> int {
 
   fmt::print(stderr, "num_threads={}\n", omp_get_max_threads());
 
-  auto cell = init_cell();
+  auto cell = init_cell(430, 17.1598406);
 
-  std::ifstream file("/home/cdt1902/phd/P2021/data/v1h1/300k/olkmc.xyz", std::ios::in);
+  std::ifstream file("/home/cdt1902/phd/P2021/data/v3h1/300k/olkmc.xyz", std::ios::in);
 
   env::EnvCell envs({5.2}, cell);
 
-  for (std::size_t i = 0; i < 3; i++) {
+  for (std::size_t i = 0; i < 1; i++) {
     io::stream_xyz(file, cell);
   }
 
@@ -62,21 +62,21 @@ auto main(int, char **) -> int {
 
   fmt::print("rmin={}\n", minx);
 
-  floating start = 1e-10;
-  floating stop = 0.75;
+  floating start = 1e-14;
+  floating stop = 1.0;
 
   std::size_t N = 1000;
 
   floating log_mult = std::log(stop / start) / (N - 1);
 
-  auto fout = fmt::output_file("/home/cdt1902/phd/P2021/data/v2h1_envs_test.txt");
+  auto fout = fmt::output_file("/home/cdt1902/phd/P2021/data/v3h1_envs.txt");
 
   fout.print("delta num_envs");
 
   for (std::size_t i = 0; i < N; i++) {
     floating delta = start * std::exp(log_mult * i);
 
-    env::Catalogue cat({delta});
+    env::Catalogue cat({delta, 1.0});
 
     time_call("canon", [&] {
       for (std::size_t j = 0; j < cell.size(); j++) {
@@ -89,6 +89,7 @@ auto main(int, char **) -> int {
     });
 
     fout.print("\n{} {}", delta, cat.size());
+    fout.flush();
 
     fmt::print("iter={} tot={} delta={}, keys={}\n", i, cat.size(), delta, cat.num_keys());
   }

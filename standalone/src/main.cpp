@@ -30,6 +30,8 @@ auto main(int, char**) -> int {
 
   constexpr size_t N = 6;
 
+  //   test
+
   {  // Set up P
 
     P.emplace_back({0, 0, 0}, 0, 0);

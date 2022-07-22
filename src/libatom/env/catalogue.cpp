@@ -8,7 +8,6 @@
 #include <optional>
 #include <vector>
 
-#include "fmt/core.h"
 #include "libatom/asserts.hpp"
 #include "libatom/atom.hpp"
 #include "libatom/env/geometry.hpp"
@@ -38,8 +37,6 @@ namespace otf::env {
           ref.freq += 1;
           return true;
         } else {
-          //   fmt::print("false +Ve\n");
-          //   ref.delta_mod /= 2;
           return false;
         }
       });
