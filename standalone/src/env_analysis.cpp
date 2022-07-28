@@ -42,25 +42,23 @@ auto main(int, char **) -> int {
 
   fmt::print(stderr, "num_threads={}\n", omp_get_max_threads());
 
-  exit(1);
-
   auto cell = init_cell();
 
   std::ifstream file("/home/cdt1902/phd/P2021/data/v1h1/300k/olkmc.xyz", std::ios::in);
 
-  floating D = 0.1;
+  floating D = 1e-1;
 
   env::EnvCell envs({5.2}, cell);
 
-  env::Catalogue cat({D});
+  env::Catalogue cat({D, 1.0});
 
-  auto fout = fmt::output_file("/home/cdt1902/phd/P2021/data/Xenvs" + std::to_string(D) + ".txt");
+  auto fout = fmt::output_file("/home/cdt1902/phd/P2021/data/fuzz_envs.1e-1.txt");
 
   fout.print("delta_max={}, num_atoms={}", D, cell.size());
 
   int iter = 0;
 
-  while (!file.eof() && iter++ < 2'000) {
+  while (!file.eof() && iter++ < 1'000) {
     //
     io::stream_xyz(file, cell);
 
@@ -76,8 +74,10 @@ auto main(int, char **) -> int {
 
     fmt::print("iter={} tot={} keys={}\n", iter, cat.size(), cat.num_keys());
 
+    fout.flush();
+
     if (iter % 100 == 0) {
-      fout.flush();
+      cat.optimize();
     }
   }
 

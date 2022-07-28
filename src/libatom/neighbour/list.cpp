@@ -16,6 +16,9 @@ namespace otf::neighbour {
 
   void List::rebuild(SimCell const& atoms, std::size_t num_threads) {
     //
+
+    // time_call("init_lcl", &List::init_and_build_lcl, *this, atoms);
+
     init_and_build_lcl(atoms);
 
 #pragma omp parallel for num_threads(num_threads) schedule(static)

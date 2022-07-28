@@ -249,4 +249,7 @@ namespace otf {
     return Return{mean, std};
   }
 
+  template <auto, typename T> constexpr T dependant(T x) { return x; }
+  template <typename, typename T> constexpr T dependant(T x) { return x; }
+
 }  // namespace otf

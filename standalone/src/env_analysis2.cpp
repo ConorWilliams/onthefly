@@ -42,9 +42,9 @@ auto main(int, char **) -> int {
 
   fmt::print(stderr, "num_threads={}\n", omp_get_max_threads());
 
-  auto cell = init_cell(430, 17.1598406);
+  auto cell = init_cell(432, 17.1598406);
 
-  std::ifstream file("/home/cdt1902/phd/P2021/data/v3h1/300k/olkmc.xyz", std::ios::in);
+  std::ifstream file("/home/cdt1902/phd/P2021/data/v1h1/300k/olkmc.xyz", std::ios::in);
 
   env::EnvCell envs({5.2}, cell);
 
@@ -62,16 +62,16 @@ auto main(int, char **) -> int {
 
   fmt::print("rmin={}\n", minx);
 
-  floating start = 1e-14;
+  floating start = 5e-10;
   floating stop = 1.0;
 
   std::size_t N = 1000;
 
   floating log_mult = std::log(stop / start) / (N - 1);
 
-  auto fout = fmt::output_file("/home/cdt1902/phd/P2021/data/v3h1_envs.txt");
+  //   auto fout = fmt::output_file("/home/cdt1902/phd/P2021/data/v3h1_envs.txt");
 
-  fout.print("delta num_envs");
+  //   fout.print("delta num_envs");
 
   for (std::size_t i = 0; i < N; i++) {
     floating delta = start * std::exp(log_mult * i);
@@ -88,8 +88,8 @@ auto main(int, char **) -> int {
       }
     });
 
-    fout.print("\n{} {}", delta, cat.size());
-    fout.flush();
+    // fout.print("\n{} {}", delta, cat.size());
+    // fout.flush();
 
     fmt::print("iter={} tot={} delta={}, keys={}\n", i, cat.size(), delta, cat.num_keys());
   }

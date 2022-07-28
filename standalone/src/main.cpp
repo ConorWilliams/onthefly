@@ -1,5 +1,3 @@
-
-
 #include <fmt/core.h>
 #include <fmt/ostream.h>
 
@@ -10,11 +8,14 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <new>
 #include <optional>
 #include <random>
 
 #include "libatom/asserts.hpp"
 #include "libatom/atom.hpp"
+#include "libatom/data/SoA.hpp"
+#include "libatom/data/viewSoA.hpp"
 #include "libatom/env/geometry.hpp"
 #include "libatom/utils.hpp"
 
@@ -24,15 +25,55 @@ std::random_device rd{};
 std::mt19937 gen(rd());
 std::uniform_real_distribution<floating> dis(-1, 1);
 
+struct Pos : data::MemTag<double, 3> {};
+
+struct Inertia : data::MemTag<float, 3, 3> {};
+
+void foo(Pos::array_cref_t) {}
+
 auto main(int, char**) -> int {
   //
-  env::Geometry<Position, Colour, Index> P;
 
   constexpr size_t N = 6;
 
+  fmt::print("align={}\n", EIGEN_MAX_ALIGN_BYTES);
+
+  data::SoA<Pos, Inertia> test(2);
+
+  fmt::print("size={}\n", test.size());
+
+  test(Pos{}, 0) = Pos::matrix_t{1, 2, 3};
+  test(Pos{}, 1) = Pos::matrix_t{9, 9, 9};
+
+  //   SoA<Pos>
+
+  //   data::SoA<Pos> t2 = test;
+
+  std::cout << test[Pos{}].transpose() << std::endl;
+
+  data::SoA<Pos> slice{std::move(test)};
+
+  std::cout << "slice " << slice[Pos{}].transpose() << std::endl;
+
+  data::ViewSoA<Pos const> view = slice;
+
+  //   int i = view[Pos{}];
+
+  fmt::print("modify\n");
+
+  slice(Pos{}, 0)[0] = {0};
+  //   view[Pos{}][1] = 1000;
+
+  std::cout << "view  " << view[Pos{}].transpose() << std::endl;
+  std::cout << "slice " << slice[Pos{}].transpose() << std::endl;
+
+  return 0;
+
+  env::Geometry<Position, Colour, Index> P;
+
   //   test
 
-  {  // Set up P
+  { // Set up P
 
     P.emplace_back({0, 0, 0}, 0, 0);
 
@@ -52,7 +93,7 @@ auto main(int, char**) -> int {
     // Origin is the position if atom[0]
   }
 
-  {  // Randomly perturb P
+  { // Randomly perturb P
 
     for (size_t i = 1; i <= N; i++) {
       P[i](Position{}) += 0.05 * Vec3<floating>{dis(gen), dis(gen), dis(gen)};
@@ -61,7 +102,7 @@ auto main(int, char**) -> int {
 
   floating delta = 9999;
 
-  {  // Compute min sep
+  { // Compute min sep
     for (auto const& a : P) {
       for (auto const& b : P) {
         if (&a != &b) {

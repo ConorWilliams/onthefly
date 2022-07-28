@@ -68,7 +68,9 @@ auto main(int, char **) -> int {
 
     ASSERT(x, "initial min failed");
 
-    nl.rebuild(atoms, omp_get_max_threads());
+    time_call("rebuild", &neighbour::List::rebuild, nl, atoms, omp_get_max_threads());
+
+    // nl.rebuild(atoms, omp_get_max_threads());
 
     return pot.energy(atoms, nl, omp_get_max_threads());
   }();
@@ -79,16 +81,16 @@ auto main(int, char **) -> int {
     //
     potentials::Dimer::Options opt;
 
-    opt.debug = true;
+    opt.debug = false;
 
     potentials::Dimer dim{opt, std::make_unique<potentials::EAM>(pot)};
 
     while (true) {
       auto copy = atoms;
 
-      //   saddle::perturb({2.8, 2.8, 2.8}, copy, 4, 0.6);
+      saddle::perturb({2.8, 2.8, 2.8}, copy, 4, 0.6);
 
-      saddle::perturb({3.85852, 3.85841, 6.75341}, copy, 4, 0.6);
+      //   saddle::perturb({3.85852, 3.85841, 6.75341}, copy, 4, 0.6);
 
       if (time_call("SPS", &minimise::LBFGS::minimise, lbfgs, copy, dim, omp_get_max_threads())) {
         //
