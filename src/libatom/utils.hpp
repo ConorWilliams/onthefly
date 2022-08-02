@@ -267,4 +267,12 @@ auto timeit(std::string_view name, F const& f, std::chrono::nanoseconds timeout 
 template <typename...>
 inline constexpr bool always_false = false;
 
+/**
+ * @brief Strip all reference and const qualifications from \c T.
+ *
+ * @tparam T The type to strip ref/const qualifications from.
+ */
+template <typename T>
+using remove_cref_t = std::remove_const_t<std::remove_reference_t<T>>;
+
 } // namespace otf

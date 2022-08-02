@@ -1,3 +1,5 @@
+#define EIGEN_RUNTIME_NO_MALLOC
+
 #include <fmt/core.h>
 #include <fmt/ostream.h>
 
@@ -32,87 +34,92 @@ struct Cx : data2::MemTag<int> {};
 
 struct Inertia : data2::MemTag<float, 3, 3> {};
 
-void foo(Pos::array_cref_t) {}
+template <typename T>
+void pretty_print(std::string_view v, T const& x) {
+  Eigen::internal::set_is_malloc_allowed(true);
+  std::cout << v << ':' << x.transpose() << std::endl;
+  Eigen::internal::set_is_malloc_allowed(false);
+}
 
 auto main(int, char**) -> int {
 
-  data2::Adaptor<Pos> p(2);
+  Eigen::internal::set_is_malloc_allowed(true);
+
+  data2::detail::Adaptor<Pos> p(2);
+
+  Eigen::internal::set_is_malloc_allowed(false);
+
+  fmt::print("a\n");
 
   p(Pos{}, 0) = Pos::matrix_t{1, 2, 3};
 
-  std::cout << "p " << p[Pos{}].transpose() << std::endl;
+  fmt::print("b\n");
 
-  data2::Adaptor<Cx> q(2);
+  p[Pos{}].transpose();
+
+  fmt::print("b2\n");
+
+  pretty_print("p", p[Pos{}]);
+
+  fmt::print("b3\n");
+
+  Eigen::internal::set_is_malloc_allowed(true);
+
+  data2::detail::Adaptor<Cx> q(2);
+
+  Eigen::internal::set_is_malloc_allowed(false);
+
+  fmt::print("c\n");
 
   q(Cx{}, 0);
 
+  fmt::print("d\n");
+
   q(Cx{}, 0) = Cx::matrix_t{1};
 
-  std::cout << "q " << q[Cx{}].transpose() << std::endl;
+  pretty_print("q", q[Cx{}]);
 
-  data2::Adaptor<Pos&> v = p;
-  data2::Adaptor<Pos const&> cv = p;
+  data2::detail::Adaptor<Pos&> v = p;
+  data2::detail::Adaptor<Pos const&> cv = p;
 
-  std::cout << "p " << p[Pos{}].transpose() << std::endl;
-  std::cout << "v " << v[Pos{}].transpose() << std::endl;
-  std::cout << "cv " << cv[Pos{}].transpose() << std::endl;
+  pretty_print("p", p[Pos{}]);
+  pretty_print("v", v[Pos{}]);
+  pretty_print("cv", cv[Pos{}]);
 
   std::cout << "modify via v\n";
 
   v[Pos{}][0] = 99;
 
-  std::cout << "p " << p[Pos{}].transpose() << std::endl;
-  std::cout << "v " << v[Pos{}].transpose() << std::endl;
-  std::cout << "cv " << cv[Pos{}].transpose() << std::endl;
+  pretty_print("p", p[Pos{}]);
+  pretty_print("v", v[Pos{}]);
+  pretty_print("cv", cv[Pos{}]);
 
-  //   [[maybe_unused]] data2::Adaptor<Cx&> _ = cv;
+  Eigen::internal::set_is_malloc_allowed(true);
+  data2::SoA<Pos, Cx> test(2);
+  Eigen::internal::set_is_malloc_allowed(false);
 
-  data2::SoA<Pos, Cx> const test(3);
+  test(Cx{}, 0) = 69;
 
-  //   test[Cx{}] = 9;
+  test[Cx{}] = 9;
 
-  data2::SoA<Pos, Cx const&> soa{test};
+  data2::SoA<Pos const&, Cx const&> soa;
 
-  std::cout << "soa p " << soa[Pos{}].transpose() << std::endl;
-  std::cout << "soa c " << soa[Cx{}].transpose() << std::endl;
+  data2::SoA<Pos&, Cx&> soa2{test};
+
+  soa2[Pos{}] = p[Pos{}];
+
+  //   Eigen::internal::set_is_malloc_allowed(true);
+  soa = soa2;
+  //   Eigen::internal::set_is_malloc_allowed(false);
+
+  pretty_print("soa p", soa[Pos{}]);
+  pretty_print("soa x", soa[Cx{}]);
+
+  //   return 0;
 
   return 0;
-  //
 
   constexpr size_t N = 6;
-
-  //   fmt::print("align={}\n", EIGEN_MAX_ALIGN_BYTES);
-
-  //   data::SoA<Pos, Inertia> test(2);
-
-  //   fmt::print("size={}\n", test.size());
-
-  //   test(Pos{}, 0) = Pos::matrix_t{1, 2, 3};
-  //   test(Pos{}, 1) = Pos::matrix_t{9, 9, 9};
-
-  //   //   SoA<Pos>
-
-  //   //   data::SoA<Pos> t2 = test;
-
-  //   std::cout << test[Pos{}].transpose() << std::endl;
-
-  //   data::SoA<Pos> slice{std::move(test)};
-
-  //   std::cout << "slice " << slice[Pos{}].transpose() << std::endl;
-
-  //   data::ViewSoA<Pos const> view = slice;
-
-  //   //   int i = view[Pos{}];
-
-  //   fmt::print("modify\n");
-
-  //   slice(Pos{}, 0)[0] = {0};
-  //   //   view[Pos{}][1] = 1000;
-
-  //   std::cout << "view  " << view[Pos{}].transpose() << std::endl;
-  //   std::cout << "slice " << slice[Pos{}].transpose() << std::endl;
-
-  return 0;
 
   env::Geometry<Position, Colour, Index> P;
 
