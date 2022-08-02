@@ -15,6 +15,7 @@
 #include "libatom/asserts.hpp"
 #include "libatom/atom.hpp"
 #include "libatom/data/SoA.hpp"
+#include "libatom/data/combi.hpp"
 #include "libatom/data/viewSoA.hpp"
 #include "libatom/env/geometry.hpp"
 #include "libatom/utils.hpp"
@@ -25,47 +26,91 @@ std::random_device rd{};
 std::mt19937 gen(rd());
 std::uniform_real_distribution<floating> dis(-1, 1);
 
-struct Pos : data::MemTag<double, 3> {};
+struct Pos : data2::MemTag<double, 3> {};
 
-struct Inertia : data::MemTag<float, 3, 3> {};
+struct Cx : data2::MemTag<int> {};
+
+struct Inertia : data2::MemTag<float, 3, 3> {};
 
 void foo(Pos::array_cref_t) {}
 
 auto main(int, char**) -> int {
+
+  data2::Adaptor<Pos> p(2);
+
+  p(Pos{}, 0) = Pos::matrix_t{1, 2, 3};
+
+  std::cout << "p " << p[Pos{}].transpose() << std::endl;
+
+  data2::Adaptor<Cx> q(2);
+
+  q(Cx{}, 0);
+
+  q(Cx{}, 0) = Cx::matrix_t{1};
+
+  std::cout << "q " << q[Cx{}].transpose() << std::endl;
+
+  data2::Adaptor<Pos&> v = p;
+  data2::Adaptor<Pos const&> cv = p;
+
+  std::cout << "p " << p[Pos{}].transpose() << std::endl;
+  std::cout << "v " << v[Pos{}].transpose() << std::endl;
+  std::cout << "cv " << cv[Pos{}].transpose() << std::endl;
+
+  std::cout << "modify via v\n";
+
+  v[Pos{}][0] = 99;
+
+  std::cout << "p " << p[Pos{}].transpose() << std::endl;
+  std::cout << "v " << v[Pos{}].transpose() << std::endl;
+  std::cout << "cv " << cv[Pos{}].transpose() << std::endl;
+
+  //   [[maybe_unused]] data2::Adaptor<Cx&> _ = cv;
+
+  data2::SoA<Pos, Cx> const test(3);
+
+  //   test[Cx{}] = 9;
+
+  data2::SoA<Pos, Cx const&> soa{test};
+
+  std::cout << "soa p " << soa[Pos{}].transpose() << std::endl;
+  std::cout << "soa c " << soa[Cx{}].transpose() << std::endl;
+
+  return 0;
   //
 
   constexpr size_t N = 6;
 
-  fmt::print("align={}\n", EIGEN_MAX_ALIGN_BYTES);
+  //   fmt::print("align={}\n", EIGEN_MAX_ALIGN_BYTES);
 
-  data::SoA<Pos, Inertia> test(2);
+  //   data::SoA<Pos, Inertia> test(2);
 
-  fmt::print("size={}\n", test.size());
+  //   fmt::print("size={}\n", test.size());
 
-  test(Pos{}, 0) = Pos::matrix_t{1, 2, 3};
-  test(Pos{}, 1) = Pos::matrix_t{9, 9, 9};
+  //   test(Pos{}, 0) = Pos::matrix_t{1, 2, 3};
+  //   test(Pos{}, 1) = Pos::matrix_t{9, 9, 9};
 
-  //   SoA<Pos>
+  //   //   SoA<Pos>
 
-  //   data::SoA<Pos> t2 = test;
+  //   //   data::SoA<Pos> t2 = test;
 
-  std::cout << test[Pos{}].transpose() << std::endl;
+  //   std::cout << test[Pos{}].transpose() << std::endl;
 
-  data::SoA<Pos> slice{std::move(test)};
+  //   data::SoA<Pos> slice{std::move(test)};
 
-  std::cout << "slice " << slice[Pos{}].transpose() << std::endl;
+  //   std::cout << "slice " << slice[Pos{}].transpose() << std::endl;
 
-  data::ViewSoA<Pos const> view = slice;
+  //   data::ViewSoA<Pos const> view = slice;
 
-  //   int i = view[Pos{}];
+  //   //   int i = view[Pos{}];
 
-  fmt::print("modify\n");
+  //   fmt::print("modify\n");
 
-  slice(Pos{}, 0)[0] = {0};
-  //   view[Pos{}][1] = 1000;
+  //   slice(Pos{}, 0)[0] = {0};
+  //   //   view[Pos{}][1] = 1000;
 
-  std::cout << "view  " << view[Pos{}].transpose() << std::endl;
-  std::cout << "slice " << slice[Pos{}].transpose() << std::endl;
+  //   std::cout << "view  " << view[Pos{}].transpose() << std::endl;
+  //   std::cout << "slice " << slice[Pos{}].transpose() << std::endl;
 
   return 0;
 
