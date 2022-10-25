@@ -6,6 +6,8 @@
 
 # OnTheFly: Off-lattice kinetic Monte-Carlo
 
+For the latest code see https://github.com/ConorWilliams/openFLY
+
 ## Compilation
 
 ### Build and run the standalone target
